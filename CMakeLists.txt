@@ -1,0 +1,46 @@
+project(pyromaze C CXX)
+
+cmake_minimum_required(VERSION 2.8.12)
+
+if (NOT CMAKE_VERSION VERSION_LESS "3.0")
+    # Until all major package systems have moved to CMake 3,
+    # we stick with the older INSTALL_NAME_DIR mechanism
+    cmake_policy(SET CMP0042 OLD)
+endif()
+
+set(pyromaze_VERSION_MAJOR "1")
+set(pyromaze_VERSION_MINOR "0")
+set(pyromaze_VERSION_PATCH "0")
+set(pyromaze_VERSION_EXTRA "")
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Compiler flags
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ffast-math")
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -DGLAD_DEBUG")
+set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
+#--------------------------------------------------------------------
+# Add subdirectories
+#--------------------------------------------------------------------
+add_subdirectory(deps/glfw)
+include_directories(SYSTEM deps/glfw/include)
+
+add_subdirectory(deps/glm)
+include_directories(SYSTEM deps/glm)
+
+add_subdirectory(deps/glad)
+include_directories(SYSTEM ${GLAD_INCLUDE_DIRS})
+
+include_directories(SYSTEM deps)
+
+if (NOT USE_IMAGEMAGICK)
+  include_directories(SYSTEM deps/lodepng)
+endif()
+
+# This should be the last subdir / include
+include_directories(${pyromaze_SOURCE_DIR}/src/cpp)
+add_subdirectory(src)
+
+#set(CMAKE_MODULE_PATH "${vkEarth_SOURCE_DIR}/deps/glfw/CMake/modules")
+
