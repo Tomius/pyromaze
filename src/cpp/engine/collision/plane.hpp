@@ -8,13 +8,13 @@
 #include "common/settings.hpp"
 
 struct Plane {
-  glm::dvec3 normal;
-  double dist = 0.0;
+  glm::vec3 normal;
+  float dist = 0.0;
 
   Plane() = default;
-  Plane(double nx, double ny, double nz, double dist)
+  Plane(float nx, float ny, float nz, float dist)
       : normal(nx, ny, nz), dist(dist) { Normalize(); }
-  Plane(const glm::dvec3& normal, double dist)
+  Plane(const glm::vec3& normal, float dist)
       : normal(normal), dist(dist) { Normalize(); }
 
   void Normalize() {

@@ -9,6 +9,7 @@
 #include "engine/timer.hpp"
 #include "engine/camera.hpp"
 #include "engine/game_object.hpp"
+#include "engine/light_source.hpp"
 
 namespace engine {
 

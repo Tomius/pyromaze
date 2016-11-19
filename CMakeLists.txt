@@ -32,6 +32,11 @@ include_directories(SYSTEM deps/glm)
 add_subdirectory(deps/glad)
 include_directories(SYSTEM ${GLAD_INCLUDE_DIRS})
 
+set (ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set (ASSIMP_BUILD_TESTS OFF)
+add_subdirectory(deps/assimp)
+include_directories(SYSTEM deps/assimp/include)
+
 include_directories(SYSTEM deps)
 
 if (NOT USE_IMAGEMAGICK)
@@ -41,6 +46,4 @@ endif()
 # This should be the last subdir / include
 include_directories(${pyromaze_SOURCE_DIR}/src/cpp)
 add_subdirectory(src)
-
-#set(CMAKE_MODULE_PATH "${vkEarth_SOURCE_DIR}/deps/glfw/CMake/modules")
 

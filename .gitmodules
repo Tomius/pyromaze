@@ -13,3 +13,6 @@
 [submodule "deps/oglwrap"]
 	path = deps/oglwrap
 	url = https://github.com/Tomius/oglwrap.git
+[submodule "deps/assimp"]
+	path = deps/assimp
+	url = https://github.com/assimp/assimp.git

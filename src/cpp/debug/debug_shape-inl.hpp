@@ -13,7 +13,7 @@ DebugShape<Shape_t>::DebugShape(GameObject* parent, const glm::vec3& color)
       : GameObject(parent)
       , shape_{{Shape_t::kPosition, Shape_t::kNormal}}
       , prog_{scene_->shader_manager()->get("simple_shape.vert"),
-          scene_->shader_manager()->get("simple_shape.frag")}
+              scene_->shader_manager()->get("simple_shape.frag")}
       , uProjectionMatrix_{prog_, "uProjectionMatrix"}
       , uCameraMatrix_{prog_, "uCameraMatrix"}
       , uModelMatrix_{prog_, "uModelMatrix"}

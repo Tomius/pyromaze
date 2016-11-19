@@ -5,7 +5,7 @@
 
 namespace engine {
 
-Camera::Camera(GameObject* parent, double fovy, double z_near, double z_far)
+Camera::Camera(GameObject* parent, float fovy, float z_near, float z_far)
     : GameObject(parent, CameraTransform{}), fovy_(fovy), z_near_(z_near)
     , z_far_(z_far), width_(0), height_(0) {
   assert(fovy_ < M_PI);
@@ -28,11 +28,11 @@ void Camera::UpdateCameraMatrix() {
 }
 
 void Camera::UpdateProjectionMatrix() {
-  proj_mat_ = glm::perspectiveFov<double>(fovy_, width_, height_, z_near_, z_far_);
+  proj_mat_ = glm::perspectiveFov<float>(fovy_, width_, height_, z_near_, z_far_);
 }
 
 void Camera::UpdateFrustum() {
-  glm::dmat4 m = proj_mat_ * cam_mat_;
+  glm::mat4 m = proj_mat_ * cam_mat_;
 
   // REMEMBER: m[i][j] is j-th row, i-th column (glm is column major)
 
@@ -75,11 +75,11 @@ void Camera::UpdateFrustum() {
   }}; // ctor normalizes the planes
 }
 
-FreeFlyCamera::FreeFlyCamera(GameObject* parent, double fov, double z_near,
-                             double z_far, const glm::dvec3& pos,
-                             const glm::dvec3& target /*= glm::dvec3()*/,
-                             double speed_per_sec /*= 5.0f*/,
-                             double mouse_sensitivity /*= 5.0f*/)
+FreeFlyCamera::FreeFlyCamera(GameObject* parent, float fov, float z_near,
+                             float z_far, const glm::vec3& pos,
+                             const glm::vec3& target /*= glm::vec3()*/,
+                             float speed_per_sec /*= 5.0f*/,
+                             float mouse_sensitivity /*= 5.0f*/)
     : Camera(parent, fov, z_near, z_far)
     , first_call_(true)
     , speed_per_sec_(speed_per_sec)
@@ -103,16 +103,16 @@ void FreeFlyCamera::Update() {
     first_call_ = false;
   }
 
-  const double dt = scene_->camera_time().dt();
+  const float dt = scene_->camera_time().dt();
 
   // Mouse movement - update the coordinate system
   if (diff.x || diff.y) {
-    double dx(diff.x * mouse_sensitivity_ / 10000);
-    double dy(-diff.y * mouse_sensitivity_ / 10000);
+    float dx(diff.x * mouse_sensitivity_ / 10000);
+    float dy(-diff.y * mouse_sensitivity_ / 10000);
 
     // If we are looking up / down, we don't want to be able
     // to rotate to the other side
-    double dot_up_fwd = glm::dot(transform().up(), transform().forward());
+    float dot_up_fwd = glm::dot(transform().up(), transform().forward());
     if (dot_up_fwd > cos_max_pitch_angle_ && dy > 0) {
       dy = 0;
     }
@@ -126,8 +126,8 @@ void FreeFlyCamera::Update() {
   }
 
   // Update the position
-  double ds = dt * speed_per_sec_;
-  glm::dvec3 local_pos = transform().local_pos();
+  float ds = dt * speed_per_sec_;
+  glm::vec3 local_pos = transform().local_pos();
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     local_pos += transform().forward() * ds;
   }
@@ -146,16 +146,16 @@ void FreeFlyCamera::Update() {
 }
 
 ThirdPersonalCamera::ThirdPersonalCamera(GameObject* parent,
-                                         double fov,
-                                         double z_near,
-                                         double z_far,
-                                         const glm::dvec3& position,
-                                         double mouse_sensitivity /*= 1.0*/,
-                                         double mouse_scroll_sensitivity /*= 1.0*/,
-                                         double min_dist_mod /*= 0.25*/,
-                                         double max_dist_mod /*= 4.00*/,
-                                         double base_distance /*= 0.0*/,
-                                         double dist_offset /*= 0.0*/)
+                                         float fov,
+                                         float z_near,
+                                         float z_far,
+                                         const glm::vec3& position,
+                                         float mouse_sensitivity /*= 1.0*/,
+                                         float mouse_scroll_sensitivity /*= 1.0*/,
+                                         float min_dist_mod /*= 0.25*/,
+                                         float max_dist_mod /*= 4.00*/,
+                                         float base_distance /*= 0.0*/,
+                                         float dist_offset /*= 0.0*/)
     : Camera(parent, fov, z_near, z_far)
     , target_(parent->transform())
     , first_call_(true)
@@ -187,17 +187,17 @@ void ThirdPersonalCamera::Update() {
     first_call_ = false;
   }
 
-  const double dt = scene_->camera_time().dt();
+  const float dt = scene_->camera_time().dt();
 
   // Mouse movement - update the coordinate system
   if (diff.x || diff.y) {
-    double mouse_sensitivity = mouse_sensitivity_ * curr_dist_mod_ / 10000;
-    double dx(diff.x * mouse_sensitivity);
-    double dy(-diff.y * mouse_sensitivity);
+    float mouse_sensitivity = mouse_sensitivity_ * curr_dist_mod_ / 1000;
+    float dx(diff.x * mouse_sensitivity);
+    float dy(-diff.y * mouse_sensitivity);
 
     // If we are looking up / down, we don't want to be able
     // to rotate to the other side
-    double dot_up_fwd = glm::dot(transform().up(), transform().forward());
+    float dot_up_fwd = glm::dot(transform().up(), transform().forward());
     if (dot_up_fwd > cos_max_pitch_angle_ && dy > 0) {
       dy = 0;
     }
@@ -210,7 +210,7 @@ void ThirdPersonalCamera::Update() {
                              transform().up()*dy);
   }
 
-  double dist_diff_mod = dest_dist_mod_ - curr_dist_mod_;
+  float dist_diff_mod = dest_dist_mod_ - curr_dist_mod_;
   if (fabs(dist_diff_mod) > dt * mouse_scroll_sensitivity_) {
     curr_dist_mod_ *= dist_diff_mod > 0 ?
       (1 + dt * mouse_scroll_sensitivity_) :
@@ -218,10 +218,10 @@ void ThirdPersonalCamera::Update() {
   }
 
   // Update the position
-  glm::dvec3 tpos(target_.pos()), fwd(transform().forward());
+  glm::vec3 tpos(target_.pos()), fwd(transform().forward());
   fwd = transform().forward();
-  double dist = curr_dist_mod_*base_distance_ + dist_offset_;
-  glm::dvec3 pos = tpos - fwd*dist;
+  float dist = curr_dist_mod_*base_distance_ + dist_offset_;
+  glm::vec3 pos = tpos - fwd*dist;
   transform().set_pos(pos);
 
   Camera::UpdateCache();

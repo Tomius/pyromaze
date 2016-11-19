@@ -1,9 +1,9 @@
 // Copyright (c) 2016, Tamas Csala
 
-#include "collision/sphere.hpp"
+#include "engine/collision/sphere.hpp"
 
 bool Sphere::CollidesWithSphere(const Sphere& sphere) const {
-  double dist = glm::length(center_ - sphere.center_);
+  float dist = glm::length(center_ - sphere.center_);
   return dist < radius_ + sphere.radius_;
 }
 
@@ -14,7 +14,7 @@ bool Sphere::CollidesWithFrustum(const Frustum& frustum) const {
     const Plane& plane = frustum.planes[i];
 
     // find the distance to this plane
-    double dist = glm::dot(plane.normal, center_) + plane.dist;
+    float dist = glm::dot(plane.normal, center_) + plane.dist;
 
     // if this distance is < -sphere.radius, we are outside
     if (dist < -radius_)
