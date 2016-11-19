@@ -32,6 +32,10 @@ class GameObject {
 
   void RemoveComponent(GameObject* component_to_remove);
 
+  void EnumerateChildren(const std::function<void(GameObject*)>& processor);
+
+  void EnumerateChildren(const std::function<void(const GameObject*)>& processor) const;
+
   Transform& transform() { return *transform_.get(); }
   const Transform& transform() const { return *transform_.get(); }
 
@@ -78,6 +82,7 @@ class GameObject {
   bool enabled_;
 
   void InternalUpdate();
+  void ResetChildren();
 
  private:
   void AddNewComponents();

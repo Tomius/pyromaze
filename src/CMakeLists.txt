@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 2.8)
 link_libraries(glfw)
 link_libraries(GL)
 link_libraries(glad)
+link_libraries(assimp)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOGLWRAP_DEBUG=0 -Wall")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DUSE_DEBUG_CONTEXT -g")
 
 if (BUILD_SHARED_LIBS)
@@ -25,12 +26,13 @@ else()
   set (LODEPNG_SOURCE "../deps/lodepng/lodepng.cpp")
 endif()
 
-file(GLOB pyromaze_SOURCE "cpp/*.cpp" "cpp/*/*.cpp" ${LODEPNG_SOURCE})
+file(GLOB pyromaze_SOURCE "cpp/*.cpp" "cpp/*/*.cpp" "cpp/*/*/*.cpp" ${LODEPNG_SOURCE})
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
     set (pyromaze_BINARY_NAME "pyromazed")
 else()
     set (pyromaze_BINARY_NAME "pyromaze")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOGLWRAP_DEBUG=0")
 endif()
 
 add_executable(${pyromaze_BINARY_NAME} WIN32 ${pyromaze_SOURCE} ${ICON})

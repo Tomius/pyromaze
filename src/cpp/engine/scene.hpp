@@ -3,12 +3,14 @@
 #ifndef ENGINE_SCENE_HPP_
 #define ENGINE_SCENE_HPP_
 
+#include <map>
 #include <vector>
 #include <memory>
 
 #include "engine/timer.hpp"
 #include "engine/camera.hpp"
 #include "engine/game_object.hpp"
+#include "engine/light_source.hpp"
 
 namespace engine {
 
@@ -17,6 +19,7 @@ class ShaderManager;
 class Scene : public engine::GameObject {
  public:
   Scene(GLFWwindow* window, ShaderManager* shader_manager);
+  ~Scene();
 
   virtual float gravity() const { return 9.81f; }
 
@@ -40,11 +43,18 @@ class Scene : public engine::GameObject {
 
   virtual void Turn();
 
+  unsigned AddLightSource(LightSource light_source);
+  const LightSource& GetLightSource(unsigned id) const;
+  LightSource& GetLightSource(unsigned id);
+  void EnumerateLightSources(std::function<void(const LightSource&)> processor) const;
+  bool RemoveLightSource(unsigned id);
+
  protected:
   Camera* camera_;
   Timer game_time_, environment_time_, camera_time_;
   GLFWwindow* window_;
   ShaderManager* shader_manager_;
+  std::map<unsigned, LightSource> light_sources_;
 
   virtual void KeyAction(int key, int scancode, int action, int mods) override;
 

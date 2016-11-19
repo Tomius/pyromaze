@@ -6,12 +6,16 @@
 
 namespace engine {
 
-GameObject::~GameObject() {
-  // The childrens destructor have to run before this one's,
-  // as those functions might try to access this object via the parent_ ptr
+void GameObject::ResetChildren() {
   for (auto& comp_ptr : components_) {
     comp_ptr.reset();
   }
+}
+
+GameObject::~GameObject() {
+  // The childrens destructor have to run before this one's,
+  // as those functions might try to access this object via the parent_ ptr
+  ResetChildren ();
   // this shouldn't be neccessary, but just in case...
   if (parent_) {
     parent_->RemoveComponent(this);
@@ -30,6 +34,22 @@ GameObject* GameObject::AddComponent(std::unique_ptr<GameObject>&& component) {
   } catch (const std::exception& ex) {
     std::cerr << ex.what() << std::endl;
     return nullptr;
+  }
+}
+
+void GameObject::EnumerateChildren(const std::function<void(GameObject*)>& processor) {
+  for (auto& child : components_) {
+    if (child) {
+      processor(child.get());
+    }
+  }
+}
+
+void GameObject::EnumerateChildren(const std::function<void(const GameObject*)>& processor) const {
+  for (auto& child : components_) {
+    if (child) {
+      processor(child.get());
+    }
   }
 }
 
@@ -154,11 +174,13 @@ void GameObject::AddNewComponents() {
 
 void GameObject::RemoveComponents() {
   if (!components_to_remove_.empty()) {
+    auto components_to_remove_copy = components_to_remove_;
+    components_to_remove_.clear();
+
     components_.erase(std::remove_if(components_.begin(), components_.end(),
       [&](const std::unique_ptr<GameObject>& go_ptr){
-        return components_to_remove_.find(go_ptr.get()) != components_to_remove_.end();
+        return components_to_remove_copy.find(go_ptr.get()) != components_to_remove_copy.end();
       }), components_.end());
-    components_to_remove_.clear();
   }
 }
 
