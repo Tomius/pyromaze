@@ -7,8 +7,8 @@
 
 #include "./game_engine.hpp"
 
-void DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
-                   GLsizei length, const GLchar *message, const void *userParam) {
+void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                            GLsizei length, const GLchar *message, const void *userParam) {
   if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
     std::cout << message << std::endl;
   }
