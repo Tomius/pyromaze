@@ -19,7 +19,7 @@ class Ground : public engine::GameObject {
 
   engine::ShaderProgram prog_;
   gl::Texture2D texture_;
-  gl::LazyUniform<glm::mat4> uProjectionMatrix_, uCameraMatrix_, uModelMatrix_;
+  gl::LazyUniform<glm::mat4> uProjectionMatrix_, uCameraMatrix_, uShadowCP_, uModelMatrix_;
 
   engine::Transform render_transform_;
 

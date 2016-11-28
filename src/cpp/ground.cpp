@@ -2,6 +2,7 @@
 
 #include "./ground.hpp"
 #include "engine/scene.hpp"
+#include "engine/shadow.hpp"
 
 Ground::Ground(GameObject* parent)
     : GameObject(parent)
@@ -9,9 +10,10 @@ Ground::Ground(GameObject* parent)
             gl::CubeShape::kNormal,
             gl::CubeShape::kTexCoord})
     , prog_{scene_->shader_manager()->get("ground.vert"),
-            scene_->shader_manager()->get("mesh.frag")}
+            scene_->shader_manager()->get("mesh_shadow.frag")}
     , uProjectionMatrix_(prog_, "uProjectionMatrix")
     , uCameraMatrix_(prog_, "uCameraMatrix")
+    , uShadowCP_(prog_, "uShadowCP")
     , uModelMatrix_(prog_, "uModelMatrix")
     , render_transform_(transform()) {
 
@@ -39,6 +41,9 @@ Ground::Ground(GameObject* parent)
   (prog_ | "aNormal").bindLocation(cube_.kNormal);
   (prog_ | "aTexCoord").bindLocation(cube_.kTexCoord);
 
+  gl::UniformSampler(prog_, "uShadowMap").set(0);
+  gl::UniformSampler(prog_, "uDiffuseTexture").set(1);
+
   render_transform_.set_local_pos({0, -1, 0});
   render_transform_.set_scale({1024, 1, 1024});
 }
@@ -53,11 +58,20 @@ void Ground::Render() {
   uProjectionMatrix_ = cam->projectionMatrix();
   uModelMatrix_ = render_transform_.matrix();
 
-  gl::Bind(texture_);
+  auto& shadow_cam = *dynamic_cast<engine::Shadow*>(scene_->shadow_camera());
+  uShadowCP_ = shadow_cam.projectionMatrix() * shadow_cam.cameraMatrix();
+  gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
+  shadow_cam.shadow_texture().compareMode(gl::kCompareRefToTexture);
+
+  gl::BindToTexUnit(texture_, 1);
   gl::FrontFace(cube_.faceWinding());
   gl::TemporaryEnable cullface{gl::kCullFace};
 
   cube_.render();
 
-  gl::Unbind(texture_);
+  gl::UnbindFromTexUnit(texture_, 1);
+
+  gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
+  shadow_cam.shadow_texture().compareMode(gl::kNone);
+  gl::Unbind(shadow_cam.shadow_texture());
 }

@@ -17,6 +17,7 @@ class Wall : public engine::GameObject {
   engine::Transform render_transform_;
 
   virtual void Render() override;
+  virtual void ShadowRender() override;
 };
 
 #endif  // LOD_TREE_H_

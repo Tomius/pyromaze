@@ -67,6 +67,15 @@ void GameObject::RenderAll() {
   }
 }
 
+void GameObject::ShadowRenderAll() {
+  if (!enabled_) { return; }
+
+  ShadowRender();
+  for (auto& component : components_) {
+    component->ShadowRenderAll();
+  }
+}
+
 void GameObject::Render2DAll() {
   if (!enabled_) { return; }
 

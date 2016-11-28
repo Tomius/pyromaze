@@ -15,41 +15,22 @@
 
 namespace engine {
 
-class CameraTransform : public Transform {
- public:
-  CameraTransform() : up_(vec3{0, 1, 0}) {}
-
-  // We shouldn't inherit the parent's rotation, like how a normal Transform does
-  virtual const quat rot() const override { return rot_; }
-  virtual void set_rot(const quat& new_rot) override { rot_ = new_rot; }
-
-  // We have custom up and right vectors
-  virtual vec3 up() const override { return up_; }
-  virtual void set_up(const vec3& new_up) override {
-    up_ = glm::normalize(new_up);
-  }
-  virtual vec3 right() const override {
-    return glm::normalize(glm::cross(forward(), up()));
-  }
-
-  virtual void set_right(const vec3& new_right) override {
-    set_forward(glm::cross(up(), new_right));
-  }
-
- private:
-  vec3 up_;
+class ICamera : public GameObject {
+public:
+  using GameObject::GameObject;
+  virtual glm::mat4 cameraMatrix() const = 0;
+  virtual glm::mat4 projectionMatrix() const = 0;
 };
 
-/// The base class for all cameras
-class Camera : public GameObject {
+class PerspectiveCamera : public ICamera {
  public:
-  Camera(GameObject* parent, float fovy, float z_near, float z_far);
-  virtual ~Camera() {}
+  PerspectiveCamera(GameObject* parent, float fovy, float z_near, float z_far);
+  virtual ~PerspectiveCamera() {}
 
   virtual void ScreenResized(size_t width, size_t height) override;
 
-  const glm::mat4& cameraMatrix() const { return cam_mat_; }
-  const glm::mat4& projectionMatrix() const { return proj_mat_; }
+  glm::mat4 cameraMatrix() const override { return cam_mat_; }
+  glm::mat4 projectionMatrix() const override { return proj_mat_; }
   const Frustum& frustum() const { return frustum_; }
 
   float fovx() const { return fovy_*width_/height_;}
@@ -76,7 +57,7 @@ class Camera : public GameObject {
   void UpdateFrustum();
 };
 
-class FreeFlyCamera : public Camera {
+class FreeFlyCamera : public PerspectiveCamera {
  public:
   FreeFlyCamera(GameObject* parent, float fov, float z_near,
                 float z_far, const glm::vec3& pos,
@@ -100,7 +81,7 @@ class FreeFlyCamera : public Camera {
   virtual void Update() override;
 };
 
-class ThirdPersonalCamera : public Camera {
+class ThirdPersonalCamera : public PerspectiveCamera {
  public:
   ThirdPersonalCamera(GameObject* parent,
                       float fov,

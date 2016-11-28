@@ -8,6 +8,9 @@
 #include "common/misc.hpp"
 #include "engine/camera.hpp"
 #include "debug/debug_shape.hpp"
+#include "debug/debug_texture.hpp"
+
+static const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
 
 MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     : Scene(window, shader_manager) {
@@ -36,10 +39,11 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
   });
 
-  AddLightSource({LightSource::Type::kDirectional, glm::vec3{1.0}, glm::vec3{0.03}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.03}});
 
+  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, 256}, 8192);
+  set_shadow_camera(shadow_);
   AddComponent<Skybox>("src/resource/skybox.png");
-
   AddComponent<Ground>();
 
   double wallLength = 0;
@@ -61,7 +65,7 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
 
   // AddComponent<engine::debug::DebugCube>(glm::vec3(1.0, 1.0, 0.0));
 
-  engine::Camera* cam = AddComponent<engine::FreeFlyCamera>(
+  engine::ICamera* cam = AddComponent<engine::FreeFlyCamera>(
       M_PI/3, 1, 500, glm::vec3(16, 2, 16), glm::vec3(), 15, 10);
   // engine::Camera* cam = fire->AddComponent<engine::ThirdPersonalCamera>(
   //         M_PI/3, 0.2, 500, glm::vec3(4, 3, 0));
@@ -87,4 +91,17 @@ void MainScene::KeyAction(int key, int scancode, int action, int mods) {
 void MainScene::Update() {
   glm::vec3 pos = scene_->camera()->transform().pos();
   scene_->camera()->transform().set_pos({pos.x, 4, pos.z});
+}
+
+
+void MainScene::RenderAll() {
+  shadow_->Begin();
+  Scene::ShadowRenderAll();
+  shadow_->End();
+
+#if 0
+  DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
+#else
+  Scene::RenderAll();
+#endif
 }

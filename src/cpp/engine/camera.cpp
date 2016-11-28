@@ -5,33 +5,58 @@
 
 namespace engine {
 
-Camera::Camera(GameObject* parent, float fovy, float z_near, float z_far)
-    : GameObject(parent, CameraTransform{}), fovy_(fovy), z_near_(z_near)
+class CameraTransform : public Transform {
+ public:
+  CameraTransform() : up_(vec3{0, 1, 0}) {}
+
+  // We shouldn't inherit the parent's rotation, like how a normal Transform does
+  virtual const quat rot() const override { return rot_; }
+  virtual void set_rot(const quat& new_rot) override { rot_ = new_rot; }
+
+  // We have custom up and right vectors
+  virtual vec3 up() const override { return up_; }
+  virtual void set_up(const vec3& new_up) override {
+    up_ = glm::normalize(new_up);
+  }
+  virtual vec3 right() const override {
+    return glm::normalize(glm::cross(forward(), up()));
+  }
+
+  virtual void set_right(const vec3& new_right) override {
+    set_forward(glm::cross(up(), new_right));
+  }
+
+ private:
+  vec3 up_;
+};
+
+PerspectiveCamera::PerspectiveCamera(GameObject* parent, float fovy, float z_near, float z_far)
+    : ICamera(parent, CameraTransform{}), fovy_(fovy), z_near_(z_near)
     , z_far_(z_far), width_(0), height_(0) {
   assert(fovy_ < M_PI);
 }
 
-void Camera::ScreenResized(size_t width, size_t height) {
+void PerspectiveCamera::ScreenResized(size_t width, size_t height) {
   width_ = width;
   height_ = height;
 }
 
-void Camera::UpdateCache() {
+void PerspectiveCamera::UpdateCache() {
   UpdateCameraMatrix();
   UpdateProjectionMatrix();
   UpdateFrustum();
 }
 
-void Camera::UpdateCameraMatrix() {
+void PerspectiveCamera::UpdateCameraMatrix() {
   const Transform& t = transform();
   cam_mat_ = glm::lookAt(t.pos(), t.pos()+t.forward(), t.up());
 }
 
-void Camera::UpdateProjectionMatrix() {
+void PerspectiveCamera::UpdateProjectionMatrix() {
   proj_mat_ = glm::perspectiveFov<float>(fovy_, width_, height_, z_near_, z_far_);
 }
 
-void Camera::UpdateFrustum() {
+void PerspectiveCamera::UpdateFrustum() {
   glm::mat4 m = proj_mat_ * cam_mat_;
 
   // REMEMBER: m[i][j] is j-th row, i-th column (glm is column major)
@@ -80,7 +105,7 @@ FreeFlyCamera::FreeFlyCamera(GameObject* parent, float fov, float z_near,
                              const glm::vec3& target /*= glm::vec3()*/,
                              float speed_per_sec /*= 5.0f*/,
                              float mouse_sensitivity /*= 5.0f*/)
-    : Camera(parent, fov, z_near, z_far)
+    : PerspectiveCamera(parent, fov, z_near, z_far)
     , first_call_(true)
     , speed_per_sec_(speed_per_sec)
     , mouse_sensitivity_(mouse_sensitivity)
@@ -142,7 +167,7 @@ void FreeFlyCamera::Update() {
   }
   transform().set_local_pos(local_pos);
 
-  Camera::UpdateCache();
+  PerspectiveCamera::UpdateCache();
 }
 
 ThirdPersonalCamera::ThirdPersonalCamera(GameObject* parent,
@@ -156,7 +181,7 @@ ThirdPersonalCamera::ThirdPersonalCamera(GameObject* parent,
                                          float max_dist_mod /*= 4.00*/,
                                          float base_distance /*= 0.0*/,
                                          float dist_offset /*= 0.0*/)
-    : Camera(parent, fov, z_near, z_far)
+    : PerspectiveCamera(parent, fov, z_near, z_far)
     , target_(parent->transform())
     , first_call_(true)
     , initial_distance_(glm::length(target_.pos() - position) - dist_offset)
@@ -224,7 +249,7 @@ void ThirdPersonalCamera::Update() {
   glm::vec3 pos = tpos - fwd*dist;
   transform().set_pos(pos);
 
-  Camera::UpdateCache();
+  PerspectiveCamera::UpdateCache();
 }
 
 void ThirdPersonalCamera::MouseScrolled(double, double yoffset) {

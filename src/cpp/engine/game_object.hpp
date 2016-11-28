@@ -51,6 +51,7 @@ class GameObject {
   void set_enabled(bool value) { enabled_ = value; }
 
   virtual void Render() {}
+  virtual void ShadowRender() {}
   virtual void Render2D() {}
   virtual void Update() {}
   virtual void ScreenResizedClean() {}
@@ -62,6 +63,7 @@ class GameObject {
   virtual void MouseMoved(double xpos, double ypos) {}
 
   virtual void RenderAll();
+  virtual void ShadowRenderAll();
   virtual void Render2DAll();
   virtual void UpdateAll();
   virtual void ScreenResizedCleanAll();

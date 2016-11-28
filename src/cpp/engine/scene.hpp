@@ -32,9 +32,13 @@ class Scene : public engine::GameObject {
   const Timer& camera_time() const { return camera_time_; }
   Timer& camera_time() { return camera_time_; }
 
-  const Camera* camera() const { return camera_; }
-  Camera* camera() { return camera_; }
-  void set_camera(Camera* camera) { camera_ = camera; }
+  const ICamera* camera() const { return camera_; }
+  ICamera* camera() { return camera_; }
+  void set_camera(ICamera* camera) { camera_ = camera; }
+
+  const ICamera* shadow_camera() const { return shadow_camera_; }
+  ICamera* shadow_camera() { return shadow_camera_; }
+  void set_shadow_camera(ICamera* shadow_camera) { shadow_camera_ = shadow_camera; }
 
   GLFWwindow* window() const { return window_; }
   void set_window(GLFWwindow* window) { window_ = window; }
@@ -50,7 +54,8 @@ class Scene : public engine::GameObject {
   bool RemoveLightSource(unsigned id);
 
  protected:
-  Camera* camera_;
+  ICamera* camera_;
+  ICamera* shadow_camera_;
   Timer game_time_, environment_time_, camera_time_;
   GLFWwindow* window_;
   ShaderManager* shader_manager_;
