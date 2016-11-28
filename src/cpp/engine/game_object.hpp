@@ -55,24 +55,24 @@ class GameObject {
   virtual void Render2D() {}
   virtual void Update() {}
   virtual void ScreenResizedClean() {}
-  virtual void ScreenResized(size_t width, size_t height) {}
-  virtual void KeyAction(int key, int scancode, int action, int mods) {}
-  virtual void CharTyped(unsigned codepoint) {}
-  virtual void MouseScrolled(double xoffset, double yoffset) {}
-  virtual void MouseButtonPressed(int button, int action, int mods) {}
-  virtual void MouseMoved(double xpos, double ypos) {}
+  virtual void ScreenResized(size_t /*width*/, size_t /*height*/) {}
+  virtual void KeyAction(int /*key*/, int /*scancode*/, int /*action*/, int /*mods*/) {}
+  virtual void CharTyped(unsigned /*codepoint*/) {}
+  virtual void MouseScrolled(double /*xoffset*/, double /*yoffset*/) {}
+  virtual void MouseButtonPressed(int /*button*/, int /*action*/, int /*mods*/) {}
+  virtual void MouseMoved(double /*xpos*/, double /*ypos*/) {}
 
   virtual void RenderAll();
   virtual void ShadowRenderAll();
   virtual void Render2DAll();
   virtual void UpdateAll();
   virtual void ScreenResizedCleanAll();
-  virtual void ScreenResizedAll(size_t width, size_t height);
-  virtual void KeyActionAll(int key, int scancode, int action, int mods);
-  virtual void CharTypedAll(unsigned codepoint);
-  virtual void MouseScrolledAll(double xoffset, double yoffset);
-  virtual void MouseButtonPressedAll(int button, int action, int mods);
-  virtual void MouseMovedAll(double xpos, double ypos);
+  virtual void ScreenResizedAll(size_t /*width*/, size_t /*height*/);
+  virtual void KeyActionAll(int /*key*/, int /*scancode*/, int /*action*/, int /*mods*/);
+  virtual void CharTypedAll(unsigned /*codepoint*/);
+  virtual void MouseScrolledAll(double /*xoffset*/, double /*yoffset*/);
+  virtual void MouseButtonPressedAll(int /*button*/, int /*action*/, int /*mods*/);
+  virtual void MouseMovedAll(double /*xpos*/, double /*ypos*/);
 
  protected:
   Scene* scene_;

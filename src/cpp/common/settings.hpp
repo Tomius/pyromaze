@@ -4,6 +4,7 @@
 #define COMMON_SETTINGS_HPP_
 
 #include <memory>
+#include <functional>
 
 namespace Settings {
 
