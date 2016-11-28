@@ -150,7 +150,7 @@ Fire::Fire(GameObject* parent)
     : ParticleSystem(parent, FireParticle, 1000, 200) {
   lightid_ = scene_->AddLightSource({LightSource::Type::kPoint,
                                      transform().pos(),
-                                     glm::vec3{15.0}});
+                                     glm::vec3{2.0}});
 }
 
 Fire::~Fire() {
@@ -194,7 +194,7 @@ void Explosion::Update() {
       }
     });
   }
-  float lightness = std::min(std::pow(100000, 1.0f-sqrt(life_time)), 1000.0);
+  float lightness = std::min(std::pow(100000, 1.0f-sqrt(life_time)), 100.0);
   scene_->GetLightSource(lightid_).color = glm::vec3{lightness};
   scene_->GetLightSource(lightid_).position = transform().pos();
   ParticleSystem::Update();

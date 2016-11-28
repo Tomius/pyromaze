@@ -36,7 +36,7 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
   });
 
-  AddLightSource({LightSource::Type::kDirectional, glm::vec3{1.0}, glm::vec3{0.2}});
+  AddLightSource({LightSource::Type::kDirectional, glm::vec3{1.0}, glm::vec3{0.03}});
 
   AddComponent<Skybox>("src/resource/skybox.png");
 

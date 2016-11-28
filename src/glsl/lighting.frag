@@ -28,5 +28,5 @@ vec3 DiffuseLighting(vec3 position, vec3 normal) {
     vec3 toLight = uPointLights[i].position-position;
     sum_lighting += max(dot(normal, toLight), 0) * uPointLights[i].color / (0.01 + dot(toLight, toLight));
   }
-  return sum_lighting + 0.05;
+  return sum_lighting + 0.005;
 }

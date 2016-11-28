@@ -32,5 +32,5 @@ vec3 ToneMap(vec3 color) {
 }
 
 vec3 PostProcess(vec3 color) {
-  return ToneMap(color);
+  return sqrt(ToneMap(color));
 }
