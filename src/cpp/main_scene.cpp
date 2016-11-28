@@ -39,7 +39,7 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
   });
 
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.03}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.03f}});
 
   shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, 256}, 8192);
   set_shadow_camera(shadow_);
