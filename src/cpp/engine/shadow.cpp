@@ -30,6 +30,7 @@ Shadow::Shadow(GameObject* parent, const glm::vec3& light_source_pos,
   gl::Bind(fbo_);
   fbo_.attachTexture(gl::kDepthAttachment, depth_tex_);
   gl::DrawBuffer(gl::kNone);
+  gl::ReadBuffer(gl::kNone);
   fbo_.validate();
   gl::Unbind(fbo_);
 }

@@ -10,7 +10,11 @@
 void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam) {
   if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-    std::cout << message << std::endl;
+    if (strcmp(message, "Program undefined behavior warning: Sampler object 0 is bound"
+                        " to non-depth texture 0, yet it is used with a program that"
+                        " uses a shadow sampler. This is undefined behavior.") != 0)  {
+      std::cout << message << std::endl;
+    }
   }
 }
 
@@ -19,7 +23,6 @@ static void GlInit() {
 }
 
 namespace engine {
-
 
 GameEngine::GameEngine() {
   glfwSetErrorCallback(ErrorCallback);

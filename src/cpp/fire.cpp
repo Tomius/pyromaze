@@ -188,9 +188,9 @@ void Explosion::Update() {
   float life_time = current_time - born_at_;
   if (life_time > 0.0) {
     scene_->EnumerateChildren([&](engine::GameObject* obj) {
-      if (glm::length(transform().pos() - obj->transform().pos()) < 15 &&
-          dynamic_cast<Wall*>(obj) != nullptr) {
-        scene_->RemoveComponent(obj);
+      Wall* wall = dynamic_cast<Wall*>(obj);
+      if (wall != nullptr) {
+        wall->ReactToExplosion(transform().pos(), 5);
       }
     });
   }

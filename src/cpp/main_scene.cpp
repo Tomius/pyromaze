@@ -39,7 +39,7 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
   });
 
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.03}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.05}});
 
   shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, 256}, 8192);
   set_shadow_camera(shadow_);
@@ -56,10 +56,6 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
       }
       glm::vec3 pos{x * wallLength, 0, z * wallLength};
       wall->transform().set_local_pos(pos);
-
-      Wall* wall2 = AddComponent<Wall>();
-      wall2->transform().set_rot({1, 0, 0}, {0, 0, 1});
-      wall2->transform().set_local_pos(pos);
     }
   }
 
