@@ -18,8 +18,8 @@ class DebugTexture {
 public:
   DebugTexture(engine::ShaderManager* shader_manager)
       : rect_({gl::RectangleShape::kPosition, gl::RectangleShape::kTexCoord})
-      , prog_{shader_manager->get("debug_texture.vert"),
-              shader_manager->get("debug_texture.frag")} {
+      , prog_(shader_manager->get("debug_texture.vert"),
+              shader_manager->get("debug_texture.frag")) {
 
     gl::Use(prog_);
     gl::UniformSampler(prog_, "uTex").set(0);
