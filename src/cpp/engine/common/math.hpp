@@ -5,6 +5,14 @@
 
 #include "engine/common/glm.hpp"
 
+#ifndef M_PI
+  #define M_PI 3.14159265359f
+#endif
+#ifndef M_PI_2
+  #define M_PI_2 1.57079632679f
+#endif
+
+
 namespace Math {
 
 static constexpr double kEpsilon = 1e-5;

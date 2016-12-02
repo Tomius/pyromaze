@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <functional>
 
 #include "engine/common/transform.hpp"
 

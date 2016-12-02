@@ -69,7 +69,7 @@ void BulletRigidBody::Init(float mass, btCollisionShape* shape) {
     shape->calculateLocalInertia(mass, inertia);
   }
   btRigidBody::btRigidBodyConstructionInfo info{mass, this, shape, inertia};
-  bt_rigid_body_ = std::make_unique<btRigidBody>(info);
+  bt_rigid_body_ = engine::make_unique<btRigidBody>(info);
   bt_rigid_body_->setUserPointer(parent_);
   if (mass == 0.0f) { bt_rigid_body_->setRestitution(1.0f); }
   scene_->bt_world()->addRigidBody(bt_rigid_body_.get());

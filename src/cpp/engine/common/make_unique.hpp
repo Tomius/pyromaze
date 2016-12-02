@@ -3,7 +3,7 @@
 #ifndef COMMON_MAKE_UNIQUE_HPP_
 #define COMMON_MAKE_UNIQUE_HPP_
 
-namespace std {
+namespace engine {
 
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args) {

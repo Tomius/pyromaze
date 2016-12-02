@@ -51,13 +51,13 @@ class WallRenderer {
 
     prog_.validate();
 
-    pillars_collider_.triangles = std::make_unique<btTriangleIndexVertexArray>();
+    pillars_collider_.triangles = engine::make_unique<btTriangleIndexVertexArray>();
     pillars_collider_.indices = pillars_.btTriangles(pillars_collider_.triangles.get());
-    pillars_collider_.shape = std::make_unique<btBvhTriangleMeshShape>(pillars_collider_.triangles.get(), true);
+    pillars_collider_.shape = engine::make_unique<btBvhTriangleMeshShape>(pillars_collider_.triangles.get(), true);
     for (int i = 0; i < 4; ++i) {
-      wall_colliders_[i].triangles = std::make_unique<btTriangleIndexVertexArray>();
+      wall_colliders_[i].triangles = engine::make_unique<btTriangleIndexVertexArray>();
       wall_colliders_[i].indices = walls_[i].btTriangles(wall_colliders_[i].triangles.get());
-      wall_colliders_[i].shape = std::make_unique<btBvhTriangleMeshShape>(wall_colliders_[i].triangles.get(), true);
+      wall_colliders_[i].shape = engine::make_unique<btBvhTriangleMeshShape>(wall_colliders_[i].triangles.get(), true);
     }
   }
 
