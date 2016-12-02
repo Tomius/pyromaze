@@ -3,6 +3,7 @@
 #ifndef WALL_HPP_
 #define WALL_HPP_
 
+#include <array>
 #include "engine/game_object.hpp"
 #include "engine/collision/bounding_box.hpp"
 
