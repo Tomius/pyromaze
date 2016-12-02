@@ -1,10 +1,10 @@
 // Copyright (c) 2016, Tamas Csala
 
-#include "engine/scene.hpp"
-#include "engine/game_engine.hpp"
-
 #include <glad/glad.h>
 #include <oglwrap/oglwrap.h>
+
+#include "engine/scene.hpp"
+#include "engine/game_engine.hpp"
 
 namespace engine {
 
@@ -12,12 +12,26 @@ Scene::Scene(GLFWwindow* window, ShaderManager* shader_manager)
     : GameObject(nullptr)
     , camera_(nullptr)
     , window_(window)
-    , shader_manager_(shader_manager) {
+    , shader_manager_(shader_manager)
+    , physics_thread_should_quit_(false)
+    , physics_thread_{[this](){
+      while (true) {
+        physics_can_run_.waitOne();
+        if (physics_thread_should_quit_) { return; }
+        UpdatePhysics();
+        physics_finished_.set();
+      }
+    }} {
   set_scene(this);
 }
 
 Scene::~Scene() {
   ResetChildren();
+
+  // close the physics thread
+  physics_thread_should_quit_ = true;
+  physics_can_run_.set();
+  physics_thread_.join();
 }
 
 void Scene::KeyAction(int key, int scancode, int action, int mods) {
@@ -36,7 +50,10 @@ void Scene::KeyAction(int key, int scancode, int action, int mods) {
 }
 
 void Scene::Turn() {
+  physics_finished_.waitOne();
   UpdateAll();
+  physics_can_run_.set();
+
   RenderAll();
   Render2DAll();
 }
@@ -94,6 +111,12 @@ void Scene::Render2DAll() {
   gl::BlendFunc(gl::kSrcAlpha, gl::kOneMinusSrcAlpha);
 
   GameObject::Render2DAll();
+}
+
+void Scene::UpdatePhysics() {
+  if (bt_world_) {
+    bt_world_->stepSimulation(game_time().dt(), 0);
+  }
 }
 
 }  // namespace engine

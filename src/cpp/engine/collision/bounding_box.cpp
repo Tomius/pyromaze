@@ -6,12 +6,12 @@ bool BoundingBox::CollidesWithSphere(const glm::vec3& center, float radius) cons
   float dmin = 0;
   for (int i = 0; i < 3; ++i) {
     if (center[i] < mins_[i]) {
-      dmin += Sqr(center[i] - mins_[i]);
+      dmin += Math::Sqr(center[i] - mins_[i]);
     } else if (center[i] > maxes_[i]) {
-      dmin += Sqr(center[i] - maxes_[i]);
+      dmin += Math::Sqr(center[i] - maxes_[i]);
     }
   }
-  return dmin <= Sqr(radius);
+  return dmin <= Math::Sqr(radius);
 }
 
 bool BoundingBox::CollidesWithFrustum(const Frustum& frustum) const {

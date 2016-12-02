@@ -6,11 +6,11 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
-
-#include "common/settings.hpp"
-#include "common/glm.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "engine/common/math.hpp"
+#include "engine/common/glm.hpp"
 
 #ifndef M_PI
   #define M_PI 3.14159265359f
@@ -127,7 +127,7 @@ class Transformation {
     vec3 axis = glm::cross(local, world);
 
     // If they are not parallel
-    if (glm::length(axis) > Settings::kEpsilon) {
+    if (glm::length(axis) > Math::kEpsilon) {
       // Dot gives us the cosine of their angle
       T cosangle = glm::dot(local, world);
       // We need the angle in radians
@@ -139,7 +139,7 @@ class Transformation {
       // when they go the opposite direction
       if (glm::dot(local, world) < 0) {
         // Check if local is parallel to the X axis
-        if (fabs(glm::dot(local, vec3(1, 0, 0))) > Settings::kEpsilon) {
+        if (fabs(glm::dot(local, vec3(1, 0, 0))) > Math::kEpsilon) {
           // If not, we can use it, to generate the axis to rotate around
           vec3 axis = glm::cross(vec3(1, 0, 0), local);
           set_rot(glm::quat_cast(glm::rotate(mat4(), T(M_PI), axis)));

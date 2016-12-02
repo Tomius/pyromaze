@@ -9,17 +9,16 @@
 #include "engine/mesh/mesh_renderer.hpp"
 #include "engine/shadow.hpp"
 
+#define AI_IMPORT_FLAGS aiProcessPreset_TargetRealtime_Quality | aiProcess_FlipUVs | aiProcess_PreTransformVertices
+
 class WallRenderer {
-  constexpr static int aiFlags = aiProcessPreset_TargetRealtime_Quality |
-                                 aiProcess_FlipUVs |
-                                 aiProcess_PreTransformVertices;
  public:
   WallRenderer(engine::Scene* scene)
-      : pillars_("src/resource/wall/pillars.obj", aiFlags)
-      , walls_{{"src/resource/wall/wall1.obj", aiFlags},
-                {"src/resource/wall/wall2.obj", aiFlags},
-                {"src/resource/wall/wall3.obj", aiFlags},
-                {"src/resource/wall/wall4.obj", aiFlags}}
+      : pillars_("src/resource/wall/pillars.obj", AI_IMPORT_FLAGS)
+      , walls_{{"src/resource/wall/wall1.obj", AI_IMPORT_FLAGS },
+                {"src/resource/wall/wall2.obj", AI_IMPORT_FLAGS },
+                {"src/resource/wall/wall3.obj", AI_IMPORT_FLAGS },
+                {"src/resource/wall/wall4.obj", AI_IMPORT_FLAGS }}
       , prog_(scene->shader_manager()->get("mesh.vert"),
               scene->shader_manager()->get("mesh_shadow.frag"))
       , shadow_prog_(scene->shader_manager()->get("shadow.vert"),

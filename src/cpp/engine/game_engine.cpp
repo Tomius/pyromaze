@@ -7,6 +7,7 @@
 
 #include "./game_engine.hpp"
 
+#ifdef USE_DEBUG_CONTEXT
 void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam) {
   if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
@@ -17,10 +18,7 @@ void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severi
     }
   }
 }
-
-static void GlInit() {
-  gl::Enable(gl::kDepthTest);
-}
+#endif
 
 namespace engine {
 
@@ -34,13 +32,18 @@ GameEngine::GameEngine() {
   // Window creation
   GLFWmonitor *monitor = glfwGetPrimaryMonitor();
   const GLFWvidmode *vidmode = glfwGetVideoMode(monitor);
+
+#ifdef USE_DEBUG_CONTEXT
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#else
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#endif
+
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-#ifdef USE_DEBUG_CONTEXT
-  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-#endif
   glfwWindowHint(GLFW_DEPTH_BITS, 24);
   glfwWindowHint(GLFW_STENCIL_BITS, 8);
 
@@ -82,9 +85,11 @@ GameEngine::GameEngine() {
     std::terminate();
   }
 
+#ifdef USE_DEBUG_CONTEXT
   glDebugMessageCallback(&DebugCallback, nullptr);
+#endif
 
-  GlInit();
+  gl::Enable(gl::kDepthTest);
 
   glfwSetWindowUserPointer(window_, this);
   glfwSetKeyCallback(window_, KeyCallback);

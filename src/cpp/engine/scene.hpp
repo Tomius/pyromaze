@@ -6,11 +6,14 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <thread>
+#include <btBulletDynamicsCommon.h>
 
 #include "engine/timer.hpp"
 #include "engine/camera.hpp"
 #include "engine/game_object.hpp"
 #include "engine/light_source.hpp"
+#include "engine/common/auto_reset_event.hpp"
 
 namespace engine {
 
@@ -61,6 +64,18 @@ class Scene : public engine::GameObject {
   ShaderManager* shader_manager_;
   std::map<unsigned, LightSource> light_sources_;
 
+  // Bullet classes
+  std::unique_ptr<btCollisionConfiguration> bt_collision_config_;
+  std::unique_ptr<btDispatcher> bt_dispatcher_;
+  std::unique_ptr<btBroadphaseInterface> bt_broadphase_;
+  std::unique_ptr<btConstraintSolver> bt_solver_;
+  std::unique_ptr<btDynamicsWorld> bt_world_;
+
+  // physics thread data
+  AutoResetEvent physics_can_run_{false}, physics_finished_{true};
+  bool physics_thread_should_quit_;
+  std::thread physics_thread_;
+
   virtual void KeyAction(int key, int scancode, int action, int mods) override;
 
   virtual void UpdateAll() override;
@@ -68,6 +83,8 @@ class Scene : public engine::GameObject {
   virtual void RenderAll() override;
 
   virtual void Render2DAll() override;
+
+  virtual void UpdatePhysics();
 };
 
 }  // namespace engine

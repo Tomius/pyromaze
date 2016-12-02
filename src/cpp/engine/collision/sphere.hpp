@@ -3,7 +3,7 @@
 #ifndef COLLISION_SPHERE_HPP_
 #define COLLISION_SPHERE_HPP_
 
-#include "common/glm.hpp"
+#include "engine/common/glm.hpp"
 #include "engine/collision/frustum.hpp"
 
 class Sphere {

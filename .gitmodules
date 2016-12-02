@@ -16,3 +16,6 @@
 [submodule "deps/assimp"]
 	path = deps/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "deps/bullet"]
+	path = deps/bullet
+	url = https://github.com/bulletphysics/bullet3.git

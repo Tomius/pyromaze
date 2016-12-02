@@ -37,6 +37,14 @@ set (ASSIMP_BUILD_TESTS OFF)
 add_subdirectory(deps/assimp)
 include_directories(SYSTEM deps/assimp/include)
 
+set (BUILD_EXTRAS OFF)
+set (BUILD_CPU_DEMOS OFF)
+set (BUILD_BULLET2_DEMOS OFF)
+set (BUILD_OPENGL3_DEMOS OFF)
+set (BUILD_UNIT_TESTS OFF)
+add_subdirectory(deps/bullet)
+include_directories(SYSTEM deps/bullet/src)
+
 include_directories(SYSTEM deps)
 
 if (NOT USE_IMAGEMAGICK)

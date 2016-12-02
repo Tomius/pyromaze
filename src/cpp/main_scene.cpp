@@ -6,8 +6,7 @@
 #include "./dynamite.hpp"
 #include "./castle.hpp"
 
-#include "common/misc.hpp"
-#include "engine/camera.hpp"
+#include "engine/common/make_unique.hpp"
 #include "debug/debug_shape.hpp"
 #include "debug/debug_texture.hpp"
 
@@ -17,6 +16,17 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     : Scene(window, shader_manager) {
   srand(time(nullptr));
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+  { // Bullet initilization
+    bt_collision_config_ = std::make_unique<btDefaultCollisionConfiguration>();
+    bt_dispatcher_ = std::make_unique<btCollisionDispatcher>(bt_collision_config_.get());
+    bt_broadphase_ = std::make_unique<btDbvtBroadphase>();
+    bt_solver_ = std::make_unique<btSequentialImpulseConstraintSolver>();
+    bt_world_ = std::make_unique<btDiscreteDynamicsWorld>(
+        bt_dispatcher_.get(), bt_broadphase_.get(),
+        bt_solver_.get(), bt_collision_config_.get());
+    bt_world_->setGravity(btVector3(0, -9.81, 0));
+  }
 
   shader_manager->get("lighting.frag")->set_update_func([this](const gl::Program& prog) {
     // gl::Use(prog);
@@ -78,12 +88,13 @@ void MainScene::KeyAction(int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_SPACE) {
       glm::vec3 pos = scene_->camera()->transform().pos();
       pos += 5.0f * scene_->camera()->transform().forward();
-      Dynamite* dynamite = AddComponent<Dynamite>(4.5 + 0.5*Rand01());
+      Dynamite* dynamite = AddComponent<Dynamite>(4.5 + 0.5*Math::Rand01());
       dynamite->transform().set_local_pos({pos.x, 0, pos.z});
     } else if (key == GLFW_KEY_F1) {
       for (int i = 0; i < 4; ++i) {
-        Dynamite* dynamite = AddComponent<Dynamite>(4.5 + 0.5*Rand01());
-        dynamite->transform().set_local_pos({Rand01()*512-256, 0, Rand01()*512-256});
+        Dynamite* dynamite = AddComponent<Dynamite>(4.5 + 0.5*Math::Rand01());
+        dynamite->transform().set_local_pos({Math::Rand01()*512-256, 0,
+                                             Math::Rand01()*512-256});
       }
     }
   }
