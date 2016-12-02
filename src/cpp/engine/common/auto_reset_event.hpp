@@ -13,24 +13,9 @@ class AutoResetEvent {
  public:
   explicit AutoResetEvent(bool initial = false) : flag_(initial) {}
 
-  void set() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    flag_ = true;
-    signal_.notify_one();
-  }
-
-  void reset() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    flag_ = false;
-  }
-
-  bool waitOne() {
-    std::unique_lock<std::mutex> lock(mutex_);
-    while (!flag_)  // prevents false wakeups from doing harm
-      signal_.wait(lock);
-    flag_ = false;
-    return true;
-  }
+  void Set();
+  void Reset();
+  bool WaitOne();
 
  private:
   bool flag_;

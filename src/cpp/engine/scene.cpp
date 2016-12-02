@@ -16,10 +16,10 @@ Scene::Scene(GLFWwindow* window, ShaderManager* shader_manager)
     , physics_thread_should_quit_(false)
     , physics_thread_{[this](){
       while (true) {
-        physics_can_run_.waitOne();
+        physics_can_run_.WaitOne();
         if (physics_thread_should_quit_) { return; }
         UpdatePhysics();
-        physics_finished_.set();
+        physics_finished_.Set();
       }
     }} {
   set_scene(this);
@@ -30,7 +30,7 @@ Scene::~Scene() {
 
   // close the physics thread
   physics_thread_should_quit_ = true;
-  physics_can_run_.set();
+  physics_can_run_.Set();
   physics_thread_.join();
 }
 
@@ -50,9 +50,9 @@ void Scene::KeyAction(int key, int scancode, int action, int mods) {
 }
 
 void Scene::Turn() {
-  physics_finished_.waitOne();
+  physics_finished_.WaitOne();
   UpdateAll();
-  physics_can_run_.set();
+  physics_can_run_.Set();
 
   RenderAll();
   Render2DAll();
