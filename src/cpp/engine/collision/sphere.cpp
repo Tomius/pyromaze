@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #include "engine/collision/sphere.hpp"
 

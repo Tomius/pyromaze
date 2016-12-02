@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #define OGLWRAP_DEFAULT_SHADER_PATH "src/glsl/"
 

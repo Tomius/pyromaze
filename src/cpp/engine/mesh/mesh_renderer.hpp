@@ -8,7 +8,7 @@
 #include <climits>
 #include <glad/glad.h>
 #include <oglwrap/oglwrap.h>
-// #include <btBulletDynamicsCommon.h>
+#include <btBulletDynamicsCommon.h>
 
 #include "engine/mesh/assimp.hpp"
 #include "engine/collision/bounding_box.hpp"
@@ -90,7 +90,7 @@ public:
 
   /// Sets up a btTriangleIndexVertexArray, and returns a vector of indices
   /// that should be stored throughout the lifetime of the bullet object
-  // std::vector<int> btTriangles(btTriangleIndexVertexArray* triangles);
+  std::vector<int> btTriangles(btTriangleIndexVertexArray* triangles);
 
 private:
   template <typename IdxType>

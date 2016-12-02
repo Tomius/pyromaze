@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef ENGINE_SHADER_MANAGER_HPP_
 #define ENGINE_SHADER_MANAGER_HPP_
@@ -18,14 +18,15 @@ class ShaderFile;
 class ShaderProgram;
 
 class ShaderManager {
-  std::map<std::string, std::unique_ptr<ShaderFile>> shaders_;
-  template<typename... Args>
-  ShaderFile* load(Args&&... args);
-
  public:
   ShaderFile* publish(const std::string& filename, const gl::ShaderSource& src);
   ShaderFile* get(const std::string& filename,
                   const ShaderFile* included_from = nullptr);
+ private:
+  std::map<std::string, std::unique_ptr<ShaderFile>> shaders_;
+
+  template<typename... Args>
+  ShaderFile* load(Args&&... args);
 };
 
 class ShaderFile : public gl::Shader {
@@ -59,12 +60,22 @@ class ShaderFile : public gl::Shader {
   friend class ShaderProgram;
 };
 
+template<typename... Args>
+ShaderFile* ShaderManager::load(Args&&... args) {
+  auto shader = new ShaderFile{std::forward<Args>(args)...};
+  shaders_[shader->source_file()] = std::unique_ptr<ShaderFile>{shader};
+  return shader;
+}
+
 class ShaderProgram : public gl::Program {
  public:
   ShaderProgram() {}
 
   template <typename... Shaders>
-  explicit ShaderProgram(ShaderFile *shader, Shaders&&... shaders);
+  explicit ShaderProgram(ShaderFile *shader, Shaders&&... shaders) {
+    attachShaders(shader, shaders...);
+    link();
+  }
 
   ShaderProgram(const ShaderProgram& prog) = default;
   ShaderProgram(ShaderProgram&& prog) = default;
@@ -72,7 +83,11 @@ class ShaderProgram : public gl::Program {
   void update() const;
 
   template<typename... Rest>
-  ShaderProgram& attachShaders(ShaderFile *shader, Rest&&... rest);
+  ShaderProgram& attachShaders(ShaderFile *shader, Rest&&... rest) {
+    attachShader(shader);
+    attachShaders(rest...);
+    return *this;
+  }
   ShaderProgram& attachShaders() { return *this; }
   ShaderProgram& attachShader(ShaderFile *shader);
 
@@ -83,7 +98,5 @@ class ShaderProgram : public gl::Program {
 };
 
 }  // namespace engine
-
-#include "engine/shader_manager-inl.hpp"
 
 #endif

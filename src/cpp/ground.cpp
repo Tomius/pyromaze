@@ -3,6 +3,7 @@
 #include "./ground.hpp"
 #include "engine/scene.hpp"
 #include "engine/shadow.hpp"
+#include "engine/physics/bullet_rigid_body.hpp"
 
 Ground::Ground(GameObject* parent)
     : GameObject(parent)
@@ -46,6 +47,9 @@ Ground::Ground(GameObject* parent)
 
   render_transform_.set_local_pos({0, -1, 0});
   render_transform_.set_scale({1024, 1, 1024});
+
+  btCollisionShape* shape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
+  AddComponent<engine::BulletRigidBody>(0.0f, shape);
 }
 
 

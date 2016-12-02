@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef COLLISION_SPHERE_HPP_
 #define COLLISION_SPHERE_HPP_

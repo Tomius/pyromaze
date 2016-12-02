@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #include <glad/glad.h>
 #include <oglwrap/oglwrap.h>
@@ -115,7 +115,7 @@ void Scene::Render2DAll() {
 
 void Scene::UpdatePhysics() {
   if (bt_world_) {
-    bt_world_->stepSimulation(game_time().dt(), 0);
+    bt_world_->stepSimulation(game_time().dt());
   }
 }
 

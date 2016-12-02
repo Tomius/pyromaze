@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef ENGINE_GAME_OBJECT_HPP_
 #define ENGINE_GAME_OBJECT_HPP_
@@ -9,7 +9,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "engine/transform.hpp"
+#include "engine/common/transform.hpp"
 
 namespace engine {
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef COMMON_GLM_HPP_
 #define COMMON_GLM_HPP_

@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef ENGINE_SCENE_HPP_
 #define ENGINE_SCENE_HPP_
@@ -9,10 +9,10 @@
 #include <thread>
 #include <btBulletDynamicsCommon.h>
 
-#include "engine/timer.hpp"
-#include "engine/camera.hpp"
 #include "engine/game_object.hpp"
 #include "engine/light_source.hpp"
+#include "engine/camera/icamera.hpp"
+#include "engine/common/timer.hpp"
 #include "engine/common/auto_reset_event.hpp"
 
 namespace engine {
@@ -47,6 +47,9 @@ class Scene : public engine::GameObject {
   void set_window(GLFWwindow* window) { window_ = window; }
 
   ShaderManager* shader_manager() const { return shader_manager_; }
+
+  const btDynamicsWorld* bt_world() const { return bt_world_.get(); }
+  btDynamicsWorld* bt_world() { return bt_world_.get(); }
 
   virtual void Turn();
 

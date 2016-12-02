@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #include <glad/glad.h>
 #include <oglwrap/oglwrap.h>
@@ -7,6 +7,8 @@
 #include "engine/scene.hpp"
 #include "engine/shader_manager.hpp"
 #include "engine/mesh/mesh_renderer.hpp"
+#include "engine/common/make_unique.hpp"
+#include "engine/physics/bullet_rigid_body.hpp"
 #include "engine/shadow.hpp"
 
 #define AI_IMPORT_FLAGS aiProcessPreset_TargetRealtime_Quality | aiProcess_FlipUVs | aiProcess_PreTransformVertices
@@ -48,6 +50,15 @@ class WallRenderer {
     gl::UniformSampler(prog_, "uDiffuseTexture").set(1);
 
     prog_.validate();
+
+    pillars_collider_.triangles = std::make_unique<btTriangleIndexVertexArray>();
+    pillars_collider_.indices = pillars_.btTriangles(pillars_collider_.triangles.get());
+    pillars_collider_.shape = std::make_unique<btBvhTriangleMeshShape>(pillars_collider_.triangles.get(), true);
+    for (int i = 0; i < 4; ++i) {
+      wall_colliders_[i].triangles = std::make_unique<btTriangleIndexVertexArray>();
+      wall_colliders_[i].indices = walls_[i].btTriangles(wall_colliders_[i].triangles.get());
+      wall_colliders_[i].shape = std::make_unique<btBvhTriangleMeshShape>(wall_colliders_[i].triangles.get(), true);
+    }
   }
 
   void Render(const glm::mat4& projection_matrix,
@@ -99,8 +110,19 @@ class WallRenderer {
     return walls_[wall_index].boundingBox(transform);
   }
 
+  btCollisionShape* GetWallCollisionShape(int wall_index) {
+    if (wall_index < 0 || 4 <= wall_index) {
+      throw std::out_of_range("");
+    }
+    return wall_colliders_[wall_index].shape.get();
+  }
+
   engine::BoundingBox GetPillarsBoundingBox(const glm::mat4& transform) const {
     return pillars_.boundingBox(transform);
+  }
+
+  btCollisionShape* GetPillarCollisionShape() {
+    return pillars_collider_.shape.get();
   }
 
  private:
@@ -108,6 +130,12 @@ class WallRenderer {
   engine::MeshRenderer walls_[4];
   engine::ShaderProgram prog_;
   engine::ShaderProgram shadow_prog_;
+
+  struct PhysicsCollider {
+    std::vector<int> indices;
+    std::unique_ptr<btTriangleIndexVertexArray> triangles;
+    std::unique_ptr<btCollisionShape> shape;
+  } pillars_collider_, wall_colliders_[4];
 
   gl::LazyUniform<glm::mat4> uProjectionMatrix_, uCameraMatrix_, uShadowCP_, uModelMatrix_;
   gl::LazyUniform<glm::mat4> uSProjectionMatrix_, uSCameraMatrix_, uSModelMatrix_;
@@ -119,16 +147,20 @@ static WallRenderer& GetWallRenderer(engine::Scene* scene) {
   return renderer;
 }
 
-Wall::Wall(GameObject *parent) : GameObject(parent), render_transform_(&transform()) {
-  render_transform_.set_local_pos({0, -0.5, 0});
-  render_transform_.set_scale({60.0f / 28.1f, 60.0f / 28.1f, 60.0f / 28.1f});
-  pillars_bb_ = GetWallRenderer(scene_).GetPillarsBoundingBox(render_transform_.matrix());
+Wall::Wall(GameObject *parent, const engine::Transform& initial_transform)
+    : GameObject(parent, initial_transform) {
+  pillars_bb_ = GetWallRenderer(scene_).GetPillarsBoundingBox(transform().matrix());
   for (int i = 0; i < 4; ++i) {
-    walls_bb_[i] = GetWallRenderer(scene_).GetWallBoundingBox(render_transform_.matrix(), i);
+    walls_bb_[i] = GetWallRenderer(scene_).GetWallBoundingBox(transform().matrix(), i);
   }
-  for (bool& wall_part_up : wall_parts_up_) {
-    wall_part_up = (rand() % 10) != 0;
+  for (int i = 0; i < 4; ++i) {
+    wall_parts_up_[i] = (rand() % 10) != 0;
+    if (wall_parts_up_[i]) {
+      wall_part_colliders_[i] = AddComponent<engine::BulletRigidBody>(0.0f, GetWallRenderer(scene_).GetWallCollisionShape(i));
+    }
   }
+
+  AddComponent<engine::BulletRigidBody>(0.0f, GetWallRenderer(scene_).GetPillarCollisionShape());
 }
 
 engine::BoundingBox Wall::GetBoundingBox() const {
@@ -141,8 +173,9 @@ double Wall::GetLength() const {
 
 void Wall::ReactToExplosion(const glm::vec3& exp_position, float exp_radius) {
   for (int i = 0; i < 4; ++i) {
-    if (glm::length(exp_position - (walls_bb_[i].center() + transform().pos())) < exp_radius) {
+    if (glm::length(exp_position - walls_bb_[i].center()) < exp_radius) {
       wall_parts_up_[i] = false;
+      RemoveComponent(wall_part_colliders_[i]);
     }
   }
 }
@@ -157,8 +190,8 @@ void Wall::Render() {
       cam.projectionMatrix(),
       cam.cameraMatrix(),
       shadow_cam.projectionMatrix() * shadow_cam.cameraMatrix(),
-      render_transform_.matrix(),
-      glm::inverse(glm::mat3(render_transform_.matrix())),
+      transform().matrix(),
+      glm::inverse(glm::mat3(transform().matrix())),
       wall_parts_up_
   );
 
@@ -172,7 +205,7 @@ void Wall::ShadowRender() {
   GetWallRenderer(scene_).ShadowRender(
       shadow_cam.projectionMatrix(),
       shadow_cam.cameraMatrix(),
-      render_transform_.matrix(),
+      transform().matrix(),
       wall_parts_up_
   );
 }

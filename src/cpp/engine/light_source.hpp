@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef ENGINE_LIGHT_SOURCE_HPP_
 #define ENGINE_LIGHT_SOURCE_HPP_

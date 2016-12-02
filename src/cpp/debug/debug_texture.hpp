@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef DEBUG_TEXTURE_HPP_
 #define DEBUG_TEXTURE_HPP_

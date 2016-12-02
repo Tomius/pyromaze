@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef ENGINE_TRANSFORM_HPP_
 #define ENGINE_TRANSFORM_HPP_

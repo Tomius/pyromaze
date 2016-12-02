@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef COMMON_MISC_HPP_
 #define COMMON_MISC_HPP_

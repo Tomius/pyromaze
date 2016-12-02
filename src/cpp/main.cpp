@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #define OGLWRAP_INSTANTIATE 1
 #include "engine/game_engine.hpp"

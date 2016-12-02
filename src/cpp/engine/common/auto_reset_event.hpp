@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef AUTO_RESET_EVENT_H
 #define AUTO_RESET_EVENT_H

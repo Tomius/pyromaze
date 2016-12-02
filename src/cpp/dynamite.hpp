@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef DYNAMITE_HPP_
 #define DYNAMITE_HPP_

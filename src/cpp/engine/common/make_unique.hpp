@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef COMMON_MAKE_UNIQUE_HPP_
 #define COMMON_MAKE_UNIQUE_HPP_

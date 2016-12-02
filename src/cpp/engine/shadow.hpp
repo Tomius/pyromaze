@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef ENGINE_SHADOW_HPP_
 #define ENGINE_SHADOW_HPP_
@@ -9,7 +9,7 @@
 #include <oglwrap/uniform.h>
 #include <oglwrap/framebuffer.h>
 
-#include "engine/camera.hpp"
+#include "engine/camera/icamera.hpp"
 
 namespace engine {
 

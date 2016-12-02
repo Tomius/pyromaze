@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef WALL_HPP_
 #define WALL_HPP_
@@ -9,7 +9,7 @@
 
 class Wall : public engine::GameObject {
  public:
-  Wall(GameObject *parent);
+  Wall(GameObject *parent, const engine::Transform& initial_transform);
 
   engine::BoundingBox GetBoundingBox() const;
   double GetLength() const;
@@ -18,10 +18,9 @@ class Wall : public engine::GameObject {
 
  private:
   std::array<bool, 4> wall_parts_up_;
+  std::array<GameObject*, 4> wall_part_colliders_;
   engine::BoundingBox pillars_bb_;
   engine::BoundingBox walls_bb_[4];
-
-  engine::Transform render_transform_;
 
   virtual void Render() override;
   virtual void ShadowRender() override;

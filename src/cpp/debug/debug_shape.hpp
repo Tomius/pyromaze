@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef ENGINE_DEBUG_DEBUG_SHAPE_HPP_
 #define ENGINE_DEBUG_DEBUG_SHAPE_HPP_

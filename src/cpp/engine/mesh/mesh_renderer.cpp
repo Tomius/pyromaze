@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #include <vector>
 #include <lodepng.h>
@@ -32,37 +32,39 @@ MeshRenderer::MeshRenderer(const std::string& filename,
     glm::inverse(engine::convertMatrix(scene_->mRootNode->mTransformation));
 }
 
-// std::vector<int> MeshRenderer::btTriangles(btTriangleIndexVertexArray* triangles) {
-//   std::vector<int> indices_vector;
+/// Sets up a btTriangleIndexVertexArray, and returns a vector of indices
+/// that should be stored throughout the lifetime of the bullet object
+std::vector<int> MeshRenderer::btTriangles(btTriangleIndexVertexArray* triangles) {
+  std::vector<int> indices_vector;
 
-//   for (unsigned mesh_idx = 0; mesh_idx < scene_->mNumMeshes; ++mesh_idx) {
-//     const aiMesh* mesh = scene_->mMeshes[mesh_idx];
-//     btIndexedMesh btMesh;
-//     btMesh.m_numVertices = mesh->mNumVertices;
-//     btMesh.m_vertexBase = (const unsigned char*)mesh->mVertices;
-//     btMesh.m_vertexStride = sizeof(aiVector3D);
-//     btMesh.m_vertexType = PHY_FLOAT;
+  for (unsigned mesh_idx = 0; mesh_idx < scene_->mNumMeshes; ++mesh_idx) {
+    const aiMesh* mesh = scene_->mMeshes[mesh_idx];
+    btIndexedMesh btMesh;
+    btMesh.m_numVertices = mesh->mNumVertices;
+    btMesh.m_vertexBase = (const unsigned char*)mesh->mVertices;
+    btMesh.m_vertexStride = sizeof(aiVector3D);
+    btMesh.m_vertexType = PHY_FLOAT;
 
-//     auto indices_begin_idx = indices_vector.size();
-//     indices_vector.reserve(indices_vector.size() + mesh->mNumFaces * 3);
-//     for (size_t face_idx = 0; face_idx < mesh->mNumFaces; face_idx++) {
-//       const aiFace& face = mesh->mFaces[face_idx];
-//       if (face.mNumIndices == 3) {  // The invalid faces are just ignored.
-//         indices_vector.push_back(face.mIndices[0]);
-//         indices_vector.push_back(face.mIndices[1]);
-//         indices_vector.push_back(face.mIndices[2]);
-//       }
-//     }
-//     btMesh.m_numTriangles = (indices_vector.size()-indices_begin_idx)/3;
-//     btMesh.m_triangleIndexBase = (const unsigned char*)&indices_vector[indices_begin_idx];
-//     btMesh.m_triangleIndexStride = 3*sizeof(int);
-//     btMesh.m_indexType = PHY_INTEGER;
+    auto indices_begin_idx = indices_vector.size();
+    indices_vector.reserve(indices_vector.size() + mesh->mNumFaces * 3);
+    for (size_t face_idx = 0; face_idx < mesh->mNumFaces; face_idx++) {
+      const aiFace& face = mesh->mFaces[face_idx];
+      if (face.mNumIndices == 3) {  // The invalid faces are just ignored.
+        indices_vector.push_back(face.mIndices[0]);
+        indices_vector.push_back(face.mIndices[1]);
+        indices_vector.push_back(face.mIndices[2]);
+      }
+    }
+    btMesh.m_numTriangles = (indices_vector.size()-indices_begin_idx)/3;
+    btMesh.m_triangleIndexBase = (const unsigned char*)&indices_vector[indices_begin_idx];
+    btMesh.m_triangleIndexStride = 3*sizeof(int);
+    btMesh.m_indexType = PHY_INTEGER;
 
-//     triangles->addIndexedMesh(btMesh, PHY_INTEGER);
-//   }
+    triangles->addIndexedMesh(btMesh, PHY_INTEGER);
+  }
 
-//   return indices_vector;
-// }
+  return indices_vector;
+}
 
 /// Returns a vector of the vertices
 std::vector<float> MeshRenderer::vertices() {

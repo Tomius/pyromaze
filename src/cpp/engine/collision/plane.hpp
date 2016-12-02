@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tamas Csala
+// Copyright (c) Tamas Csala
 
 #ifndef COLLISION_PLANE_HPP_
 #define COLLISION_PLANE_HPP_

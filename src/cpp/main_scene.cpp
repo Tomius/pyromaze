@@ -7,8 +7,11 @@
 #include "./castle.hpp"
 
 #include "engine/common/make_unique.hpp"
+#include "engine/camera/bullet_free_fly_camera.hpp"
+
 #include "debug/debug_shape.hpp"
 #include "debug/debug_texture.hpp"
+
 
 static const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
 
@@ -61,22 +64,18 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
   castle->transform().set_local_pos({0, -12, 0});
   AddComponent<Ground>();
 
-  double wallLength = 0;
+  constexpr double wallLength = 20;
   for (int x = -6; x < 6; ++x) {
     for (int z = -6; z < 6; ++z) {
-      Wall* wall = AddComponent<Wall>();
-      if (wallLength == 0.0) {
-        wallLength = wall->GetLength();
-        assert(wallLength > 0);
-      }
-      glm::vec3 pos{x * wallLength, 0, z * wallLength};
-      wall->transform().set_local_pos(pos);
+      engine::Transform wall_transform;
+      wall_transform.set_local_pos({x * wallLength, 0, z * wallLength});
+      AddComponent<Wall>(wall_transform);
     }
   }
 
   // AddComponent<engine::debug::DebugCube>(glm::vec3(1.0, 1.0, 0.0));
 
-  engine::ICamera* cam = AddComponent<engine::FreeFlyCamera>(
+  engine::ICamera* cam = AddComponent<engine::BulletFreeFlyCamera>(
       M_PI/3, 1, 2000, glm::vec3(16, 4, 8), glm::vec3(10, 3, 8), 15, 10);
   // engine::Camera* cam = fire->AddComponent<engine::ThirdPersonalCamera>(
   //         M_PI/3, 0.2, 500, glm::vec3(4, 3, 0));
@@ -87,7 +86,7 @@ void MainScene::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     if (key == GLFW_KEY_SPACE) {
       glm::vec3 pos = scene_->camera()->transform().pos();
-      pos += 5.0f * scene_->camera()->transform().forward();
+      pos += 3.0f * scene_->camera()->transform().forward();
       Dynamite* dynamite = AddComponent<Dynamite>(4.5 + 0.5*Math::Rand01());
       dynamite->transform().set_local_pos({pos.x, 0, pos.z});
     } else if (key == GLFW_KEY_F1) {
@@ -101,8 +100,8 @@ void MainScene::KeyAction(int key, int scancode, int action, int mods) {
 }
 
 void MainScene::Update() {
-  glm::vec3 pos = scene_->camera()->transform().pos();
-  scene_->camera()->transform().set_pos({pos.x, 4, pos.z});
+  // glm::vec3 pos = scene_->camera()->transform().pos();
+  // scene_->camera()->transform().set_pos({pos.x, 4, pos.z});
 }
 
 
