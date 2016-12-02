@@ -190,7 +190,7 @@ void Explosion::Update() {
     scene_->EnumerateChildren([&](engine::GameObject* obj) {
       Wall* wall = dynamic_cast<Wall*>(obj);
       if (wall != nullptr) {
-        wall->ReactToExplosion(transform().pos(), 5);
+        wall->ReactToExplosion(transform().pos(), 5.5);
       }
     });
   }

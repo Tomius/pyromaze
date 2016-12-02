@@ -24,8 +24,13 @@ class Shadow : public ICamera {
   gl::Texture2D& shadow_texture();
   const gl::Texture2D& shadow_texture() const;
 
+  void set_target_bounding_sphere(const glm::vec4& value) {
+    target_bounding_sphere_ = value;
+  }
+
   void Begin();
   void End();
+
 
  private:
   gl::Texture2D depth_tex_;

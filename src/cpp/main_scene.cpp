@@ -4,6 +4,7 @@
 #include "./skybox.hpp"
 #include "./fire.hpp"
 #include "./dynamite.hpp"
+#include "./castle.hpp"
 
 #include "common/misc.hpp"
 #include "engine/camera.hpp"
@@ -14,6 +15,7 @@ static const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
 
 MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     : Scene(window, shader_manager) {
+  srand(time(nullptr));
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   shader_manager->get("lighting.frag")->set_update_func([this](const gl::Program& prog) {
@@ -41,14 +43,17 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
 
   AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.05f}});
 
-  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, 256}, 8192);
+  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, 256}, 4096);
   set_shadow_camera(shadow_);
   AddComponent<Skybox>("src/resource/skybox.png");
+  GameObject* castle = AddComponent<Castle>();
+  castle->transform().set_scale({32, 32, 32});
+  castle->transform().set_local_pos({0, -12, 0});
   AddComponent<Ground>();
 
   double wallLength = 0;
-  for (int x = -8; x < 8; ++x) {
-    for (int z = -8; z < 8; ++z) {
+  for (int x = -6; x < 6; ++x) {
+    for (int z = -6; z < 6; ++z) {
       Wall* wall = AddComponent<Wall>();
       if (wallLength == 0.0) {
         wallLength = wall->GetLength();
@@ -62,7 +67,7 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
   // AddComponent<engine::debug::DebugCube>(glm::vec3(1.0, 1.0, 0.0));
 
   engine::ICamera* cam = AddComponent<engine::FreeFlyCamera>(
-      M_PI/3, 1, 500, glm::vec3(16, 2, 16), glm::vec3(), 15, 10);
+      M_PI/3, 1, 2000, glm::vec3(16, 4, 8), glm::vec3(10, 3, 8), 15, 10);
   // engine::Camera* cam = fire->AddComponent<engine::ThirdPersonalCamera>(
   //         M_PI/3, 0.2, 500, glm::vec3(4, 3, 0));
   set_camera(cam);

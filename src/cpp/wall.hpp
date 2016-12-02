@@ -16,7 +16,7 @@ class Wall : public engine::GameObject {
   void ReactToExplosion(const glm::vec3& exp_position, float exp_radius);
 
  private:
-  std::array<bool, 4> wall_parts_up_{{true, true, true, true}};
+  std::array<bool, 4> wall_parts_up_;
   engine::BoundingBox pillars_bb_;
   engine::BoundingBox walls_bb_[4];
 

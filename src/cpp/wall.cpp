@@ -20,7 +20,7 @@ class WallRenderer {
                 {"src/resource/wall/wall2.obj", aiFlags},
                 {"src/resource/wall/wall3.obj", aiFlags},
                 {"src/resource/wall/wall4.obj", aiFlags}}
-      , prog_(scene->shader_manager()->get("wall.vert"),
+      , prog_(scene->shader_manager()->get("mesh.vert"),
               scene->shader_manager()->get("mesh_shadow.frag"))
       , shadow_prog_(scene->shader_manager()->get("shadow.vert"),
                      scene->shader_manager()->get("shadow.frag"))
@@ -126,6 +126,9 @@ Wall::Wall(GameObject *parent) : GameObject(parent), render_transform_(&transfor
   pillars_bb_ = GetWallRenderer(scene_).GetPillarsBoundingBox(render_transform_.matrix());
   for (int i = 0; i < 4; ++i) {
     walls_bb_[i] = GetWallRenderer(scene_).GetWallBoundingBox(render_transform_.matrix(), i);
+  }
+  for (bool& wall_part_up : wall_parts_up_) {
+    wall_part_up = (rand() % 10) != 0;
   }
 }
 
