@@ -22,11 +22,11 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   { // Bullet initilization
-    bt_collision_config_ = std::make_unique<btDefaultCollisionConfiguration>();
-    bt_dispatcher_ = std::make_unique<btCollisionDispatcher>(bt_collision_config_.get());
-    bt_broadphase_ = std::make_unique<btDbvtBroadphase>();
-    bt_solver_ = std::make_unique<btSequentialImpulseConstraintSolver>();
-    bt_world_ = std::make_unique<btDiscreteDynamicsWorld>(
+    bt_collision_config_ = engine::make_unique<btDefaultCollisionConfiguration>();
+    bt_dispatcher_ = engine::make_unique<btCollisionDispatcher>(bt_collision_config_.get());
+    bt_broadphase_ = engine::make_unique<btDbvtBroadphase>();
+    bt_solver_ = engine::make_unique<btSequentialImpulseConstraintSolver>();
+    bt_world_ = engine::make_unique<btDiscreteDynamicsWorld>(
         bt_dispatcher_.get(), bt_broadphase_.get(),
         bt_solver_.get(), bt_collision_config_.get());
     bt_world_->setGravity(btVector3(0, -9.81, 0));

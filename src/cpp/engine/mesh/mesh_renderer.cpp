@@ -56,7 +56,7 @@ std::vector<int> MeshRenderer::btTriangles(btTriangleIndexVertexArray* triangles
       }
     }
     btMesh.m_numTriangles = (indices_vector.size()-indices_begin_idx)/3;
-    btMesh.m_triangleIndexBase = (const unsigned char*)&indices_vector[indices_begin_idx];
+    btMesh.m_triangleIndexBase = (const unsigned char*)(indices_vector.data() + indices_begin_idx);
     btMesh.m_triangleIndexStride = 3*sizeof(int);
     btMesh.m_indexType = PHY_INTEGER;
 
