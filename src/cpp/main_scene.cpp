@@ -5,6 +5,7 @@
 #include "./fire.hpp"
 #include "./dynamite.hpp"
 #include "./castle.hpp"
+#include "./robot.hpp"
 
 #include "engine/common/make_unique.hpp"
 #include "engine/camera/bullet_free_fly_camera.hpp"
@@ -54,7 +55,7 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
   });
 
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.05f}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.1f}});
 
   shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, 256}, 4096);
   set_shadow_camera(shadow_);
@@ -65,15 +66,34 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
   AddComponent<Ground>();
 
   constexpr double wallLength = 20;
-  for (int x = -6; x < 6; ++x) {
-    for (int z = -6; z < 6; ++z) {
+  for (int x = -6; x <= 6; ++x) {
+    for (int z = -6; z <= 6; ++z) {
       engine::Transform wall_transform;
       wall_transform.set_local_pos({x * wallLength, 0, z * wallLength});
       AddComponent<Wall>(wall_transform);
     }
   }
 
+  for (int z = -7; z <= 7; z += 14) {
+    for (int x = -7; x <= 7; ++x) {
+      engine::Transform wall_transform;
+      wall_transform.set_local_pos({x * wallLength, 0, z * wallLength});
+      AddComponent<MeshObject>("wall/bigwall1.obj", wall_transform);
+    }
+  }
+
+  for (int x = -7; x <= 7; x += 14) {
+    for (int z = -7; z <= 7; ++z) {
+      engine::Transform wall_transform;
+      wall_transform.set_local_pos({x * wallLength, 0, z * wallLength});
+      AddComponent<MeshObject>("wall/bigwall2.obj", wall_transform);
+    }
+  }
+
   // AddComponent<engine::debug::DebugCube>(glm::vec3(1.0, 1.0, 0.0));
+
+  engine::GameObject* robot = AddComponent<Robot>();
+  robot->transform().set_pos({10, 3, 8});
 
   engine::ICamera* cam = AddComponent<engine::BulletFreeFlyCamera>(
       M_PI/3, 1, 2000, glm::vec3(16, 4, 8), glm::vec3(10, 3, 8), 15, 10);
