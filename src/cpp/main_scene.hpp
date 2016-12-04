@@ -6,14 +6,12 @@
 
 class MainScene : public engine::Scene {
  public:
-  MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager);
+  MainScene(engine::GameEngine* engine, GLFWwindow* window);
 
  private:
   engine::Shadow* shadow_;
 
-  virtual void KeyAction(int key, int scancode, int action, int mods) override;
-
-  virtual void Update() override;
+  void CreateLabyrinth();
 
   virtual void RenderAll() override;
 };

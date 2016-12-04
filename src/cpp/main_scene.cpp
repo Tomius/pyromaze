@@ -6,6 +6,7 @@
 #include "./dynamite.hpp"
 #include "./castle.hpp"
 #include "./robot.hpp"
+#include "./player.hpp"
 
 #include "engine/common/make_unique.hpp"
 #include "engine/camera/bullet_free_fly_camera.hpp"
@@ -13,11 +14,11 @@
 #include "debug/debug_shape.hpp"
 #include "debug/debug_texture.hpp"
 
+constexpr int kWallLength = 20;
+constexpr int kLabyrinthRadius = 6, kLabyrinthDiameter = 2*kLabyrinthRadius + 1;
 
-static const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
-
-MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
-    : Scene(window, shader_manager) {
+MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
+    : Scene(engine, window) {
   srand(time(nullptr));
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -32,7 +33,7 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     bt_world_->setGravity(btVector3(0, -9.81, 0));
   }
 
-  shader_manager->get("lighting.frag")->set_update_func([this](const gl::Program& prog) {
+  shader_manager()->get("lighting.frag")->set_update_func([this](const gl::Program& prog) {
     // gl::Use(prog);
     int dir_light_count = 0, pos_light_count = 0;
     for (const auto& pair : light_sources_) {
@@ -55,75 +56,68 @@ MainScene::MainScene(GLFWwindow* window, engine::ShaderManager* shader_manager)
     gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
   });
 
+  const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
   AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.1f}});
 
-  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, 256}, 4096);
+  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, kLabyrinthDiameter}, 4096);
   set_shadow_camera(shadow_);
+
   AddComponent<Skybox>("src/resource/skybox.png");
-  GameObject* castle = AddComponent<Castle>();
-  castle->transform().set_scale({32, 32, 32});
-  castle->transform().set_local_pos({0, -12, 0});
-  AddComponent<Ground>();
 
-  constexpr double wallLength = 20;
-  for (int x = -6; x <= 6; ++x) {
-    for (int z = -6; z <= 6; ++z) {
-      engine::Transform wall_transform;
-      wall_transform.set_local_pos({x * wallLength, 0, z * wallLength});
-      AddComponent<Wall>(wall_transform);
-    }
-  }
+  CreateLabyrinth();
 
-  for (int z = -7; z <= 7; z += 14) {
-    for (int x = -7; x <= 7; ++x) {
-      engine::Transform wall_transform;
-      wall_transform.set_local_pos({x * wallLength, 0, z * wallLength});
-      AddComponent<MeshObject>("wall/bigwall1.obj", wall_transform);
-    }
-  }
-
-  for (int x = -7; x <= 7; x += 14) {
-    for (int z = -7; z <= 7; ++z) {
-      engine::Transform wall_transform;
-      wall_transform.set_local_pos({x * wallLength, 0, z * wallLength});
-      AddComponent<MeshObject>("wall/bigwall2.obj", wall_transform);
-    }
-  }
-
-  // AddComponent<engine::debug::DebugCube>(glm::vec3(1.0, 1.0, 0.0));
-
-  engine::GameObject* robot = AddComponent<Robot>();
-  robot->transform().set_pos({10, 3, 8});
-
-  engine::ICamera* cam = AddComponent<engine::BulletFreeFlyCamera>(
-      M_PI/3, 1, 2000, glm::vec3(16, 4, 8), glm::vec3(10, 3, 8), 15, 10);
-  // engine::Camera* cam = fire->AddComponent<engine::ThirdPersonalCamera>(
-  //         M_PI/3, 0.2, 500, glm::vec3(4, 3, 0));
+  auto cam = AddComponent<engine::BulletFreeFlyCamera>(
+      M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 12, 10);
   set_camera(cam);
+
+  engine::Transform playerTransform{&cam->transform()};
+  AddComponent<Player>(playerTransform);
 }
 
-void MainScene::KeyAction(int key, int scancode, int action, int mods) {
-  if (action == GLFW_PRESS) {
-    if (key == GLFW_KEY_SPACE) {
-      glm::vec3 pos = scene_->camera()->transform().pos();
-      pos += 3.0f * scene_->camera()->transform().forward();
-      Dynamite* dynamite = AddComponent<Dynamite>(4.5 + 0.5*Math::Rand01());
-      dynamite->transform().set_local_pos({pos.x, 0, pos.z});
-    } else if (key == GLFW_KEY_F1) {
-      for (int i = 0; i < 4; ++i) {
-        Dynamite* dynamite = AddComponent<Dynamite>(4.5 + 0.5*Math::Rand01());
-        dynamite->transform().set_local_pos({Math::Rand01()*512-256, 0,
-                                             Math::Rand01()*512-256});
+void MainScene::CreateLabyrinth() {
+  //auto envir = AddComponent<GameObject>(); // TODO
+  auto envir = this;
+
+  // GameObject* castle = envir->AddComponent<Castle>();
+  // castle->transform().set_scale({32, 32, 32});
+  // castle->transform().set_local_pos({0, -12, 0});
+
+  envir->AddComponent<Ground>();
+
+  for (int x = -kLabyrinthRadius; x <= kLabyrinthRadius; ++x) {
+    for (int z = -kLabyrinthRadius; z <= kLabyrinthRadius; ++z) {
+      engine::Transform wall_transform;
+      wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
+      envir->AddComponent<Wall>(wall_transform);
+
+      if (x != 0 && z != 0 && rand()%4 != 0) {
+        engine::Transform robot_transform;
+        robot_transform.set_local_pos({x * kWallLength + kWallLength/2.0, 3,
+                                       z * kWallLength + kWallLength/2.0});
+        AddComponent<Robot>(robot_transform);
       }
     }
   }
-}
 
-void MainScene::Update() {
-  // glm::vec3 pos = scene_->camera()->transform().pos();
-  // scene_->camera()->transform().set_pos({pos.x, 4, pos.z});
-}
+  constexpr int kBorderRadius = kLabyrinthRadius+1;
+  for (int z = -kBorderRadius; z <= kBorderRadius; z += 2*kBorderRadius) {
+    for (int x = -kBorderRadius; x <= kBorderRadius; ++x) {
+      engine::Transform wall_transform;
+      wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
+      MeshObject* wall = envir->AddComponent<MeshObject>("wall/bigwall1.obj", wall_transform);
+      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape());
+    }
+  }
 
+  for (int x = -kBorderRadius; x <= kBorderRadius; x += 2*kBorderRadius) {
+    for (int z = -kBorderRadius; z <= kBorderRadius; ++z) {
+      engine::Transform wall_transform;
+      wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
+      MeshObject* wall = envir->AddComponent<MeshObject>("wall/bigwall2.obj", wall_transform);
+      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape());
+    }
+  }
+}
 
 void MainScene::RenderAll() {
   shadow_->Begin();

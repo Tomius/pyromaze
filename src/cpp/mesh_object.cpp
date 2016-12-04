@@ -157,8 +157,8 @@ btCollisionShape* MeshObject::GetCollisionShape() {
   return renderer_.GetCollisionShape();
 }
 
-engine::BoundingBox MeshObject::GetBoundingBox(const glm::mat4& transform) const {
-  return renderer_.GetBoundingBox(transform);
+engine::BoundingBox MeshObject::GetBoundingBox() const {
+  return renderer_.GetBoundingBox(transform().matrix());
 }
 
 void MeshObject::Render() {

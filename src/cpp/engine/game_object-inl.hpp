@@ -13,7 +13,7 @@ GameObject::GameObject(GameObject* parent, const Transform_t& transform)
     : scene_(parent ? parent->scene_ : nullptr), parent_(parent)
     , transform_(new Transform_t{transform})
     , enabled_(true) {
-  if (parent) {
+  if (parent && transform.parent() == nullptr) {
     transform_->set_parent(&parent_->transform());
   }
 }

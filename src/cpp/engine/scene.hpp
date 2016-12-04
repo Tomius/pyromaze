@@ -18,10 +18,11 @@
 namespace engine {
 
 class ShaderManager;
+class GameEngine;
 
 class Scene : public engine::GameObject {
  public:
-  Scene(GLFWwindow* window, ShaderManager* shader_manager);
+  Scene(engine::GameEngine* engine, GLFWwindow* window);
   ~Scene();
 
   virtual float gravity() const { return 9.81f; }
@@ -46,7 +47,9 @@ class Scene : public engine::GameObject {
   GLFWwindow* window() const { return window_; }
   void set_window(GLFWwindow* window) { window_ = window; }
 
-  ShaderManager* shader_manager() const { return shader_manager_; }
+  ShaderManager* shader_manager() const;
+
+  GameEngine* engine() const { return engine_; }
 
   const btDynamicsWorld* bt_world() const { return bt_world_.get(); }
   btDynamicsWorld* bt_world() { return bt_world_.get(); }
@@ -64,7 +67,7 @@ class Scene : public engine::GameObject {
   ICamera* shadow_camera_;
   Timer game_time_, environment_time_, camera_time_;
   GLFWwindow* window_;
-  ShaderManager* shader_manager_;
+  engine::GameEngine* engine_;
   std::map<unsigned, LightSource> light_sources_;
 
   // Bullet classes

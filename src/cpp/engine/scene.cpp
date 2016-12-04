@@ -8,11 +8,11 @@
 
 namespace engine {
 
-Scene::Scene(GLFWwindow* window, ShaderManager* shader_manager)
+Scene::Scene(engine::GameEngine* engine, GLFWwindow* window)
     : GameObject(nullptr)
     , camera_(nullptr)
     , window_(window)
-    , shader_manager_(shader_manager)
+    , engine_(engine)
     , physics_thread_should_quit_(false)
     , physics_thread_{[this](){
       while (true) {
@@ -33,6 +33,8 @@ Scene::~Scene() {
   physics_can_run_.Set();
   physics_thread_.join();
 }
+
+ShaderManager* Scene::shader_manager() const { return engine_->shader_manager(); }
 
 void Scene::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
@@ -115,7 +117,7 @@ void Scene::Render2DAll() {
 
 void Scene::UpdatePhysics() {
   if (bt_world_) {
-    bt_world_->stepSimulation(game_time().dt());
+    bt_world_->stepSimulation(game_time().dt(), 16, btScalar(1.)/btScalar(60.));
   }
 }
 

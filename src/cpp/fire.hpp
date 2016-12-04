@@ -63,6 +63,7 @@ public:
 private:
   unsigned lightid_;
   float born_at_;
+  bool first_update_ = true;
 
   virtual void Update() override;
 };

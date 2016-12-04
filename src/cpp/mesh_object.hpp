@@ -23,7 +23,7 @@ class MeshObject : public engine::GameObject {
   void set_recieve_shadows(bool value) { recieve_shadows_ = value; }
 
   btCollisionShape* GetCollisionShape();
-  engine::BoundingBox GetBoundingBox(const glm::mat4& transform) const;
+  engine::BoundingBox GetBoundingBox() const;
 
  private:
   bool cast_shadows_ = true;

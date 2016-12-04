@@ -28,15 +28,15 @@ public:
     prog_.validate();
   }
 
-  void Render(const gl::Texture2D& tex_) {
+  void Render(const gl::Texture2D& tex) {
     gl::Use(prog_);
-    gl::BindToTexUnit(tex_, 0);
+    gl::BindToTexUnit(tex, 0);
 
     gl::TemporarySet capabilies{{{gl::kCullFace, false},
                                  {gl::kDepthTest, false}}};
 
     rect_.render();
-    gl::Unbind(tex_);
+    gl::Unbind(tex);
   }
 };
 
