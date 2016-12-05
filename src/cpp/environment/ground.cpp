@@ -27,7 +27,7 @@ Ground::Ground(GameObject* parent)
     throw std::runtime_error("Image decoder error");
   }
 
-  gl::Bind(texture_);
+  gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
   texture_.upload(gl::kSrgb8Alpha8, width, height,
                   gl::kRgba, gl::kUnsignedByte, data.data());
   texture_.generateMipmap();
@@ -42,8 +42,8 @@ Ground::Ground(GameObject* parent)
   (prog_ | "aNormal").bindLocation(cube_.kNormal);
   (prog_ | "aTexCoord").bindLocation(cube_.kTexCoord);
 
-  gl::UniformSampler(prog_, "uShadowMap").set(0);
-  gl::UniformSampler(prog_, "uDiffuseTexture").set(1);
+  gl::UniformSampler(prog_, "uShadowMap").set(engine::kShadowTextureSlot);
+  gl::UniformSampler(prog_, "uDiffuseTexture").set(engine::kDiffuseTextureSlot);
 
   render_transform_.set_local_pos({0, -1, 0});
   render_transform_.set_scale({1024, 1, 1024});
@@ -62,23 +62,16 @@ void Ground::Render() {
   uCameraMatrix_ = cam->cameraMatrix();
   uProjectionMatrix_ = cam->projectionMatrix();
   uModelMatrix_ = render_transform_.matrix();
+  auto shadow_cam = scene_->shadow_camera();
+  uShadowCP_ = shadow_cam->projectionMatrix() * shadow_cam->cameraMatrix();
 
-  auto& shadow_cam = *dynamic_cast<engine::Shadow*>(scene_->shadow_camera());
-  uShadowCP_ = shadow_cam.projectionMatrix() * shadow_cam.cameraMatrix();
-  gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
-  shadow_cam.shadow_texture().compareMode(gl::kCompareRefToTexture);
-
-  gl::BindToTexUnit(texture_, 1);
+  gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
   gl::FrontFace(cube_.faceWinding());
   gl::TemporaryEnable cullface{gl::kCullFace};
 
   cube_.render();
 
-  gl::UnbindFromTexUnit(texture_, 1);
-
-  gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
-  shadow_cam.shadow_texture().compareMode(gl::kNone);
-  gl::Unbind(shadow_cam.shadow_texture());
+  gl::UnbindFromTexUnit(texture_, engine::kDiffuseTextureSlot);
 
   gl::Unuse(prog_);
 }

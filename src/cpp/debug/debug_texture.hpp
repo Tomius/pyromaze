@@ -22,7 +22,7 @@ public:
               shader_manager->get("debug_texture.frag")) {
 
     gl::Use(prog_);
-    gl::UniformSampler(prog_, "uTex").set(0);
+    gl::UniformSampler(prog_, "uTex") = engine::kDiffuseTextureSlot;
     (prog_ | "aPosition").bindLocation(rect_.kPosition);
     (prog_ | "aTexCoord").bindLocation(rect_.kTexCoord);
     prog_.validate();
@@ -31,7 +31,7 @@ public:
 
   void Render(const gl::Texture2D& tex) {
     gl::Use(prog_);
-    gl::BindToTexUnit(tex, 0);
+    gl::BindToTexUnit(tex, engine::kDiffuseTextureSlot);
 
     gl::TemporarySet capabilies{{{gl::kCullFace, false},
                                  {gl::kDepthTest, false}}};

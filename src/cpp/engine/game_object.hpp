@@ -14,6 +14,10 @@
 
 namespace engine {
 
+constexpr int kShadowTextureSlot = 0;
+constexpr int kVoxelTextureSlot = 1;
+constexpr int kDiffuseTextureSlot = 2;
+
 class Scene;
 
 class GameObject {
@@ -52,6 +56,7 @@ class GameObject {
   void set_enabled(bool value) { enabled_ = value; }
 
   virtual void Render() {}
+  virtual void Voxelize() {}
   virtual void ShadowRender() {}
   virtual void Render2D() {}
   virtual void Update() {}
@@ -64,6 +69,7 @@ class GameObject {
   virtual void MouseMoved(double /*xpos*/, double /*ypos*/) {}
 
   virtual void RenderAll();
+  virtual void VoxelizeAll();
   virtual void ShadowRenderAll();
   virtual void Render2DAll();
   virtual void UpdateAll();

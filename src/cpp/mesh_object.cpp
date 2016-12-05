@@ -35,13 +35,13 @@ public:
     mesh_.setupPositions(basic_prog_ | "aPosition");
     mesh_.setupTexCoords(basic_prog_ | "aTexCoord");
     mesh_.setupNormals(basic_prog_ | "aNormal");
-    mesh_.setupDiffuseTextures(1);
-    gl::UniformSampler(basic_prog_, "uDiffuseTexture").set(1);
+    mesh_.setupDiffuseTextures(engine::kDiffuseTextureSlot);
+    gl::UniformSampler(basic_prog_, "uDiffuseTexture").set(engine::kDiffuseTextureSlot);
     basic_prog_.validate();
 
     gl::Use(shadow_recieve_prog_);
-    gl::UniformSampler(shadow_recieve_prog_, "uShadowMap").set(0);
-    gl::UniformSampler(shadow_recieve_prog_, "uDiffuseTexture").set(1);
+    gl::UniformSampler(shadow_recieve_prog_, "uShadowMap").set(engine::kShadowTextureSlot);
+    gl::UniformSampler(shadow_recieve_prog_, "uDiffuseTexture").set(engine::kDiffuseTextureSlot);
     shadow_recieve_prog_.validate();
     gl::Unuse(shadow_recieve_prog_);
   }
@@ -61,25 +61,18 @@ public:
               bool recieve_shadows) {
     const auto& cam = *scene->camera();
     if (recieve_shadows) {
-      auto& shadow_cam = *dynamic_cast<engine::Shadow*>(scene->shadow_camera());
+      auto shadow_cam = scene->shadow_camera();
 
       gl::Use(shadow_recieve_prog_);
       shadow_recieve_prog_.update();
-
-      gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
-      shadow_cam.shadow_texture().compareMode(gl::kCompareRefToTexture);
 
       srp_uProjectionMatrix_ = cam.projectionMatrix();
       srp_uCameraMatrix_ = cam.cameraMatrix();
       srp_uModelMatrix_ = transform.matrix();
       srp_uNormalMatrix_ = glm::inverse(glm::mat3(transform.matrix()));
-      srp_uShadowCP_ = shadow_cam.projectionMatrix() * shadow_cam.cameraMatrix();
+      srp_uShadowCP_ = shadow_cam->projectionMatrix() * shadow_cam->cameraMatrix();
 
       mesh_.render();
-
-      gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
-      shadow_cam.shadow_texture().compareMode(gl::kNone);
-      gl::Unbind(shadow_cam.shadow_texture());
       gl::Unuse(shadow_recieve_prog_);
     } else {
       gl::Use(basic_prog_);

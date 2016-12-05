@@ -4,10 +4,10 @@
 
 in vec3 vDirection;
 
-uniform samplerCube tex;
+uniform samplerCube uTex;
 
 out vec4 fragColor;
 
 void main() {
-  fragColor = texture(tex, normalize(vec3(vDirection.x, vDirection.y, vDirection.z)));
+  fragColor = texture(uTex, normalize(vec3(vDirection.x, vDirection.y, vDirection.z)));
 }

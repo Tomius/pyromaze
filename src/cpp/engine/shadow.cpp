@@ -23,6 +23,7 @@ Shadow::Shadow(GameObject* parent, const glm::vec3& light_source_pos,
   depth_tex_.wrapT(gl::kClampToBorder);
   depth_tex_.borderColor(glm::vec4(1.0f));
   depth_tex_.compareFunc(gl::kLequal);
+  depth_tex_.compareMode(gl::kCompareRefToTexture);
   gl::Unbind(depth_tex_);
 
   // Setup the FBO

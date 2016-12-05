@@ -67,6 +67,15 @@ void GameObject::RenderAll() {
   }
 }
 
+void GameObject::VoxelizeAll() {
+  if (!enabled_) { return; }
+
+  Voxelize();
+  for (auto& component : components_) {
+    component->VoxelizeAll();
+  }
+}
+
 void GameObject::ShadowRenderAll() {
   if (!enabled_) { return; }
 

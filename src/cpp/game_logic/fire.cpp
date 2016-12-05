@@ -186,12 +186,14 @@ void Explosion::Update() {
     }
   }
   float life_time = current_time - born_at_;
-  scene_->EnumerateChildren([&](engine::GameObject* obj) {
-    Explodable* explodable = dynamic_cast<Explodable*>(obj);
-    if (explodable != nullptr) {
-      explodable->ReactToExplosion(transform().pos(), 6.5);
-    }
-  });
+  if (life_time < 0.5) {
+    scene_->EnumerateChildren([&](engine::GameObject* obj) {
+      Explodable* explodable = dynamic_cast<Explodable*>(obj);
+      if (explodable != nullptr) {
+        explodable->ReactToExplosion(transform().pos(), 6.5);
+      }
+    });
+  }
   float lightness = std::min(std::pow(100000, 1.0f-sqrt(life_time)), 100.0);
   scene_->GetLightSource(lightid_).color = glm::vec3{lightness};
   scene_->GetLightSource(lightid_).position = transform().pos();

@@ -24,7 +24,7 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
   assert(width / 4 == height / 3);
   unsigned size = width / 4;
 
-  gl::Bind(texture_);
+  gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
   for (int i = 0; i < 6; ++i) {
     std::vector<unsigned> subdata;
     int startx, starty;
@@ -47,9 +47,11 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
   }
   texture_.minFilter(gl::kLinear);
   texture_.magFilter(gl::kLinear);
+  gl::Unbind(texture_);
 
   gl::Use(prog_);
   prog_.validate();
+  gl::UniformSampler(prog_, "uTex") = engine::kDiffuseTextureSlot;
   (prog_ | "aPosition").bindLocation(cube_.kPosition);
   gl::Unuse(prog_);
 }
@@ -66,7 +68,7 @@ void Skybox::Render() {
   gl::TemporaryDisable depth_test{gl::kDepthTest};
   gl::TemporaryEnable cubemapSeamless{gl::kTextureCubeMapSeamless};
 
-  gl::Bind(texture_);
+  gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
   gl::DepthMask(false);
 
   cube_.render();

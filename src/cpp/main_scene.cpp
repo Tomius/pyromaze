@@ -73,7 +73,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   CreateLabyrinth();
 
   auto cam = AddComponent<engine::BulletFreeFlyCamera>(
-      M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 12, 10);
+      M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 15, 10);
   set_camera(cam);
 
   engine::Transform playerTransform{&cam->transform()};
@@ -83,10 +83,6 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
 void MainScene::CreateLabyrinth() {
   //auto envir = AddComponent<GameObject>(); // TODO
   auto envir = this;
-
-  // GameObject* castle = envir->AddComponent<Castle>();
-  // castle->transform().set_scale({32, 32, 32});
-  // castle->transform().set_local_pos({0, -12, 0});
 
   envir->AddComponent<Ground>();
 
@@ -133,6 +129,8 @@ void MainScene::RenderAll() {
 #if 0
   DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
 #else
+  gl::BindToTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
   Scene::RenderAll();
+  gl::UnbindFromTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
 #endif
 }
