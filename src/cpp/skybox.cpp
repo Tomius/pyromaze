@@ -51,6 +51,7 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
   gl::Use(prog_);
   prog_.validate();
   (prog_ | "aPosition").bindLocation(cube_.kPosition);
+  gl::Unuse(prog_);
 }
 
 
@@ -72,4 +73,5 @@ void Skybox::Render() {
 
   gl::DepthMask(true);
   gl::Unbind(texture_);
+  gl::Unuse(prog_);
 }

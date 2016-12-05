@@ -22,6 +22,11 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   srand(time(nullptr));
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+  // cache in the dynamic meshes (so first use won't be slow)
+  {
+    Dynamite dynamite{this, 0};
+  }
+
   { // Bullet initilization
     bt_collision_config_ = engine::make_unique<btDefaultCollisionConfiguration>();
     bt_dispatcher_ = engine::make_unique<btCollisionDispatcher>(bt_collision_config_.get());
@@ -59,7 +64,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
   AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.1f}});
 
-  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, kLabyrinthDiameter}, 4096);
+  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, kLabyrinthDiameter*kWallLength}, 4096);
   set_shadow_camera(shadow_);
 
   AddComponent<Skybox>("src/resource/skybox.png");

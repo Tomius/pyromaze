@@ -26,6 +26,7 @@ class DynamiteRenderer {
     gl::UniformSampler(prog_, "uDiffuseTexture").set(0);
 
     prog_.validate();
+    gl::Unuse(prog_);
   }
 
   void Render(const glm::mat4& projection_matrix,
@@ -43,6 +44,7 @@ class DynamiteRenderer {
     uFirePos_ = fire_pos;
 
     mesh_.render();
+    gl::Unuse(prog_);
   }
 
  private:

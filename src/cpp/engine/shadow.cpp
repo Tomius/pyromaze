@@ -16,9 +16,8 @@ Shadow::Shadow(GameObject* parent, const glm::vec3& light_source_pos,
     , light_source_pos_(light_source_pos)
     , target_bounding_sphere_(target_bounding_sphere) {
   gl::Bind(depth_tex_);
-  depth_tex_.upload(static_cast<gl::enums::PixelDataInternalFormat>(GL_DEPTH_COMPONENT32F), size_, size_, gl::kDepthComponent, gl::kFloat, nullptr);
-  depth_tex_.maxAnisotropy();
-  depth_tex_.minFilter(gl::kLinear);
+  depth_tex_.upload(static_cast<gl::enums::PixelDataInternalFormat>(GL_DEPTH_COMPONENT16), size_, size_, gl::kDepthComponent, gl::kFloat, nullptr);
+  depth_tex_.minFilter(gl::kNearest);
   depth_tex_.magFilter(gl::kLinear);
   depth_tex_.wrapS(gl::kClampToBorder);
   depth_tex_.wrapT(gl::kClampToBorder);

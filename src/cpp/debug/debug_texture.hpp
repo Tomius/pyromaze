@@ -26,6 +26,7 @@ public:
     (prog_ | "aPosition").bindLocation(rect_.kPosition);
     (prog_ | "aTexCoord").bindLocation(rect_.kTexCoord);
     prog_.validate();
+    gl::Unuse(prog_);
   }
 
   void Render(const gl::Texture2D& tex) {
@@ -37,6 +38,7 @@ public:
 
     rect_.render();
     gl::Unbind(tex);
+    gl::Unuse(prog_);
   }
 };
 

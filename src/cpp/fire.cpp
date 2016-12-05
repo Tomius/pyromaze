@@ -32,6 +32,7 @@ ParticleSystem::ParticleSystem(GameObject* parent, ParticleGen generator,
   (prog_ | "aPosition").bindLocation(cube_.kPosition);
 
   particles_.resize(max_particles_at_once_);
+  gl::Unuse(prog_);
 }
 
 void ParticleSystem::Update() {
@@ -112,6 +113,7 @@ void ParticleSystem::Render() {
       cube_.render();
     }
   }
+  gl::Unuse(prog_);
 }
 
 Particle FireParticle(glm::vec3 startpos, float current_time) {

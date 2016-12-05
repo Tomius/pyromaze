@@ -6,9 +6,10 @@
 class MeshObjectRender {
 public:
   MeshObjectRender (const std::string& mesh_path, engine::ShaderManager* shader_manager)
-      : mesh_("src/resource/" + mesh_path, aiProcessPreset_TargetRealtime_Quality |
+      : mesh_("src/resource/" + mesh_path, aiProcessPreset_TargetRealtime_Fast |
                                            aiProcess_FlipUVs |
-                                           aiProcess_PreTransformVertices)
+                                           aiProcess_PreTransformVertices |
+                                           aiProcess_Triangulate)
       , basic_prog_(shader_manager->get("mesh.vert"),
                     shader_manager->get("mesh.frag"))
       , shadow_recieve_prog_(shader_manager->get("mesh.vert"),
@@ -42,6 +43,7 @@ public:
     gl::UniformSampler(shadow_recieve_prog_, "uShadowMap").set(0);
     gl::UniformSampler(shadow_recieve_prog_, "uDiffuseTexture").set(1);
     shadow_recieve_prog_.validate();
+    gl::Unuse(shadow_recieve_prog_);
   }
 
   btCollisionShape* GetCollisionShape() {
@@ -78,6 +80,7 @@ public:
       gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
       shadow_cam.shadow_texture().compareMode(gl::kNone);
       gl::Unbind(shadow_cam.shadow_texture());
+      gl::Unuse(shadow_recieve_prog_);
     } else {
       gl::Use(basic_prog_);
       basic_prog_.update();
@@ -88,6 +91,7 @@ public:
       bp_uNormalMatrix_ = glm::inverse(glm::mat3(transform.matrix()));
 
       mesh_.render();
+      gl::Unuse(basic_prog_);
     }
   }
 
@@ -105,6 +109,7 @@ public:
       scp_uModelMatrix_ = transform.matrix();
 
       mesh_.render();
+      gl::Unuse(shadow_cast_prog_);
     }
   }
 

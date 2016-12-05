@@ -50,6 +50,7 @@ Ground::Ground(GameObject* parent)
 
   btCollisionShape* shape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
   AddComponent<engine::BulletRigidBody>(0.0f, shape);
+  gl::Unuse(prog_);
 }
 
 
@@ -78,4 +79,6 @@ void Ground::Render() {
   gl::BindToTexUnit(shadow_cam.shadow_texture(), 0);
   shadow_cam.shadow_texture().compareMode(gl::kNone);
   gl::Unbind(shadow_cam.shadow_texture());
+
+  gl::Unuse(prog_);
 }

@@ -19,8 +19,10 @@ DebugShape<Shape_t>::DebugShape(GameObject* parent, const glm::vec3& color)
       , uModelMatrix_{prog_, "uModelMatrix"}
       , uColor_{prog_, "uColor"}
       , color_(color) {
+  gl::Use(prog_);
   (prog_ | "aPosition").bindLocation(shape_.kPosition);
   (prog_ | "aNormal").bindLocation(shape_.kNormal);
+  gl::Unuse(prog_);
 }
 
 template<typename Shape_t>
@@ -35,6 +37,7 @@ void DebugShape<Shape_t>::Render() {
   gl::FrontFace(shape_.faceWinding());
   gl::TemporaryEnable cullface{gl::kCullFace};
   shape_.render();
+  gl::Unuse(prog_);
 }
 
 }  // namespace debug
