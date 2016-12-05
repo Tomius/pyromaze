@@ -110,7 +110,7 @@ void MainScene::CreateLabyrinth() {
       engine::Transform wall_transform;
       wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
       MeshObject* wall = envir->AddComponent<MeshObject>("wall/bigwall1.obj", wall_transform);
-      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape());
+      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape(), engine::kColStatic);
     }
   }
 
@@ -119,7 +119,7 @@ void MainScene::CreateLabyrinth() {
       engine::Transform wall_transform;
       wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
       MeshObject* wall = envir->AddComponent<MeshObject>("wall/bigwall2.obj", wall_transform);
-      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape());
+      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape(), engine::kColStatic);
     }
   }
 }

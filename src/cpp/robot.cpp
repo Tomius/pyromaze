@@ -4,7 +4,7 @@
 
 Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transform)
     : MeshObject(parent, "robot.obj", initial_transform) {
-  rbody_ = AddComponent<engine::BulletRigidBody>(1.0f, engine::make_unique<btSphereShape>(1.0));
+  rbody_ = AddComponent<engine::BulletRigidBody>(1.0f, engine::make_unique<btSphereShape>(1.0), engine::kColDynamic);
   engine::BulletRigidBody::Restrains restrains;
   restrains.y_pos_lock = 1;
   restrains.x_rot_lock = 1;

@@ -27,6 +27,7 @@ class GameEngine {
   void Run();
 
  private:
+  bool minimized_ = false;
   std::unique_ptr<Scene> scene_;
   std::unique_ptr<Scene> new_scene_;
   ShaderManager shader_manager_;

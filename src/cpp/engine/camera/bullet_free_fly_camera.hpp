@@ -21,7 +21,7 @@ class BulletFreeFlyCamera : public engine::FreeFlyCamera {
     float radius = 3.0f * z_near;
     btCollisionShape* shape = new btSphereShape(radius);
     auto rbody = AddComponent<BulletRigidBody>(
-      1.0f, std::unique_ptr<btCollisionShape>{shape});
+      1.0f, std::unique_ptr<btCollisionShape>{shape}, engine::kColDynamic);
     BulletRigidBody::Restrains restrains;
     restrains.y_pos_lock = 1;
     restrains.manual_rot = 1;

@@ -8,13 +8,13 @@
 Wall::Wall(GameObject *parent, const engine::Transform& initial_transform)
     : GameObject(parent) {
   MeshObject* pillars = AddComponent<MeshObject>("wall/pillars.obj", initial_transform);
-  pillars->AddComponent<engine::BulletRigidBody>(0.0f, pillars->GetCollisionShape());
+  pillars->AddComponent<engine::BulletRigidBody>(0.0f, pillars->GetCollisionShape(), engine::kColStatic);
   pillars_bb_ = pillars->GetBoundingBox();
 
   for (int i = 0; i < 4; ++i) {
     if ((rand() % 10) != 0) {
       wall_parts_[i] = AddComponent<MeshObject>("wall/wall" + std::to_string(i+1) + ".obj", initial_transform);
-      wall_parts_[i]->AddComponent<engine::BulletRigidBody>(0.0f, wall_parts_[i]->GetCollisionShape());
+      wall_parts_[i]->AddComponent<engine::BulletRigidBody>(0.0f, wall_parts_[i]->GetCollisionShape(), engine::kColStatic);
       walls_bb_[i] = wall_parts_[i]->GetBoundingBox();
     } else {
       wall_parts_[i] = nullptr;

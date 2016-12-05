@@ -9,48 +9,54 @@ namespace engine {
 
 
 BulletRigidBody::BulletRigidBody(GameObject* parent, float mass,
-                                 std::unique_ptr<btCollisionShape>&& shape)
+                                 std::unique_ptr<btCollisionShape>&& shape,
+                                 CollisionType collision_type)
     : GameObject(parent), shape_(std::move(shape)), up_to_date_(true) {
-  Init(mass, shape_.get());
-}
-
-BulletRigidBody::BulletRigidBody(GameObject* parent, float mass,
-                                 btCollisionShape* shape)
-    : GameObject(parent), up_to_date_(true) {
-  Init(mass, shape);
+  Init(mass, shape_.get(), collision_type);
 }
 
 BulletRigidBody::BulletRigidBody(GameObject* parent, float mass,
                                  btCollisionShape* shape,
-                                 const glm::vec3& pos)
+                                 CollisionType collision_type)
+    : GameObject(parent), up_to_date_(true) {
+  Init(mass, shape, collision_type);
+}
+
+BulletRigidBody::BulletRigidBody(GameObject* parent, float mass,
+                                 btCollisionShape* shape,
+                                 const glm::vec3& pos,
+                                 CollisionType collision_type)
     : GameObject(parent), up_to_date_(true) {
   transform().set_pos(pos);
-  Init(mass, shape);
+  Init(mass, shape, collision_type);
 }
 
 BulletRigidBody::BulletRigidBody(GameObject* parent, float mass,
                                  std::unique_ptr<btCollisionShape>&& shape,
-                                 const glm::vec3& pos)
+                                 const glm::vec3& pos,
+                                 CollisionType collision_type)
     : GameObject(parent), shape_(std::move(shape)), up_to_date_(true) {
   transform().set_pos(pos);
-  Init(mass, shape_.get());
+  Init(mass, shape_.get(), collision_type);
 }
 
 BulletRigidBody::BulletRigidBody(GameObject* parent, float mass, btCollisionShape* shape,
-                                 const glm::vec3& pos, const glm::fquat& rot)
+                                 const glm::vec3& pos, const glm::fquat& rot,
+                                 CollisionType collision_type)
     : GameObject(parent), up_to_date_(true) {
   transform().set_pos(pos);
   transform().set_rot(rot);
-  Init(mass, shape);
+  Init(mass, shape, collision_type);
 }
 
 BulletRigidBody::BulletRigidBody(GameObject* parent, float mass,
                                  std::unique_ptr<btCollisionShape>&& shape,
-                                 const glm::vec3& pos, const glm::fquat& rot)
+                                 const glm::vec3& pos, const glm::fquat& rot,
+                                 CollisionType collision_type)
     : GameObject(parent), shape_(std::move(shape)), up_to_date_(true) {
   transform().set_pos(pos);
   transform().set_rot(rot);
-  Init(mass, shape.get());
+  Init(mass, shape.get(), collision_type);
 }
 
 BulletRigidBody::Restrains::Restrains()
@@ -69,16 +75,17 @@ BulletRigidBody::~BulletRigidBody() {
 
 void BulletRigidBody::set_restrains(Restrains value) {
   restrains_ = value;
-  bt_rigid_body_->setLinearFactor(btVector3{
+  bt_rigid_body_->setLinearFactor(btVector3(
     1-value.x_pos_lock, 1-value.y_pos_lock, 1-value.z_pos_lock
-  });
+  ));
 
-  bt_rigid_body_->setAngularFactor(btVector3{
+  bt_rigid_body_->setAngularFactor(btVector3(
     1-value.x_rot_lock, 1-value.y_rot_lock, 1-value.z_rot_lock
-  });
+  ));
 }
 
-void BulletRigidBody::Init(float mass, btCollisionShape* shape) {
+void BulletRigidBody::Init(float mass, btCollisionShape* shape,
+                           CollisionType collision_type) {
   btVector3 inertia(0, 0, 0);
   if (mass != 0.0f) {
     shape->calculateLocalInertia(mass, inertia);
@@ -87,7 +94,7 @@ void BulletRigidBody::Init(float mass, btCollisionShape* shape) {
   bt_rigid_body_ = engine::make_unique<btRigidBody>(info);
   bt_rigid_body_->setUserPointer(parent_);
   if (mass == 0.0f) { bt_rigid_body_->setRestitution(1.0f); }
-  scene_->bt_world()->addRigidBody(bt_rigid_body_.get());
+  scene_->bt_world()->addRigidBody(bt_rigid_body_.get(), static_cast<int>(collision_type), CollidesWith(collision_type));
 }
 
 void BulletRigidBody::getWorldTransform(btTransform &t) const {

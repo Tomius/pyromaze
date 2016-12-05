@@ -49,7 +49,7 @@ Ground::Ground(GameObject* parent)
   render_transform_.set_scale({1024, 1, 1024});
 
   btCollisionShape* shape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
-  AddComponent<engine::BulletRigidBody>(0.0f, shape);
+  AddComponent<engine::BulletRigidBody>(0.0f, shape, engine::kColStatic);
   gl::Unuse(prog_);
 }
 

@@ -9,27 +9,53 @@
 
 namespace engine {
 
+#define BIT(x) (1<<(x))
+enum CollisionType {
+  kColNothing   = 0,        // collides with nothing
+  kColStatic    = BIT(0),   // envir: wall / ground / dynamite
+  kColDynamic   = BIT(1),   // characters
+  kColParticle  = BIT(2)    // particles are special (there's no particle-particle collision)
+};
+
+inline int CollidesWith(CollisionType collType) {
+  switch (collType) {
+    case kColStatic:
+      return kColDynamic | kColParticle;
+    case kColDynamic:
+      return kColStatic | kColDynamic | kColParticle;
+    case kColParticle:
+      return kColStatic | kColDynamic;
+    default:
+      return kColNothing;
+  }
+}
+
+
 class BulletRigidBody : public engine::GameObject, public btMotionState {
  public:
-  BulletRigidBody(GameObject* parent, float mass,
-                  std::unique_ptr<btCollisionShape>&& shape);
-
-  BulletRigidBody(GameObject* parent, float mass,
-                  btCollisionShape* shape);
-
-  BulletRigidBody(GameObject* parent, float mass, btCollisionShape* shape,
-                  const glm::vec3& pos);
 
   BulletRigidBody(GameObject* parent, float mass,
                   std::unique_ptr<btCollisionShape>&& shape,
-                  const glm::vec3& pos);
+                  CollisionType collision_type);
+
+  BulletRigidBody(GameObject* parent, float mass,
+                  btCollisionShape* shape, CollisionType collision_type);
 
   BulletRigidBody(GameObject* parent, float mass, btCollisionShape* shape,
-                  const glm::vec3& pos, const glm::fquat& rot);
+                  const glm::vec3& pos, CollisionType collision_type);
 
   BulletRigidBody(GameObject* parent, float mass,
                   std::unique_ptr<btCollisionShape>&& shape,
-                  const glm::vec3& pos, const glm::fquat& rot);
+                  const glm::vec3& pos, CollisionType collision_type);
+
+  BulletRigidBody(GameObject* parent, float mass, btCollisionShape* shape,
+                  const glm::vec3& pos, const glm::fquat& rot,
+                  CollisionType collision_type);
+
+  BulletRigidBody(GameObject* parent, float mass,
+                  std::unique_ptr<btCollisionShape>&& shape,
+                  const glm::vec3& pos, const glm::fquat& rot,
+                  CollisionType collision_type);
 
   virtual ~BulletRigidBody();
 
@@ -58,7 +84,7 @@ class BulletRigidBody : public engine::GameObject, public btMotionState {
   btTransform new_transform_;
   Restrains restrains_;
 
-  void Init(float mass, btCollisionShape* shape);
+  void Init(float mass, btCollisionShape* shape, CollisionType collision_type);
 
   // GameObject virtual functions
   virtual void Update() override;

@@ -124,10 +124,12 @@ void GameEngine::Run() {
       std::swap(scene_, new_scene_);
       new_scene_ = nullptr;
     }
-    gl::Clear().Color().Depth();
-    scene_->Turn();
+    if (!minimized_) {
+      gl::Clear().Color().Depth();
+      scene_->Turn();
 
-    glfwSwapBuffers(window_);
+      glfwSwapBuffers(window_);
+    }
     glfwPollEvents();
   }
 }
@@ -173,8 +175,13 @@ void GameEngine::CharCallback(GLFWwindow* window, unsigned codepoint) {
 void GameEngine::ScreenResizeCallback(GLFWwindow* window, int width, int height) {
   gl::Viewport(width, height);
   GameEngine* game_engine = reinterpret_cast<GameEngine*>(glfwGetWindowUserPointer(window));
-  if (game_engine && game_engine->scene_) {
-    game_engine->scene_->ScreenResizedAll(width, height);
+  if (game_engine) {
+    if (width == 0 || height == 0) {
+      game_engine->minimized_ = true;
+    } else if (game_engine->scene_) {
+      game_engine->minimized_ = false;
+      game_engine->scene_->ScreenResizedAll(width, height);
+    }
   }
 }
 
