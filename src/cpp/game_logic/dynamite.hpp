@@ -10,7 +10,7 @@
 #include "engine/shader_manager.hpp"
 #include "engine/mesh/mesh_renderer.hpp"
 
-#include "./fire.hpp"
+#include "game_logic/fire.hpp"
 
 class Dynamite : public engine::GameObject {
  public:

@@ -1,5 +1,5 @@
-#include "./player.hpp"
-#include "./dynamite.hpp"
+#include "game_logic/player.hpp"
+#include "game_logic/dynamite.hpp"
 #include "./main_scene.hpp"
 
 #include "engine/scene.hpp"

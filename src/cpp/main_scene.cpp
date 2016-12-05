@@ -1,12 +1,13 @@
 #include "./main_scene.hpp"
-#include "./ground.hpp"
-#include "./wall.hpp"
-#include "./skybox.hpp"
-#include "./fire.hpp"
-#include "./dynamite.hpp"
-#include "./castle.hpp"
-#include "./robot.hpp"
-#include "./player.hpp"
+
+#include "environment/ground.hpp"
+#include "environment/wall.hpp"
+#include "environment/skybox.hpp"
+
+#include "game_logic/fire.hpp"
+#include "game_logic/dynamite.hpp"
+#include "game_logic/robot.hpp"
+#include "game_logic/player.hpp"
 
 #include "engine/common/make_unique.hpp"
 #include "engine/camera/bullet_free_fly_camera.hpp"

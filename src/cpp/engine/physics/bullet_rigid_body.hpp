@@ -30,7 +30,6 @@ inline int CollidesWith(CollisionType collType) {
   }
 }
 
-
 class BulletRigidBody : public engine::GameObject, public btMotionState {
  public:
 

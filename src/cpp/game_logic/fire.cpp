@@ -1,7 +1,7 @@
-#include "./fire.hpp"
+#include "game_logic/fire.hpp"
+#include "game_logic/explodable.hpp"
 #include "engine/common/math.hpp"
 #include "engine/scene.hpp"
-#include "wall.hpp"
 
 bool Particle::IsAlive(float current_time) {
   return born_at + lifespan > current_time;
@@ -163,8 +163,6 @@ void Fire::Update() {
   scene_->GetLightSource(lightid_).position = transform().pos();
   ParticleSystem::Update();
 }
-
-
 
 Explosion::Explosion(GameObject* parent)
     : ParticleSystem(parent, ExplosionParticle, 2800, 0, 3000) {

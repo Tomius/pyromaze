@@ -1,5 +1,5 @@
-#include "./robot.hpp"
-#include "./player.hpp"
+#include "game_logic/robot.hpp"
+#include "game_logic/player.hpp"
 #include "engine/scene.hpp"
 
 Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transform)

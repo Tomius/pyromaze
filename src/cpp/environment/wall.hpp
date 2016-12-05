@@ -5,8 +5,8 @@
 
 #include <array>
 #include "./mesh_object.hpp"
+#include "game_logic/explodable.hpp"
 #include "engine/collision/bounding_box.hpp"
-#include "explodable.hpp"
 
 class Wall : public engine::GameObject, public Explodable {
  public:

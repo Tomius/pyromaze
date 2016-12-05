@@ -1,6 +1,6 @@
 // Copyright (c) Tamas Csala
 
-#include "./dynamite.hpp"
+#include "game_logic/dynamite.hpp"
 #include "engine/scene.hpp"
 
 class DynamiteRenderer {
