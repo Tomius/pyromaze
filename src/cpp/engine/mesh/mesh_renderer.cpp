@@ -18,6 +18,7 @@ MeshRenderer::MeshRenderer(const std::string& filename,
     , entries_(scene_ ? scene_->mNumMeshes : 0)
     , is_setup_positions_(false)
     , is_setup_normals_(false)
+    , is_setup_tangents_(false)
     , is_setup_tex_coords_(false)
     , textures_enabled_(true) {
   if (!scene_) {
@@ -191,6 +192,35 @@ void MeshRenderer::setupNormals(gl::VertexAttrib attrib) {
   gl::Unbind(gl::kArrayBuffer);
   gl::Unbind(gl::kVertexArray);
 }
+
+void MeshRenderer::setupTangents(gl::VertexAttrib attrib) {
+  if (!is_setup_tangents_) {
+    is_setup_tangents_ = true;
+  } else {
+    std::cerr << "MeshRenderer::setupTangents is called multiple times on the "
+                 "same object. If the two calls want to set tangents up into "
+                 "the same attribute position, then the second call is "
+                 "unneccesary. If they want to set the tangents to different "
+                 "attribute positions then the second call would make the "
+                 "first call not work anymore. Either way, calling "
+                 "setupTangents multiply times is a design error, that should "
+                 "be avoided.";
+    std::terminate();
+  }
+
+  for (size_t i = 0; i < entries_.size(); i++) {
+    const aiMesh* mesh = scene_->mMeshes[i];
+    gl::Bind(entries_[i].vao);
+
+    gl::Bind(entries_[i].tangents);
+    entries_[i].tangents.data(mesh->mNumVertices*sizeof(aiVector3D), mesh->mTangents);
+    attrib.setup<float>(3).enable();
+  }
+
+  gl::Unbind(gl::kArrayBuffer);
+  gl::Unbind(gl::kVertexArray);
+}
+
 
 /// Checks if every mesh in the scene has tex_coords
 /** Returns true if all of the meshes in the scene have texture

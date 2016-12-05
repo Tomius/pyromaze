@@ -53,6 +53,12 @@ Ground::Ground(GameObject* parent)
   gl::Unuse(prog_);
 }
 
+void Ground::Voxelize(gl::LazyUniform<glm::mat4>& uModelMatrix) {
+  gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
+  uModelMatrix = render_transform_.matrix();
+  cube_.render();
+  gl::UnbindFromTexUnit(texture_, engine::kDiffuseTextureSlot);
+}
 
 void Ground::Render() {
   gl::Use(prog_);

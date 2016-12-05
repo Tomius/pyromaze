@@ -23,6 +23,7 @@ class Ground : public engine::GameObject {
 
   engine::Transform render_transform_;
 
+  virtual void Voxelize(gl::LazyUniform<glm::mat4>& uModelMatrix) override;
   virtual void Render() override;
 };
 

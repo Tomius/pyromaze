@@ -31,6 +31,7 @@ class MeshObject : public engine::GameObject {
   MeshObjectRender& renderer_;
 
   virtual void Render() override;
+  virtual void Voxelize(gl::LazyUniform<glm::mat4>& uModelMatrix) override;
   virtual void ShadowRender() override;
 };
 

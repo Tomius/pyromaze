@@ -3,6 +3,7 @@
 
 #include "engine/scene.hpp"
 #include "engine/shadow.hpp"
+#include "engine/vct.hpp"
 
 class MainScene : public engine::Scene {
  public:
@@ -10,6 +11,7 @@ class MainScene : public engine::Scene {
 
  private:
   engine::Shadow* shadow_;
+  engine::VCT* vct_;
 
   void CreateLabyrinth();
 

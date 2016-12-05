@@ -9,6 +9,8 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
+#include <glad/glad.h>
+#include <oglwrap/oglwrap.h>
 
 #include "engine/common/transform.hpp"
 
@@ -56,7 +58,7 @@ class GameObject {
   void set_enabled(bool value) { enabled_ = value; }
 
   virtual void Render() {}
-  virtual void Voxelize() {}
+  virtual void Voxelize(gl::LazyUniform<glm::mat4>& /*uModelMatrix*/) {}
   virtual void ShadowRender() {}
   virtual void Render2D() {}
   virtual void Update() {}
@@ -69,7 +71,7 @@ class GameObject {
   virtual void MouseMoved(double /*xpos*/, double /*ypos*/) {}
 
   virtual void RenderAll();
-  virtual void VoxelizeAll();
+  virtual void VoxelizeAll(gl::LazyUniform<glm::mat4>& uModelMatrix);
   virtual void ShadowRenderAll();
   virtual void Render2DAll();
   virtual void UpdateAll();

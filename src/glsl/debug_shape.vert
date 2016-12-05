@@ -1,15 +1,15 @@
 // Copyright (c) 2014, Tamas Csala
 
-#version 120
+#version 330 core
 
-attribute vec4 aPosition;
-attribute vec3 aNormal;
+layout(location = 0) in vec4 aPosition;
+layout(location = 2) in vec3 aNormal;
 
 uniform mat4 uProjectionMatrix = mat4(1.0),
              uCameraMatrix = mat4(1.0),
              uModelMatrix = mat4(1.0);
 
-varying vec3 w_vNormal;
+out vec3 w_vNormal;
 
 void main() {
   w_vNormal = mat3(uModelMatrix) * aNormal;

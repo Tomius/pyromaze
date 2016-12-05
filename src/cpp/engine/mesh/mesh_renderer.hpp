@@ -24,7 +24,7 @@ class MeshRenderer {
    */
   struct MeshEntry {
     gl::VertexArray vao;
-    gl::ArrayBuffer verts, normals, tex_coords;
+    gl::ArrayBuffer verts, normals, tangents, tex_coords;
     gl::IndexBuffer indices;
     unsigned idx_count, material_index;
     static const unsigned kInvalidMaterial = unsigned(-1);
@@ -64,6 +64,7 @@ class MeshRenderer {
   bool is_setup_positions_;
   /// Stores if the setupNormals function is called (they shouldn't be called more than once).
   bool is_setup_normals_;
+  bool is_setup_tangents_;
   /// Stores if the setup_texCoords function is called (they shouldn't be called more than once).
   bool is_setup_tex_coords_;
   /// Textures can be disabled, and not used for rendering
@@ -112,6 +113,8 @@ public:
     * Calling this function changes the currently active VAO and ArrayBuffer.
     * @param attrib - The attribute array to use as destination. */
   void setupNormals(gl::VertexAttrib attrib);
+
+  void setupTangents(gl::VertexAttrib attrib);
 
   /// Checks if every mesh in the scene has tex_coords
   /** Returns true if all of the meshes in the scene have texture

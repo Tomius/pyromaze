@@ -14,9 +14,10 @@
 
 #include "debug/debug_shape.hpp"
 #include "debug/debug_texture.hpp"
+#include "debug/debug_voxels.hpp"
 
 constexpr int kWallLength = 20;
-constexpr int kLabyrinthRadius = 6, kLabyrinthDiameter = 2*kLabyrinthRadius + 1;
+constexpr int kLabyrinthRadius = 6;
 
 MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
     : Scene(engine, window) {
@@ -65,8 +66,10 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
   AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.1f}});
 
-  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, kLabyrinthDiameter*kWallLength}, 4096);
+  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, (kLabyrinthRadius+1)*kWallLength}, 4096);
   set_shadow_camera(shadow_);
+
+  vct_ = AddComponent<engine::VCT>();
 
   AddComponent<Skybox>("src/resource/skybox.png");
 
@@ -92,7 +95,8 @@ void MainScene::CreateLabyrinth() {
       wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
       envir->AddComponent<Wall>(wall_transform);
 
-      if (x != 0 && z != 0 && rand()%4 != 0) {
+      if (!(x == 0 && z == 0) && x != kLabyrinthRadius && z != kLabyrinthRadius &&
+          rand()%2 == 0) {
         engine::Transform robot_transform;
         robot_transform.set_local_pos({x * kWallLength + kWallLength/2.0, 3,
                                        z * kWallLength + kWallLength/2.0});
@@ -130,7 +134,18 @@ void MainScene::RenderAll() {
   DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
 #else
   gl::BindToTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
+  gl::BindToTexUnit(vct_->voxel_texture(), engine::kVoxelTextureSlot);
+  // Bind single level of texture to image unit so we can write to it from shaders
+  glBindImageTexture(engine::kVoxelTextureSlot, vct_->voxel_texture().expose(), 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+  vct_->VoxelizeStart();
+  Scene::VoxelizeAll(vct_->uModelMatrix());
+  vct_->VoxelizeEnd();
+
   Scene::RenderAll();
+  // DebugVoxels(shader_manager(), vct_->voxel_dimensions(), vct_->voxel_grid_world_size()).Render(this);
+
+  gl::UnbindFromTexUnit(vct_->voxel_texture(), engine::kVoxelTextureSlot);
   gl::UnbindFromTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
 #endif
 }

@@ -9,11 +9,12 @@ public:
       : mesh_("src/resource/" + mesh_path, aiProcessPreset_TargetRealtime_Fast |
                                            aiProcess_FlipUVs |
                                            aiProcess_PreTransformVertices |
-                                           aiProcess_Triangulate)
+                                           aiProcess_Triangulate |
+                                           aiProcess_CalcTangentSpace)
       , basic_prog_(shader_manager->get("mesh.vert"),
                     shader_manager->get("mesh.frag"))
       , shadow_recieve_prog_(shader_manager->get("mesh.vert"),
-                             shader_manager->get("mesh_shadow.frag"))
+                             shader_manager->get("mesh_vct.frag"))
       , shadow_cast_prog_(shader_manager->get("shadow.vert"),
                           shader_manager->get("shadow.frag"))
 
@@ -35,12 +36,14 @@ public:
     mesh_.setupPositions(basic_prog_ | "aPosition");
     mesh_.setupTexCoords(basic_prog_ | "aTexCoord");
     mesh_.setupNormals(basic_prog_ | "aNormal");
+    mesh_.setupTangents(gl::VertexAttrib{3});
     mesh_.setupDiffuseTextures(engine::kDiffuseTextureSlot);
     gl::UniformSampler(basic_prog_, "uDiffuseTexture").set(engine::kDiffuseTextureSlot);
     basic_prog_.validate();
 
     gl::Use(shadow_recieve_prog_);
     gl::UniformSampler(shadow_recieve_prog_, "uShadowMap").set(engine::kShadowTextureSlot);
+    gl::UniformSampler(shadow_recieve_prog_, "uVoxelTexture").set(engine::kVoxelTextureSlot);
     gl::UniformSampler(shadow_recieve_prog_, "uDiffuseTexture").set(engine::kDiffuseTextureSlot);
     shadow_recieve_prog_.validate();
     gl::Unuse(shadow_recieve_prog_);
@@ -86,6 +89,10 @@ public:
       mesh_.render();
       gl::Unuse(basic_prog_);
     }
+  }
+
+  void Voxelize() {
+    mesh_.render();
   }
 
   void ShadowRender(engine::Scene* scene,
@@ -161,6 +168,11 @@ engine::BoundingBox MeshObject::GetBoundingBox() const {
 
 void MeshObject::Render() {
   renderer_.Render(scene_, transform(), recieve_shadows_);
+}
+
+void MeshObject::Voxelize(gl::LazyUniform<glm::mat4>& uModelMatrix) {
+  uModelMatrix = transform().matrix();
+  renderer_.Voxelize();
 }
 
 void MeshObject::ShadowRender() {

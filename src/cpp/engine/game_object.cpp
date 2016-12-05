@@ -67,12 +67,12 @@ void GameObject::RenderAll() {
   }
 }
 
-void GameObject::VoxelizeAll() {
+void GameObject::VoxelizeAll(gl::LazyUniform<glm::mat4>& uModelMatrix) {
   if (!enabled_) { return; }
 
-  Voxelize();
+  Voxelize(uModelMatrix);
   for (auto& component : components_) {
-    component->VoxelizeAll();
+    component->VoxelizeAll(uModelMatrix);
   }
 }
 
