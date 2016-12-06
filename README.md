@@ -16,8 +16,10 @@ By the way, the game is about blowing stuff up (it is not finished yet):
 
 External dependencies:
 -------------------------
-* c++11 compiler
+* C++11 compiler
 * OpenGL 3.3 with ```GL_ARB_shader_image_load_store```
+* CMake
+* Python 2
 
 Controls:
 ----------------------------------------------------
