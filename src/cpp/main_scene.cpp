@@ -24,11 +24,6 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   srand(time(nullptr));
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-  // cache in the dynamic meshes (so first use won't be slow)
-  {
-    Dynamite dynamite{this, 0};
-  }
-
   { // Bullet initilization
     bt_collision_config_ = engine::make_unique<btDefaultCollisionConfiguration>();
     bt_dispatcher_ = engine::make_unique<btCollisionDispatcher>(bt_collision_config_.get());
