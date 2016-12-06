@@ -3,7 +3,7 @@ Pyromaze
 
 Pyromaze is a universal OpenGL 3.3 game engine, with a simple game implemented in it.
 
-It features voxel cone tracing global illumination. A screenshot with global global illumation:
+It features voxel cone tracing global illumination. The game tries to show how much difference it makes in especially dark scenes. A screenshot with global global illumation:
 ![screenshot](screenshots/with_vct.png)
 And a screenshot without:
 ![screenshot](screenshots/without_vct.png)
