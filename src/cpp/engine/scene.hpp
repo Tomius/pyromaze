@@ -82,8 +82,6 @@ class Scene : public engine::GameObject {
   bool physics_thread_should_quit_;
   std::thread physics_thread_;
 
-  virtual void KeyAction(int key, int scancode, int action, int mods) override;
-
   virtual void UpdateAll() override;
 
   virtual void RenderAll() override;

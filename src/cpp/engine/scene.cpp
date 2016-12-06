@@ -36,21 +36,6 @@ Scene::~Scene() {
 
 ShaderManager* Scene::shader_manager() const { return engine_->shader_manager(); }
 
-void Scene::KeyAction(int key, int scancode, int action, int mods) {
-  if (action == GLFW_PRESS) {
-    switch (key) {
-      case GLFW_KEY_F1:
-        game_time_.Toggle();
-        break;
-      case GLFW_KEY_F2:
-        environment_time_.Toggle();
-        break;
-      default:
-        break;
-    }
-  }
-}
-
 void Scene::Turn() {
   physics_finished_.WaitOne();
   UpdateAll();

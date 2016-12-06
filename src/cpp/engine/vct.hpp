@@ -30,7 +30,7 @@ private:
   gl::LazyUniform<glm::mat4> uShadowCP_, uModelMatrix_;
 
   const int voxel_dimensions_ = 128;
-  const float voxel_grid_world_size_ = 512.0f;
+  const float voxel_grid_world_size_ = 128.0f;
 };
 
 }

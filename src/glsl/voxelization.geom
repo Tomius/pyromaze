@@ -14,6 +14,7 @@ in vData {
 
 // Data that will be sent to fragment shader
 out fData {
+  vec3 w_pos;
   vec2 texCoord;
   vec4 shadow_position;
   vec3 normal;
@@ -43,6 +44,7 @@ void main() {
     frag.texCoord = vertices[i].texCoord;
     frag.shadow_position = vertices[i].shadow_position;
     frag.normal = vertices[i].normal;
+    frag.w_pos = gl_in[i].gl_Position.xyz;
     gl_Position = projectionMatrix * gl_in[i].gl_Position;
     EmitVertex();
   }

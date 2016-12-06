@@ -18,11 +18,14 @@ out vec4 fragColor;
 
 // VCT ----------
 
-uniform float ShowDiffuse = 1.0;
-uniform float ShowIndirectDiffuse = 1.0;
-uniform float ShowIndirectSpecular = 1.0;
-uniform float ShowAmbientOcculision = 1.0;
-uniform float ShowAmbientOcculisionOnly = 1.0;
+uniform float uShowDiffuse = 1.0;
+uniform float uShowIndirectDiffuse = 1.0;
+uniform float uShowIndirectSpecular = 1.0;
+uniform float uShowAmbientOcculision = 1.0;
+uniform float uShowAmbientOcculisionOnly = 0.0;
+
+uniform vec3 uLightDirection = vec3(1, 1, 1);
+uniform vec3 uCameraPos;
 
 uniform sampler3D uVoxelTexture;
 uniform float uVoxelDimensions = 128;
@@ -83,7 +86,7 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion) {
     // front-to-back compositing
     color = /*alpha**/color + (1.0-alpha)*voxelColor.rgb;
     alpha += (1.0-alpha) * voxelColor.a;
-    occlusion += 1.2 * (1.0-alpha) * voxelColor.a * (1.0 + 0.2*dist);
+    occlusion += 1.2 * (1.0-alpha) * voxelColor.a * (1.0 + 0.9*dist);
     dist += diameter * 0.5; // smoother than += diameter
   }
 
@@ -109,79 +112,61 @@ vec4 IndirectLight(out float occlusion_out) {
 // VCT ----------
 
 void main() {
-  // vec4 materialColor = texture(uDiffuseTexture, vTexCoord);
-  // float alpha = materialColor.a;
+  vec4 materialColor = texture(uDiffuseTexture, vTexCoord);
+  float alpha = materialColor.a;
 
-  // if (alpha < 0.5) {
-  //   discard;
-  // }
+  if (alpha < 0.5) {
+    discard;
+  }
 
-  // tangentToWorld = inverse(transpose(mat3(Tangent_world, Normal_world, Bitangent_world)));
-
-  // // Normal, light direction and eye direction in world coordinates
-  // vec3 N = normalize(w_vNormal);
-  // vec3 L = LightDirection;
-  // vec3 E = normalize(EyeDirection_world);
-  // vec3 lightColor = vec3(1.2);
-
-  // // Calculate diffuse light
-  // vec3 diffuseReflection;
-  // float occlusion = 0.0;
-  // {
-  //   // Shadow map
-  //   vec4 shadow_coord = uShadowCP * vec4(w_vPos, 1.0);
-  //   shadow_coord.xyz /= shadow_coord.w;
-  //   shadow_coord.z -= 0.002;
-  //   shadow_coord.xyz = (shadow_coord.xyz + 1) * 0.5;
-  //   float visibility = shadow2D(uShadowMap, shadow_coord.xyz).r;
-
-  //   // Direct diffuse light
-  //   float cosTheta = max(0, dot(N, L));
-  //   vec3 directDiffuseLight = ShowDiffuse > 0.5 ? vec3(visibility * cosTheta) : vec3(0.0);
-
-  //   // Indirect diffuse light
-  //   vec3 indirectDiffuseLight = IndirectLight(occlusion).rgb;
-  //   indirectDiffuseLight = ShowIndirectDiffuse > 0.5 ? indirectDiffuseLight : vec3(0.0);
-  //   occlusion = ShowAmbientOcculisionOnly > 0.5 || ShowAmbientOcculision > 0.5 ? occlusion : 1.0;
-
-  //   // Sum direct and indirect diffuse light and tweak a little bit
-  //   diffuseReflection = occlusion*(directDiffuseLight + indirectDiffuseLight) * materialColor.rgb;
-  // }
-
-  // // Calculate specular light
-  // vec3 specularReflection;
-  // {
-  //   vec4 specularColor = texture(SpecularTexture, UV);
-  //   // Some specular textures are grayscale:
-  //   specularColor = length(specularColor.gb) > 0.0 ? specularColor : specularColor.rrra;
-  //   vec3 reflectDir = normalize(-E - 2.0 * dot(-E, N) * N);
-
-  //   // Maybe fix so that the cone doesnt trace below the plane defined by the surface normal.
-  //   // For example so that the floor doesnt reflect itself when looking at it with a small angle
-  //   float specularOcclusion;
-  //   vec4 tracedSpecular = coneTrace(reflectDir, 0.07, specularOcclusion); // 0.2 = 22.6 degrees, 0.1 = 11.4 degrees, 0.07 = 8 degrees angle
-  //   specularReflection = ShowIndirectSpecular > 0.5 ? specularColor.rgb * tracedSpecular.rgb * 0.75 : vec3(0.0);
-  // }
-
-  // vec3 linearHDRColor = lightColor * (diffuseReflection + specularReflection);
-  // vec3 finalColor = ShowAmbientOcculisionOnly > 0.5 ? vec3(occlusion) : PostProcess (linearHDRColor);
-  // fragColor = vec4(finalColor, alpha);
-
-  vec4 color = texture2D(uDiffuseTexture, vTexCoord);
   vec3 tangent = normalize(w_vTangent);
   vec3 normal = normalize(w_vNormal);
   tangentToWorld = inverse(transpose(mat3(tangent, normal, cross(tangent, normal))));
 
-  vec4 shadow_coord = uShadowCP * vec4(w_vPos, 1.0);
-  shadow_coord.xyz /= shadow_coord.w;
-  shadow_coord.z -= 0.002;
-  shadow_coord.xyz = (shadow_coord.xyz + 1) * 0.5;
-  float visibility = texture(uShadowMap, shadow_coord.xyz);
+  // Normal, light direction and eye direction in world coordinates
+  vec3 N = normal;
+  vec3 L = uLightDirection;
+  vec3 E = normalize(uCameraPos);
 
-  float occlusion;
-  vec3 direct_lighting = DiffuseLighting(w_vPos, normal, visibility < 0.5);
-  vec3 indirect_lighting = IndirectLight(occlusion).rgb;
-  vec3 lighting = direct_lighting + indirect_lighting;
+  // Calculate diffuse light
+  vec3 diffuseReflection;
+  float occlusion = 0.0;
+  {
+    // Shadow map
+    vec4 shadow_coord = uShadowCP * vec4(w_vPos, 1.0);
+    shadow_coord.xyz /= shadow_coord.w;
+    shadow_coord.z -= 0.002;
+    shadow_coord.xyz = (shadow_coord.xyz + 1) * 0.5;
+    float visibility = texture(uShadowMap, shadow_coord.xyz);
 
-  fragColor = vec4(PostProcess(color.rgb * lighting), color.a);
+    // Direct diffuse light
+    // float cosTheta = max(0, dot(N, L));
+    // vec3 directDiffuseLight = uShowDiffuse > 0.5 ? vec3(visibility * cosTheta) : vec3(0.0);
+    vec3 directDiffuseLight = uShowDiffuse > 0.5 ? DiffuseLighting(w_vPos, normal, visibility < 0.5) : vec3(0.0);
+
+    // Indirect diffuse light
+    vec3 indirectDiffuseLight = IndirectLight(occlusion).rgb;
+    indirectDiffuseLight = uShowIndirectDiffuse > 0.5 ? indirectDiffuseLight : vec3(0.0);
+    occlusion = uShowAmbientOcculisionOnly > 0.5 || uShowAmbientOcculision > 0.5 ? occlusion : 1.0;
+
+    // Sum direct and indirect diffuse light and tweak a little bit
+    diffuseReflection = occlusion*(directDiffuseLight + indirectDiffuseLight) * materialColor.rgb;
+  }
+
+  // Calculate specular light
+  vec3 specularReflection;
+  {
+    vec4 specularColor = materialColor * 0.5;
+    vec3 reflectDir = normalize(-E - 2.0 * dot(-E, N) * N);
+
+    // Maybe fix so that the cone doesnt trace below the plane defined by the surface normal.
+    // For example so that the floor doesnt reflect itself when looking at it with a small angle
+    float specularOcclusion;
+    vec4 tracedSpecular = coneTrace(reflectDir, 0.07, specularOcclusion); // 0.2 = 22.6 degrees, 0.1 = 11.4 degrees, 0.07 = 8 degrees angle
+    specularReflection = uShowIndirectSpecular > 0.5 ? specularColor.rgb * tracedSpecular.rgb * 0.75 : vec3(0.0);
+  }
+
+  vec3 linearHDRColor = diffuseReflection + specularReflection;
+  vec3 finalColor = uShowAmbientOcculisionOnly > 0.5 ? vec3(occlusion) : PostProcess (linearHDRColor);
+  fragColor = vec4(finalColor, alpha);
 }
