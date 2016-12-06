@@ -3,28 +3,11 @@
 #ifndef GROUND_HPP_
 #define GROUND_HPP_
 
-#include <glad/glad.h>
-#include <oglwrap/oglwrap.h>
-#include <oglwrap/shapes/cube_shape.h>
+#include "./mesh_object.hpp"
 
-#include "engine/game_object.hpp"
-#include "engine/shader_manager.hpp"
-
-class Ground : public engine::GameObject {
+class Ground : public MeshObject {
  public:
   Ground(GameObject *parent);
-
- private:
-  gl::CubeShape cube_;
-
-  engine::ShaderProgram prog_;
-  gl::Texture2D texture_;
-  gl::LazyUniform<glm::mat4> uProjectionMatrix_, uCameraMatrix_, uShadowCP_, uModelMatrix_;
-
-  engine::Transform render_transform_;
-
-  virtual void Voxelize(gl::LazyUniform<glm::mat4>& uModelMatrix) override;
-  virtual void Render() override;
 };
 
 #endif  // LOD_TREE_H_

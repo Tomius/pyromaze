@@ -80,7 +80,7 @@ void main() {
   // Do shadow map lookup here
   // TODO: Splat photons onto the voxels at a later stage using a separate shader
   float visibility = texture(uShadowMap, vec3(frag.shadow_position.xy, (frag.shadow_position.z - 0.001)/frag.shadow_position.w));
-  visibility = max(visibility, 0.12);
+  visibility = max(visibility, 0.05);
 
   vec3 lighting = DiffuseLighting(frag.w_pos, normalize(frag.normal), visibility < 0.5);
 
