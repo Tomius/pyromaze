@@ -8,7 +8,7 @@ It features voxel cone tracing global illumination. The game tries to show how m
 And a screenshot without:
 ![screenshot](screenshots/without_vct.png)
 
-By the way, the game is about blowing stuff up:
+By the way, the game is about blowing stuff up (it is not finished yet):
 ![screenshot](screenshots/dynamite.png)
 ![screenshot](screenshots/explosion.png)
 ![screenshot](screenshots/after.png)
