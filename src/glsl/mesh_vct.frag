@@ -24,14 +24,13 @@ uniform float uShowIndirectSpecular = 1.0;
 uniform float uShowAmbientOcculision = 1.0;
 uniform float uShowAmbientOcculisionOnly = 0.0;
 
-uniform vec3 uLightDirection = vec3(1, 1, 1);
 uniform vec3 uCameraPos;
 
 uniform sampler3D uVoxelTexture;
 uniform float uVoxelDimensions = 128;
 uniform float uVoxelGridWorldSize = 256;
 
-const float MAX_DIST = 100.0;
+const float MAX_DIST = 64.0;
 const float ALPHA_THRESH = 0.95;
 
 // 6 60 degree cone
@@ -90,7 +89,7 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion) {
     dist += diameter * 0.5; // smoother than += diameter
   }
 
-  occlusion = clamp (occlusion, 0, 1);
+  occlusion = clamp(occlusion, 0, 1);
   return vec4(color, 1.0);
 }
 
@@ -123,11 +122,6 @@ void main() {
   vec3 normal = normalize(w_vNormal);
   tangentToWorld = inverse(transpose(mat3(tangent, normal, cross(tangent, normal))));
 
-  // Normal, light direction and eye direction in world coordinates
-  vec3 N = normal;
-  vec3 L = uLightDirection;
-  vec3 E = normalize(uCameraPos);
-
   // Calculate diffuse light
   vec3 diffuseReflection;
   float occlusion = 0.0;
@@ -140,8 +134,6 @@ void main() {
     float visibility = texture(uShadowMap, shadow_coord.xyz);
 
     // Direct diffuse light
-    // float cosTheta = max(0, dot(N, L));
-    // vec3 directDiffuseLight = uShowDiffuse > 0.5 ? vec3(visibility * cosTheta) : vec3(0.0);
     vec3 directDiffuseLight = uShowDiffuse > 0.5 ? DiffuseLighting(w_vPos, normal, visibility < 0.5) : vec3(0.0);
 
     // Indirect diffuse light
@@ -157,7 +149,7 @@ void main() {
   vec3 specularReflection;
   {
     vec4 specularColor = materialColor * 0.5;
-    vec3 reflectDir = normalize(-E - 2.0 * dot(-E, N) * N);
+    vec3 reflectDir = reflect(normalize(uCameraPos - w_vPos), normal);
 
     // Maybe fix so that the cone doesnt trace below the plane defined by the surface normal.
     // For example so that the floor doesnt reflect itself when looking at it with a small angle

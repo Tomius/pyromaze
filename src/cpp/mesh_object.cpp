@@ -51,13 +51,13 @@ public:
   }
 
   btCollisionShape* GetCollisionShape() {
-    if (!bullet_data_.shape) {
-      bullet_data_.triangles = engine::make_unique<btTriangleIndexVertexArray>();
-      bullet_data_.indices = mesh_.btTriangles(bullet_data_.triangles.get());
-      bullet_data_.shape = engine::make_unique<btBvhTriangleMeshShape>(bullet_data_.triangles.get(), true);
+    if (!bt_shape_) {
+      bt_triangles_ = engine::make_unique<btTriangleIndexVertexArray>();
+      bt_indices_ = mesh_.btTriangles(bt_triangles_.get());
+      bt_shape_ = engine::make_unique<btBvhTriangleMeshShape>(bt_triangles_.get(), true);
     }
 
-    return bullet_data_.shape.get();
+    return bt_shape_.get();
   }
 
   void Render(engine::Scene* scene,
@@ -203,11 +203,9 @@ private:
   bool is_pressed_[5] = {false};
   bool flags_[5] = {true, true, true, true, false};
 
-  struct BulletData {
-    std::vector<int> indices;
-    std::unique_ptr<btTriangleIndexVertexArray> triangles;
-    std::unique_ptr<btCollisionShape> shape;
-  } bullet_data_;
+  std::vector<int> bt_indices_;
+  std::unique_ptr<btTriangleIndexVertexArray> bt_triangles_;
+  std::unique_ptr<btCollisionShape> bt_shape_;
 };
 
 static MeshObjectRender& GetMeshRenderer(const std::string& str, engine::ShaderManager* shader_manager) {
