@@ -70,7 +70,7 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion) {
   float lod = 0.0;
   vec3 color = vec3(0);
   float alpha = 0.0;
-  occlusion = 0.0;
+  occlusion = 1.0;
 
   float voxelWorldSize = uVoxelGridWorldSize / uVoxelDimensions;
   float dist = voxelWorldSize; // Start one voxel away to avoid self occlusion
@@ -85,7 +85,7 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion) {
     // front-to-back compositing
     color = /*alpha**/color + (1.0-alpha)*voxelColor.rgb;
     alpha += (1.0-alpha) * voxelColor.a;
-    occlusion += 1.2 * (1.0-alpha) * voxelColor.a * (1.0 + 0.9*dist);
+    occlusion -= (50 * voxelColor.a / (1 + dist));
     dist += diameter * 0.5; // smoother than += diameter
   }
 
