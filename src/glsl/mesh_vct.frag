@@ -27,7 +27,7 @@ uniform float uShowAmbientOcculisionOnly = 0.0;
 uniform vec3 uCameraPos;
 
 uniform sampler3D uVoxelTexture;
-uniform float uVoxelDimensions = 128;
+uniform float uVoxelDimensions = 64;
 uniform float uVoxelGridWorldSize = 256;
 
 const float MAX_DIST = 32.0;

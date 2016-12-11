@@ -57,6 +57,7 @@ void Dynamite::Update() {
       fire_->transform().set_local_pos(fire_pos);
       gl::Use(renderer_->shadow_recieve_prog());
       gl::Uniform<glm::vec3>(renderer_->shadow_recieve_prog(), "uFirePos") = fire_pos;
+      gl::Unuse(renderer_->shadow_recieve_prog());
       break;
     }
   }

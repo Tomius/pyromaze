@@ -16,10 +16,6 @@ GameObject::~GameObject() {
   // The childrens destructor have to run before this one's,
   // as those functions might try to access this object via the parent_ ptr
   ResetChildren ();
-  // this shouldn't be neccessary, but just in case...
-  if (parent_) {
-    parent_->RemoveComponent(this);
-  }
 }
 
 GameObject* GameObject::AddComponent(std::unique_ptr<GameObject>&& component) {

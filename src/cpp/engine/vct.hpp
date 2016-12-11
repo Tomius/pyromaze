@@ -29,7 +29,7 @@ private:
   gl::Texture3D voxel_texture_;
   gl::LazyUniform<glm::mat4> uShadowCP_, uModelMatrix_;
 
-  const int voxel_dimensions_ = 128;
+  const int voxel_dimensions_ = 64;
   const float voxel_grid_world_size_ = 256.0f;
 };
 
