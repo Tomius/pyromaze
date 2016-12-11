@@ -30,7 +30,7 @@ uniform sampler3D uVoxelTexture;
 uniform float uVoxelDimensions = 128;
 uniform float uVoxelGridWorldSize = 256;
 
-const float MAX_DIST = 64.0;
+const float MAX_DIST = 32.0;
 const float ALPHA_THRESH = 0.95;
 
 // 6 60 degree cone
@@ -59,9 +59,9 @@ float coneWeights[6] = float[](0.25, 0.15, 0.15, 0.15, 0.15, 0.15);
 mat3 tangentToWorld;
 
 vec4 sampleVoxels(vec3 worldPosition, float lod) {
-    vec3 offset = vec3(1.0 / uVoxelDimensions, 1.0 / uVoxelDimensions, 0); // Why??
+    vec3 offset = vec3(1.0 / uVoxelDimensions, 1.0 / uVoxelDimensions, 0);
     vec3 voxelTextureUV = worldPosition / (uVoxelGridWorldSize * 0.5);
-    voxelTextureUV = voxelTextureUV * 0.5 + 0.5 + offset;
+    voxelTextureUV = voxelTextureUV * 0.5 + 0.5 + 0.5*offset;
     return textureLod(uVoxelTexture, voxelTextureUV, lod);
 }
 
@@ -86,7 +86,7 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion) {
     color = /*alpha**/color + (1.0-alpha)*voxelColor.rgb;
     alpha += (1.0-alpha) * voxelColor.a;
     occlusion -= (50 * voxelColor.a / (1 + dist));
-    dist += diameter * 0.5; // smoother than += diameter
+    dist += pow(2, lodLevel-1) * diameter; // smoother than += diameter
   }
 
   occlusion = clamp(occlusion, 0, 1);
@@ -155,7 +155,7 @@ void main() {
     // For example so that the floor doesnt reflect itself when looking at it with a small angle
     float specularOcclusion;
     vec4 tracedSpecular = coneTrace(reflectDir, 0.07, specularOcclusion); // 0.2 = 22.6 degrees, 0.1 = 11.4 degrees, 0.07 = 8 degrees angle
-    specularReflection = uShowIndirectSpecular > 0.5 ? specularColor.rgb * tracedSpecular.rgb * 0.75 : vec3(0.0);
+    specularReflection = uShowIndirectSpecular > 0.5 ? specularColor.rgb * tracedSpecular.rgb : vec3(0.0);
   }
 
   vec3 linearHDRColor = diffuseReflection + specularReflection;

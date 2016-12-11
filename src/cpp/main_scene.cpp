@@ -1,4 +1,5 @@
 #include "./main_scene.hpp"
+#include "./fps_display.hpp"
 
 #include "environment/ground.hpp"
 #include "environment/wall.hpp"
@@ -17,7 +18,7 @@
 #include "debug/debug_voxels.hpp"
 
 constexpr int kWallLength = 20;
-constexpr int kLabyrinthRadius = 6;
+constexpr int kLabyrinthRadius = 5;
 
 MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
     : Scene(engine, window) {
@@ -59,7 +60,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   });
 
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.1f}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.15f}});
 
   shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, (kLabyrinthRadius+1)*kWallLength}, 4096);
   set_shadow_camera(shadow_);
@@ -76,6 +77,8 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
 
   engine::Transform playerTransform{&cam->transform()};
   AddComponent<Player>(playerTransform);
+
+  AddComponent<FpsDisplay>();
 }
 
 void MainScene::CreateLabyrinth() {
@@ -129,13 +132,15 @@ void MainScene::RenderAll() {
   DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
 #else
   gl::BindToTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
-  gl::BindToTexUnit(vct_->voxel_texture(), engine::kVoxelTextureSlot);
+
   // Bind single level of texture to image unit so we can write to it from shaders
   glBindImageTexture(engine::kVoxelTextureSlot, vct_->voxel_texture().expose(), 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
   vct_->VoxelizeStart();
   Scene::VoxelizeAll(vct_->uModelMatrix());
   vct_->VoxelizeEnd();
+  glBindImageTexture(engine::kVoxelTextureSlot, 0, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+  gl::BindToTexUnit(vct_->voxel_texture(), engine::kVoxelTextureSlot);
 
   Scene::RenderAll();
   // DebugVoxels(shader_manager(), vct_->voxel_dimensions(), vct_->voxel_grid_world_size()).Render(this);

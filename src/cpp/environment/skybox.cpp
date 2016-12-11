@@ -27,7 +27,7 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
   gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
   for (int i = 0; i < 6; ++i) {
     std::vector<unsigned> subdata;
-    int startx, starty;
+    unsigned startx, starty;
     switch (i) {
       case 0: startx = 2*size; starty = 1*size; break;
       case 1: startx = 0*size; starty = 1*size; break;
@@ -36,8 +36,8 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
       case 4: startx = 1*size; starty = 1*size; break;
       case 5: startx = 3*size; starty = 1*size; break;
     }
-    for (int y = starty; y < starty + size; ++y) {
-      for (int x = startx; x < startx + size; ++x) {
+    for (unsigned y = starty; y < starty + size; ++y) {
+      for (unsigned x = startx; x < startx + size; ++x) {
         subdata.push_back(reinterpret_cast<unsigned*>(data.data())[y*width + x]);
       }
     }

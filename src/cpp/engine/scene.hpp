@@ -15,8 +15,13 @@
 #include "engine/common/timer.hpp"
 #include "engine/common/auto_reset_event.hpp"
 
+
 namespace engine {
 
+class IMeshObjectRenderer {
+public:
+  virtual ~IMeshObjectRenderer() {}
+};
 class ShaderManager;
 class GameEngine;
 
@@ -54,6 +59,8 @@ class Scene : public engine::GameObject {
   const btDynamicsWorld* bt_world() const { return bt_world_.get(); }
   btDynamicsWorld* bt_world() { return bt_world_.get(); }
 
+  std::map<std::string, std::unique_ptr<IMeshObjectRenderer>>* mesh_cache() { return &mesh_cache_; }
+
   virtual void Turn();
 
   unsigned AddLightSource(LightSource light_source);
@@ -69,6 +76,7 @@ class Scene : public engine::GameObject {
   GLFWwindow* window_;
   engine::GameEngine* engine_;
   std::map<unsigned, LightSource> light_sources_;
+  std::map<std::string, std::unique_ptr<IMeshObjectRenderer>> mesh_cache_;
 
   // Bullet classes
   std::unique_ptr<btCollisionConfiguration> bt_collision_config_;

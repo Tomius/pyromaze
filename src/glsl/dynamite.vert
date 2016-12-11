@@ -1,21 +1,24 @@
 // Copyright (c) Tamas Csala
 
-#version 120
+#version 330 core
 
-attribute vec4 aPosition;
-attribute vec2 aTexCoord;
-attribute vec3 aNormal;
+layout(location = 0) in vec4 aPosition;
+layout(location = 1) in vec2 aTexCoord;
+layout(location = 2) in vec3 aNormal;
+layout(location = 3) in vec3 aTangent;
 
 uniform mat4 uProjectionMatrix, uCameraMatrix, uModelMatrix;
 uniform mat3 uNormalMatrix;
 uniform vec3 uFirePos;
 
-varying vec3 w_vPos;
-varying vec3 w_vNormal;
-varying vec2 vTexCoord;
+out vec3 w_vPos;
+out vec3 w_vNormal;
+out vec2 vTexCoord;
+out vec3 w_vTangent;
 
 void main() {
   w_vNormal = aNormal * uNormalMatrix;
+  w_vTangent = aTangent * uNormalMatrix;
   vTexCoord = aTexCoord;
 
   bool fuse_already_burnt = aPosition.x > uFirePos.x && aPosition.y > 1.15;

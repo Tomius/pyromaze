@@ -36,16 +36,16 @@ Player::Player(engine::GameObject* parent, const engine::Transform& initial_tran
 
 void Player::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
+    engine::Transform dynamite_trafo;
     if (key == GLFW_KEY_SPACE) {
       glm::vec3 pos = transform().pos();
-      pos += 1.5f * transform().forward();
-      Dynamite* dynamite = scene()->AddComponent<Dynamite>(2.5 + 1.0*Math::Rand01());
-      dynamite->transform().set_pos({pos.x, 0, pos.z});
+      pos += 3.0f * transform().forward();
+      dynamite_trafo.set_pos({pos.x, 0, pos.z});
+      scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Math::Rand01());
     } else if (key == GLFW_KEY_F1) {
       for (int i = 0; i < 2; ++i) {
-        Dynamite* dynamite = scene()->AddComponent<Dynamite>(2.5 + 1.0*Math::Rand01());
-        dynamite->transform().set_pos({Math::Rand01()*256-128, 0,
-                                       Math::Rand01()*256-128});
+        dynamite_trafo.set_pos({Math::Rand01()*256-128, 0, Math::Rand01()*256-128});
+        scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Math::Rand01());
       }
     }
   }

@@ -6,6 +6,7 @@
 #include <memory>
 #include "engine/scene.hpp"
 #include "engine/shader_manager.hpp"
+#include "engine/common/make_unique.hpp"
 
 namespace engine {
 
@@ -20,7 +21,7 @@ class GameEngine {
 
   GLFWwindow* window() { return window_; }
 
-  ShaderManager* shader_manager() { return &shader_manager_; }
+  ShaderManager* shader_manager() { return shader_manager_.get(); }
 
   glm::vec2 window_size();
 
@@ -30,7 +31,7 @@ class GameEngine {
   bool minimized_ = false;
   std::unique_ptr<Scene> scene_;
   std::unique_ptr<Scene> new_scene_;
-  ShaderManager shader_manager_;
+  std::unique_ptr<ShaderManager> shader_manager_ = make_unique<ShaderManager>();
   GLFWwindow *window_;
 
   // Callbacks

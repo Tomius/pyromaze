@@ -73,7 +73,7 @@ GameEngine::GameEngine() {
   glfwMakeContextCurrent(window_);
 
   // No V-sync needed.
-  // glfwSwapInterval(0);
+  glfwSwapInterval(0);
 
   bool success = gladLoadGL();
   if (!success) {
@@ -98,6 +98,9 @@ GameEngine::GameEngine() {
 
 GameEngine::~GameEngine() {
   if (window_) {
+    shader_manager_.reset();
+    scene_.reset();
+    new_scene_.reset();
     glfwDestroyWindow(window_);
     window_ = nullptr;
   }

@@ -8,6 +8,7 @@ Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transf
   engine::BulletRigidBody::Restrains restrains;
   restrains.y_pos_lock = 1;
   restrains.x_rot_lock = 1;
+  restrains.y_rot_lock = 1;
   restrains.z_rot_lock = 1;
   rbody_->set_restrains(restrains);
   rbody_->bt_rigid_body()->setGravity(btVector3{0, 0, 0});
@@ -22,7 +23,11 @@ void Robot::Update() {
         return;
       }
       rbody_->bt_rigid_body()->activate();
-      glm::vec3 dir = normalize(to_player);
+      glm::vec3 dir = to_player;
+      dir.y = 0;
+      if (length(dir) > Math::kEpsilon) {
+        dir = normalize(dir);
+      }
       glm::vec3 speed = 9.0f * dir;
       rbody_->bt_rigid_body()->setLinearVelocity(btVector3{speed.x, speed.y, speed.z});
     }
