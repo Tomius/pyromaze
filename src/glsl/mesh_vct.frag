@@ -155,7 +155,7 @@ void main() {
     // For example so that the floor doesnt reflect itself when looking at it with a small angle
     float specularOcclusion;
     vec4 tracedSpecular = coneTrace(reflectDir, 0.07, specularOcclusion); // 0.2 = 22.6 degrees, 0.1 = 11.4 degrees, 0.07 = 8 degrees angle
-    specularReflection = uShowIndirectSpecular > 0.5 ? specularColor.rgb * tracedSpecular.rgb : vec3(0.0);
+    specularReflection = uShowIndirectSpecular > 0.5 ? specularColor.rgb * tracedSpecular.rgb * 0.75 : vec3(0.0);
   }
 
   vec3 linearHDRColor = diffuseReflection + specularReflection;

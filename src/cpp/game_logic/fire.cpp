@@ -137,7 +137,7 @@ Particle ExplosionParticle(glm::vec3 startpos, float current_time) {
   p.born_at = current_time;
   p.pos = startpos + Math::RandomDir();
   p.accel = (5.0f + 5.0f*Math::Rand01())*normalize(Math::RandomDir());
-  p.accel.y = std::max(p.accel.y, 0.0f);
+  // p.accel.y = std::max(p.accel.y, 0.0f);
   p.speed = 2.0f*p.accel;
 
   // 0.5 - 1 sec lifespan
@@ -190,7 +190,7 @@ void Explosion::Update() {
     scene_->EnumerateChildren([&](engine::GameObject* obj) {
       Explodable* explodable = dynamic_cast<Explodable*>(obj);
       if (explodable != nullptr) {
-        explodable->ReactToExplosion(transform().pos(), 6.5);
+        explodable->ReactToExplosion(transform().pos(), 10);
       }
     });
   }

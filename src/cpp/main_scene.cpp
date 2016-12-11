@@ -4,6 +4,7 @@
 #include "environment/ground.hpp"
 #include "environment/wall.hpp"
 #include "environment/skybox.hpp"
+#include "environment/border_wall.hpp"
 
 #include "game_logic/fire.hpp"
 #include "game_logic/dynamite.hpp"
@@ -60,7 +61,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   });
 
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.15f}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.05f}});
 
   shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, (kLabyrinthRadius+1)*kWallLength}, 4096);
   set_shadow_camera(shadow_);
@@ -72,7 +73,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   CreateLabyrinth();
 
   auto cam = AddComponent<engine::BulletFreeFlyCamera>(
-      M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 15, 10);
+      M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
   set_camera(cam);
 
   engine::Transform playerTransform{&cam->transform()};
@@ -90,10 +91,10 @@ void MainScene::CreateLabyrinth() {
   for (int x = -kLabyrinthRadius; x <= kLabyrinthRadius; ++x) {
     for (int z = -kLabyrinthRadius; z <= kLabyrinthRadius; ++z) {
       engine::Transform wall_transform;
-      wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
+      wall_transform.set_local_pos({x * kWallLength, -0.5, z * kWallLength});
       envir->AddComponent<Wall>(wall_transform);
 
-      if (!(x == 0 && z == 0) && x != kLabyrinthRadius && z != kLabyrinthRadius &&
+      if ((abs(x) > 1 || abs(z) > 1) && x != kLabyrinthRadius && z != kLabyrinthRadius &&
           rand()%2 == 0) {
         engine::Transform robot_transform;
         robot_transform.set_local_pos({x * kWallLength + kWallLength/2.0, 3,
@@ -107,18 +108,16 @@ void MainScene::CreateLabyrinth() {
   for (int z = -kBorderRadius; z <= kBorderRadius; z += 2*kBorderRadius) {
     for (int x = -kBorderRadius; x <= kBorderRadius; ++x) {
       engine::Transform wall_transform;
-      wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
-      MeshObject* wall = envir->AddComponent<MeshObject>("wall/bigwall1.obj", wall_transform);
-      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape(), engine::kColStatic);
+      wall_transform.set_local_pos({x * kWallLength, -0.5, z * kWallLength});
+      envir->AddComponent<BorderWall>("wall/bigwall1.obj", wall_transform);
     }
   }
 
   for (int x = -kBorderRadius; x <= kBorderRadius; x += 2*kBorderRadius) {
     for (int z = -kBorderRadius; z <= kBorderRadius; ++z) {
       engine::Transform wall_transform;
-      wall_transform.set_local_pos({x * kWallLength, 0, z * kWallLength});
-      MeshObject* wall = envir->AddComponent<MeshObject>("wall/bigwall2.obj", wall_transform);
-      wall->AddComponent<engine::BulletRigidBody>(0.0f, wall->GetCollisionShape(), engine::kColStatic);
+      wall_transform.set_local_pos({x * kWallLength, -0.5, z * kWallLength});
+      envir->AddComponent<BorderWall>("wall/bigwall2.obj", wall_transform);
     }
   }
 }

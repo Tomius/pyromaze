@@ -1,5 +1,6 @@
 #include "game_logic/robot.hpp"
 #include "game_logic/player.hpp"
+#include "game_logic/fire.hpp"
 #include "engine/scene.hpp"
 
 Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transform)
@@ -15,14 +16,22 @@ Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transf
 }
 
 void Robot::Update() {
+  if (activation_time_ > 0 && scene_->game_time().current_time() - activation_time_ > kTimeToExplode) {
+    parent()->RemoveComponent(this);
+    GameObject* explosion = parent()->AddComponent<Explosion>();
+    explosion->transform().set_local_pos(transform().local_pos());
+  }
   scene_->EnumerateChildren([&](engine::GameObject* obj) {
     Player* player = dynamic_cast<Player*>(obj);
     if (player != nullptr) {
       glm::vec3 to_player = player->transform().pos() - transform().pos();
-      if (length(to_player) > 12) {
+      if (length(to_player) > 20) {
         return;
       }
       rbody_->bt_rigid_body()->activate();
+      if (activation_time_ < 0) {
+        activation_time_ = scene_->game_time().current_time();
+      }
       glm::vec3 dir = to_player;
       dir.y = 0;
       if (length(dir) > Math::kEpsilon) {
