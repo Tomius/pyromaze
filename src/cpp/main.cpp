@@ -1,6 +1,5 @@
 // Copyright (c) Tamas Csala
 
-#define OGLWRAP_INSTANTIATE 1
 #include "engine/game_engine.hpp"
 #include "./main_scene.hpp"
 
