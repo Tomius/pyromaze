@@ -16,6 +16,8 @@ class MainScene : public engine::Scene {
   void CreateLabyrinth();
 
   virtual void RenderAll() override;
+
+  virtual void KeyAction(int key, int scancode, int action, int mods) override;
 };
 
 #endif

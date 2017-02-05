@@ -148,3 +148,10 @@ void MainScene::RenderAll() {
   gl::UnbindFromTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
 #endif
 }
+
+void MainScene::KeyAction(int key, int scancode, int action, int mods) {
+  if (action == GLFW_PRESS && key == GLFW_KEY_F2) {
+    auto eng = scene_->engine();
+    eng->LoadScene(std::unique_ptr<engine::Scene>{new MainScene{eng, eng->window()}});
+  }
+}

@@ -17,7 +17,7 @@ VCT::VCT(engine::GameObject* parent)
 
   // Fill 3D texture with empty values
   int num_voxels = voxel_dimensions_ * voxel_dimensions_ * voxel_dimensions_;
-  std::unique_ptr<GLubyte> data = std::unique_ptr<GLubyte>{new GLubyte[num_voxels*4]};
+  std::unique_ptr<GLubyte[]> data = std::unique_ptr<GLubyte[]>{new GLubyte[num_voxels*4]};
   std::memset(data.get(), 0, num_voxels*4);
   voxel_texture_.upload(gl::kRgba8, voxel_dimensions_, voxel_dimensions_, voxel_dimensions_, gl::kRgba, gl::kUnsignedByte, data.get());
 
@@ -47,7 +47,7 @@ void VCT::VoxelizeStart() {
 
   gl::BindToTexUnit(voxel_texture_, engine::kVoxelTextureSlot);
   int num_voxels = voxel_dimensions_ * voxel_dimensions_ * voxel_dimensions_;
-  std::unique_ptr<GLubyte> data = std::unique_ptr<GLubyte>{new GLubyte[num_voxels*4]};
+  std::unique_ptr<GLubyte[]> data = std::unique_ptr<GLubyte[]>{new GLubyte[num_voxels*4]};
   std::memset(data.get(), 0, num_voxels*4);
   voxel_texture_.upload(gl::kRgba8, voxel_dimensions_, voxel_dimensions_, voxel_dimensions_, gl::kRgba, gl::kUnsignedByte, data.get());
 
