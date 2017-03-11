@@ -16,7 +16,7 @@ MeshObjectRenderer::MeshObjectRenderer (const std::string& mesh_path,
     , basic_prog_(shader_manager->get(vertex_shader),
                   shader_manager->get("mesh.frag"))
     , shadow_recieve_prog_(shader_manager->get(vertex_shader),
-                           shader_manager->get("mesh_vct.frag"))
+                           shader_manager->get("mesh_shadow.frag"))
     , shadow_cast_prog_(shader_manager->get("shadow.vert"),
                         shader_manager->get("shadow.frag"))
 

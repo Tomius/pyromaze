@@ -66,8 +66,6 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, (kLabyrinthRadius+1)*kWallLength}, 4096);
   set_shadow_camera(shadow_);
 
-  vct_ = AddComponent<engine::VCT>();
-
   AddComponent<Skybox>("src/resource/skybox.png");
 
   CreateLabyrinth();
@@ -131,20 +129,7 @@ void MainScene::RenderAll() {
   DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
 #else
   gl::BindToTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
-
-  // Bind single level of texture to image unit so we can write to it from shaders
-  glBindImageTexture(engine::kVoxelTextureSlot, vct_->voxel_texture().expose(), 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-  vct_->VoxelizeStart();
-  Scene::VoxelizeAll(vct_->uModelMatrix());
-  vct_->VoxelizeEnd();
-  glBindImageTexture(engine::kVoxelTextureSlot, 0, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-  gl::BindToTexUnit(vct_->voxel_texture(), engine::kVoxelTextureSlot);
-
   Scene::RenderAll();
-  // DebugVoxels(shader_manager(), vct_->voxel_dimensions(), vct_->voxel_grid_world_size()).Render(this);
-
-  gl::UnbindFromTexUnit(vct_->voxel_texture(), engine::kVoxelTextureSlot);
   gl::UnbindFromTexUnit(shadow_->shadow_texture(), engine::kShadowTextureSlot);
 #endif
 }
