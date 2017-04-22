@@ -17,8 +17,7 @@
 namespace engine {
 
 constexpr int kShadowTextureSlot = 0;
-constexpr int kVoxelTextureSlot = 1;
-constexpr int kDiffuseTextureSlot = 2;
+constexpr int kDiffuseTextureSlot = 1;
 
 class Scene;
 
@@ -58,7 +57,6 @@ class GameObject {
   void set_enabled(bool value) { enabled_ = value; }
 
   virtual void Render() {}
-  virtual void Voxelize(gl::LazyUniform<glm::mat4>& /*uModelMatrix*/) {}
   virtual void ShadowRender() {}
   virtual void Render2D() {}
   virtual void Update() {}
@@ -71,7 +69,6 @@ class GameObject {
   virtual void MouseMoved(double /*xpos*/, double /*ypos*/) {}
 
   virtual void RenderAll();
-  virtual void VoxelizeAll(gl::LazyUniform<glm::mat4>& uModelMatrix);
   virtual void ShadowRenderAll();
   virtual void Render2DAll();
   virtual void UpdateAll();

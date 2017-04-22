@@ -1,5 +1,6 @@
 #include "./main_scene.hpp"
 #include "./fps_display.hpp"
+#include "./settings.hpp"
 
 #include "environment/ground.hpp"
 #include "environment/wall.hpp"
@@ -16,10 +17,8 @@
 
 #include "debug/debug_shape.hpp"
 #include "debug/debug_texture.hpp"
-#include "debug/debug_voxels.hpp"
 
-constexpr int kWallLength = 20;
-constexpr int kLabyrinthRadius = 5;
+constexpr float kWallLength = 20;
 
 MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
     : Scene(engine, window) {
@@ -63,7 +62,8 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
   AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.05f}});
 
-  shadow_ = AddComponent<engine::Shadow>(kLightPos, glm::vec4{0, 0, 0, (kLabyrinthRadius+1)*kWallLength}, 4096);
+  glm::vec4 scene_bsphere{0, 0, 0, (Settings::kLabyrinthRadius+1)*kWallLength};
+  shadow_ = AddComponent<engine::Shadow>(kLightPos, scene_bsphere, 4096);
   set_shadow_camera(shadow_);
 
   AddComponent<Skybox>("src/resource/skybox.png");
@@ -86,14 +86,14 @@ void MainScene::CreateLabyrinth() {
 
   envir->AddComponent<Ground>();
 
-  for (int x = -kLabyrinthRadius; x <= kLabyrinthRadius; ++x) {
-    for (int z = -kLabyrinthRadius; z <= kLabyrinthRadius; ++z) {
+  for (int x = -Settings::kLabyrinthRadius; x <= Settings::kLabyrinthRadius; ++x) {
+    for (int z = -Settings::kLabyrinthRadius; z <= Settings::kLabyrinthRadius; ++z) {
       engine::Transform wall_transform;
       wall_transform.set_local_pos({x * kWallLength, -0.5, z * kWallLength});
       envir->AddComponent<Wall>(wall_transform);
 
-      if ((abs(x) > 1 || abs(z) > 1) && x != kLabyrinthRadius && z != kLabyrinthRadius &&
-          rand()%2 == 0) {
+      if ((abs(x) > 1 || abs(z) > 1) && x != Settings::kLabyrinthRadius
+          && z != Settings::kLabyrinthRadius && rand()%2 == 0) {
         engine::Transform robot_transform;
         robot_transform.set_local_pos({x * kWallLength + kWallLength/2.0, 3,
                                        z * kWallLength + kWallLength/2.0});
@@ -102,7 +102,7 @@ void MainScene::CreateLabyrinth() {
     }
   }
 
-  constexpr int kBorderRadius = kLabyrinthRadius+1;
+  constexpr int kBorderRadius = Settings::kLabyrinthRadius+1;
   for (int z = -kBorderRadius; z <= kBorderRadius; z += 2*kBorderRadius) {
     for (int x = -kBorderRadius; x <= kBorderRadius; ++x) {
       engine::Transform wall_transform;

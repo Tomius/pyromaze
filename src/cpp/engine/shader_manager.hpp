@@ -63,7 +63,7 @@ class ShaderFile : public gl::Shader {
 template<typename... Args>
 ShaderFile* ShaderManager::load(Args&&... args) {
   auto shader = new ShaderFile{std::forward<Args>(args)...};
-  shaders_[shader->source_file()] = std::unique_ptr<ShaderFile>{shader};
+  shaders_[shader->source_file_name()] = std::unique_ptr<ShaderFile>{shader};
   return shader;
 }
 

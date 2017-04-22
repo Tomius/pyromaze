@@ -67,7 +67,7 @@ ShaderFile::ShaderFile(ShaderManager& shader_manager,
   }
   findExports(src_str);
   set_source(src_str);
-  set_source_file(filename);
+  set_source_file_name(filename);
   compile();
 }
 

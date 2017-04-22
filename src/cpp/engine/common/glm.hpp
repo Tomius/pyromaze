@@ -6,6 +6,7 @@
 #include <iostream>
 
 #define GLM_FORCE_RADIANS
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
 template <typename T, glm::precision P>

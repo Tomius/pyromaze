@@ -4,6 +4,7 @@
 #define ENGINE_LIGHT_SOURCE_HPP_
 
 #define GLM_FORCE_RADIANS
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
 struct LightSource {

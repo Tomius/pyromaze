@@ -14,7 +14,9 @@ class FpsDisplay : public engine::GameObject {
   }
 
   ~FpsDisplay() {
-    // std::cout << "Average FPS: " << sum_frame_num_ / sum_time_ << std::endl;
+    if (sum_time_ != 0) {
+      std::cout << "Average FPS: " << sum_frame_num_ / sum_time_ << std::endl;
+    }
   }
 
  private:
@@ -25,7 +27,7 @@ class FpsDisplay : public engine::GameObject {
   virtual void Update() override {
     calls_++;
     accum_time_ += scene_->camera_time().dt();
-    if (accum_time_ > kRefreshInterval) {
+    if (accum_time_ > kRefreshInterval && accum_time_ != 0) {
       std::cout << "FPS: " << calls_ / accum_time_ << std::endl;
       sum_frame_num_ += calls_;
       sum_time_ += accum_time_;

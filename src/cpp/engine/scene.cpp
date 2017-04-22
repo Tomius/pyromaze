@@ -26,12 +26,12 @@ Scene::Scene(engine::GameEngine* engine, GLFWwindow* window)
 }
 
 Scene::~Scene() {
-  ResetChildren();
-
   // close the physics thread
   physics_thread_should_quit_ = true;
   physics_can_run_.Set();
   physics_thread_.join();
+
+  ResetChildren();
 }
 
 ShaderManager* Scene::shader_manager() const { return engine_->shader_manager(); }

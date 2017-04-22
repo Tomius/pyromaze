@@ -22,15 +22,6 @@ void MeshObject::Render() {
   renderer_->Render(scene_, transform(), recieve_shadows_);
 }
 
-void MeshObject::Voxelize(gl::LazyUniform<glm::mat4>& uModelMatrix) {
-  uModelMatrix = transform().matrix();
-  renderer_->Voxelize();
-}
-
 void MeshObject::ShadowRender() {
   renderer_->ShadowRender(scene_, transform(), cast_shadows_);
-}
-
-void MeshObject::KeyAction(int key, int scancode, int action, int mods) {
-  renderer_->KeyAction(key, scancode, action, mods);
 }

@@ -64,6 +64,7 @@ void Shadow::Begin() {
   gl::Bind(fbo_);
   gl::Clear().Color().Depth();
   gl::Viewport(0, 0, size_, size_);
+  UpdateFrustum();
 }
 
 void Shadow::End() {

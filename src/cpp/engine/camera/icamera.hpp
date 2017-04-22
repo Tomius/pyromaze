@@ -4,9 +4,11 @@
 #define ENGINE_CAMERA_ICAMERA_HPP_
 
 #define GLM_FORCE_RADIANS
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "engine/game_object.hpp"
+#include "engine/collision/frustum.hpp"
 
 namespace engine {
 
@@ -15,6 +17,13 @@ public:
   using GameObject::GameObject;
   virtual glm::mat4 cameraMatrix() const = 0;
   virtual glm::mat4 projectionMatrix() const = 0;
+  const Frustum& frustum() const { return frustum_; }
+
+protected:
+  void UpdateFrustum();
+
+private:
+  Frustum frustum_;
 };
 
 }

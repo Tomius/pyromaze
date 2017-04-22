@@ -23,9 +23,7 @@ class MeshObject : public engine::GameObject {
   MeshObjectRenderer* renderer_;
 
   virtual void Render() override;
-  virtual void Voxelize(gl::LazyUniform<glm::mat4>& uModelMatrix) override;
   virtual void ShadowRender() override;
-  virtual void KeyAction(int key, int scancode, int action, int mods) override;
 };
 
 #endif

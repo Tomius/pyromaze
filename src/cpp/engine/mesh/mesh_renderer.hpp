@@ -23,14 +23,14 @@ class MeshRenderer {
    *        might contain multiply meshes).
    */
   struct MeshEntry {
+    constexpr static unsigned kInvalidMaterial = unsigned(-1);
+
     gl::VertexArray vao;
     gl::ArrayBuffer verts, normals, tangents, tex_coords;
     gl::IndexBuffer indices;
-    unsigned idx_count, material_index;
-    static const unsigned kInvalidMaterial = unsigned(-1);
+    unsigned idx_count;
+    unsigned material_index = kInvalidMaterial;
     gl::IndexType idx_type;
-
-    MeshEntry() : material_index(kInvalidMaterial) {}
   };
 
   /// The assimp importer. The scene actually belongs to this.
@@ -60,15 +60,20 @@ class MeshRenderer {
   /// The materials.
   std::map<aiTextureType, MaterialInfo> materials_;
 
+  /// Model-space bounding box of the mesh (without transformations applied)
+  mutable BoundingBox model_space_bounding_box_;
+  mutable bool is_setup_model_space_bounding_box_ = false;
+
   /// Stores if the setupPositions function is called (they shouldn't be called more than once).
-  bool is_setup_positions_;
+  bool is_setup_positions_ = false;
   /// Stores if the setupNormals function is called (they shouldn't be called more than once).
-  bool is_setup_normals_;
-  bool is_setup_tangents_;
-  /// Stores if the setup_texCoords function is called (they shouldn't be called more than once).
-  bool is_setup_tex_coords_;
+  bool is_setup_normals_ = false;
+  /// Stores if the setupTangents function is called (they shouldn't be called more than once).
+  bool is_setup_tangents_ = false;
+  /// Stores if the setupTexCoords function is called (they shouldn't be called more than once).
+  bool is_setup_tex_coords_ = false;
   /// Textures can be disabled, and not used for rendering
-  bool textures_enabled_;
+  bool textures_enabled_ = true;
 
   /// It shouldn't be copyable.
   MeshRenderer(const MeshRenderer& src) = delete;
@@ -168,6 +173,11 @@ public:
   /** Changes the currently active VAO and may change the Texture2D binding */
   void render();
 
+private:
+  /// Ensures that the model-space bounding box is calculated.
+  void calculateModelSpaceBoundBox() const;
+
+public:
   /// Gives information about the mesh's bounding cuboid.
   BoundingBox boundingBox(const glm::mat4& matrix = glm::mat4{}) const;
 

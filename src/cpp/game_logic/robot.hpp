@@ -14,7 +14,6 @@ class Robot : public MeshObject, public Explodable {
  private:
   engine::BulletRigidBody* rbody_;
   double activation_time_ = -1.0;
-  constexpr static double kTimeToExplode = 2.0;
 
   virtual void Update() override;
 

@@ -17,7 +17,7 @@ class PerspectiveCamera : public ICamera {
 
   glm::mat4 cameraMatrix() const override { return cam_mat_; }
   glm::mat4 projectionMatrix() const override { return proj_mat_; }
-  const Frustum& frustum() const { return frustum_; }
+
 
   float fovx() const { return fovy_*width_/height_;}
   void set_fovx(float fovx) { fovy_ = fovx*height_/width_; }
@@ -36,11 +36,9 @@ class PerspectiveCamera : public ICamera {
   float fovy_, z_near_, z_far_, width_, height_;
 
   glm::mat4 cam_mat_, proj_mat_;
-  Frustum frustum_;
 
   void UpdateCameraMatrix();
   void UpdateProjectionMatrix();
-  void UpdateFrustum();
 };
 
 }  // namespace engine

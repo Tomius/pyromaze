@@ -1,6 +1,7 @@
 // Copyright (c) Tamas Csala
 
 #include "mesh_object_renderer.hpp"
+#include "settings.hpp"
 
 #include "engine/scene.hpp"
 #include "engine/shadow.hpp"
@@ -30,7 +31,6 @@ MeshObjectRenderer::MeshObjectRenderer (const std::string& mesh_path,
     , srp_uModelMatrix_(shadow_recieve_prog_, "uModelMatrix")
     , srp_uShadowCP_(shadow_recieve_prog_, "uShadowCP")
     , srp_uNormalMatrix_(shadow_recieve_prog_, "uNormalMatrix")
-    , srp_uCameraPos_(shadow_recieve_prog_, "uCameraPos")
 
     , scp_uProjectionMatrix_(shadow_cast_prog_, "uProjectionMatrix")
     , scp_uCameraMatrix_(shadow_cast_prog_, "uCameraMatrix")
@@ -46,7 +46,6 @@ MeshObjectRenderer::MeshObjectRenderer (const std::string& mesh_path,
 
   gl::Use(shadow_recieve_prog_);
   gl::UniformSampler(shadow_recieve_prog_, "uShadowMap").set(engine::kShadowTextureSlot);
-  gl::UniformSampler(shadow_recieve_prog_, "uVoxelTexture").set(engine::kVoxelTextureSlot);
   gl::UniformSampler(shadow_recieve_prog_, "uDiffuseTexture").set(engine::kDiffuseTextureSlot);
   shadow_recieve_prog_.validate();
   gl::Unuse(shadow_recieve_prog_);
@@ -65,7 +64,12 @@ btCollisionShape* MeshObjectRenderer::GetCollisionShape() {
 void MeshObjectRenderer::Render(engine::Scene* scene,
                                 const engine::Transform& transform,
                                 bool recieve_shadows) {
+  const auto bounding_box = mesh_.boundingBox(transform.matrix());
   const auto& cam = *scene->camera();
+  if (Optimizations::kFrustumCulling && !bounding_box.CollidesWithFrustum(cam.frustum())) {
+    return;
+  }
+
   if (recieve_shadows) {
     auto shadow_cam = scene->shadow_camera();
 
@@ -77,7 +81,6 @@ void MeshObjectRenderer::Render(engine::Scene* scene,
     srp_uModelMatrix_ = transform.matrix();
     srp_uNormalMatrix_ = glm::inverse(glm::mat3(transform.matrix()));
     srp_uShadowCP_ = shadow_cam->projectionMatrix() * shadow_cam->cameraMatrix();
-    srp_uCameraPos_ = cam.transform().pos();
 
     mesh_.render();
     gl::Unuse(shadow_recieve_prog_);
@@ -95,13 +98,9 @@ void MeshObjectRenderer::Render(engine::Scene* scene,
   }
 }
 
-void MeshObjectRenderer::Voxelize() {
-  mesh_.render();
-}
-
 void MeshObjectRenderer::ShadowRender(engine::Scene* scene,
-                  const engine::Transform& transform,
-                  bool cast_shadows) {
+                                      const engine::Transform& transform,
+                                      bool cast_shadows) {
   if (cast_shadows) {
     const auto& shadow_cam = *scene->shadow_camera();
 
@@ -119,68 +118,6 @@ void MeshObjectRenderer::ShadowRender(engine::Scene* scene,
 
 engine::BoundingBox MeshObjectRenderer::GetBoundingBox(const glm::mat4& transform) const {
   return mesh_.boundingBox(transform);
-}
-
-void MeshObjectRenderer::KeyAction(int key, int scancode, int action, int mods) {
-  gl::Use(shadow_recieve_prog_);
-  if (action == GLFW_PRESS) {
-    switch (key) {
-      case GLFW_KEY_1:
-        if (!is_pressed_[0]) {
-          flags_[0] = !flags_[0];
-          gl::Uniform<float>(shadow_recieve_prog_, "uShowDiffuse") = flags_[0];
-        }
-        is_pressed_[0] = true;
-        break;
-      case GLFW_KEY_2:
-        if (!is_pressed_[1]) {
-          flags_[1] = !flags_[1];
-          gl::Uniform<float>(shadow_recieve_prog_, "uShowIndirectDiffuse") = flags_[1];
-        }
-        is_pressed_[1] = true;
-        break;
-      case GLFW_KEY_3:
-        if (!is_pressed_[2]) {
-          flags_[2] = !flags_[2];
-          gl::Uniform<float>(shadow_recieve_prog_, "uShowIndirectSpecular") = flags_[2];
-        }
-        is_pressed_[2] = true;
-        break;
-      case GLFW_KEY_4:
-        if (!is_pressed_[3]) {
-          flags_[3] = !flags_[3];
-          gl::Uniform<float>(shadow_recieve_prog_, "uShowAmbientOcculision") = flags_[3];
-        }
-        is_pressed_[3] = true;
-        break;
-      case GLFW_KEY_5:
-        if (!is_pressed_[4]) {
-          flags_[4] = !flags_[4];
-          gl::Uniform<float>(shadow_recieve_prog_, "uShowAmbientOcculisionOnly") = flags_[4];
-        }
-        is_pressed_[4] = true;
-        break;
-    }
-  } else if (action == GLFW_RELEASE) {
-     switch (key) {
-      case GLFW_KEY_1:
-      is_pressed_[0] = false;
-      break;
-      case GLFW_KEY_2:
-      is_pressed_[1] = false;
-      break;
-      case GLFW_KEY_3:
-      is_pressed_[2] = false;
-      break;
-      case GLFW_KEY_4:
-      is_pressed_[3] = false;
-      break;
-      case GLFW_KEY_5:
-      is_pressed_[4] = false;
-      break;
-    }
-  }
-  gl::Unuse(shadow_recieve_prog_);
 }
 
 MeshObjectRenderer* GetMeshRenderer(const std::string& str, engine::ShaderManager* shader_manager,

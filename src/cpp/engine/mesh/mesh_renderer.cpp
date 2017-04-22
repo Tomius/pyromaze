@@ -426,42 +426,57 @@ glm::mat4 MeshRenderer::worldTransform() const {
   return world_transformation_;
 }
 
-/// Gives information about the mesh's bounding cuboid.
-BoundingBox MeshRenderer::boundingBox(const glm::mat4& matrix) const {
-  float zero = 0.0f;  // This is needed to bypass a visual c++ compile error
-  float infty = 1.0f / zero;
-  glm::vec3 mins{infty, infty, infty}, maxes{-infty, -infty, -infty};
-  for (size_t entry = 0; entry < entries_.size(); entry++) {
-    const aiMesh* mesh = scene_->mMeshes[entry];
+/// Ensures that the model-space bounding box is calculated.
+void MeshRenderer::calculateModelSpaceBoundBox() const {
+  assert(is_setup_positions_);
 
-    for (size_t i = 0; i < mesh->mNumVertices; i++) {
-      glm::vec4 vert {mesh->mVertices[i].x, mesh->mVertices[i].y,
-                      mesh->mVertices[i].z, 1};
-      vert = matrix * vert;
+  if (!is_setup_model_space_bounding_box_) {
+    float zero = 0.0f;  // This is needed to bypass a visual c++ compile error
+    float infty = 1.0f / zero;
+    glm::vec3 mins{infty, infty, infty}, maxes{-infty, -infty, -infty};
+    for (size_t entry = 0; entry < entries_.size(); entry++) {
+      const aiMesh* mesh = scene_->mMeshes[entry];
 
-      if (vert.x < mins.x) {
-        mins.x = vert.x;
-      }
-      if (vert.y < mins.y) {
-        mins.y = vert.y;
-      }
-      if (vert.z < mins.z) {
-        mins.z = vert.z;
-      }
+      for (size_t i = 0; i < mesh->mNumVertices; i++) {
+        float x = mesh->mVertices[i].x;
+        float y = mesh->mVertices[i].y;
+        float z = mesh->mVertices[i].z;
 
-      if (maxes.x < vert.x) {
-        maxes.x = vert.x;
-      }
-      if (maxes.y < vert.y) {
-        maxes.y = vert.y;
-      }
-      if (maxes.z < vert.z) {
-        maxes.z = vert.z;
+        if (x < mins.x) {
+          mins.x = x;
+        }
+        if (y < mins.y) {
+          mins.y = y;
+        }
+        if (z < mins.z) {
+          mins.z = z;
+        }
+
+        if (maxes.x < x) {
+          maxes.x = x;
+        }
+        if (maxes.y < y) {
+          maxes.y = y;
+        }
+        if (maxes.z < z) {
+          maxes.z = z;
+        }
       }
     }
-  }
 
-  return BoundingBox{mins, maxes};
+    model_space_bounding_box_ = BoundingBox{mins, maxes};
+    is_setup_model_space_bounding_box_ = true;
+  }
+}
+
+/// Gives information about the mesh's bounding cuboid.
+BoundingBox MeshRenderer::boundingBox(const glm::mat4& matrix) const {
+  calculateModelSpaceBoundBox();
+
+  glm::vec3 trasformed_mins {matrix * glm::vec4{model_space_bounding_box_.mins(), 1}};
+  glm::vec3 trasformed_maxes {matrix * glm::vec4{model_space_bounding_box_.maxes(), 1}};
+
+  return BoundingBox{glm::min(trasformed_mins, trasformed_maxes), glm::max(trasformed_mins, trasformed_maxes)};
 }
 
 glm::vec4 MeshRenderer::bSphere(const BoundingBox& bbox) const {

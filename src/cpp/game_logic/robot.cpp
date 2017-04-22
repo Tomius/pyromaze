@@ -16,16 +16,23 @@ Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transf
 }
 
 void Robot::Update() {
-  if (activation_time_ > 0 && scene_->game_time().current_time() - activation_time_ > kTimeToExplode) {
+  constexpr bool kRobotExplodes = false;
+  constexpr float kTimeToExplode = 2.0f;
+  constexpr float kSpeed = 9.0f;
+  constexpr float kDetectionRadius = 15.0f;
+
+  if (kRobotExplodes && activation_time_ > 0 &&
+      scene_->game_time().current_time() - activation_time_ > kTimeToExplode) {
     parent()->RemoveComponent(this);
     GameObject* explosion = parent()->AddComponent<Explosion>();
     explosion->transform().set_local_pos(transform().local_pos());
   }
+
   scene_->EnumerateChildren([&](engine::GameObject* obj) {
     Player* player = dynamic_cast<Player*>(obj);
     if (player != nullptr) {
       glm::vec3 to_player = player->transform().pos() - transform().pos();
-      if (length(to_player) > 20) {
+      if (length(to_player) > kDetectionRadius) {
         return;
       }
       rbody_->bt_rigid_body()->activate();
@@ -37,7 +44,7 @@ void Robot::Update() {
       if (length(dir) > Math::kEpsilon) {
         dir = normalize(dir);
       }
-      glm::vec3 speed = 9.0f * dir;
+      glm::vec3 speed = kSpeed * dir;
       rbody_->bt_rigid_body()->setLinearVelocity(btVector3{speed.x, speed.y, speed.z});
     }
   });
