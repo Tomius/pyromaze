@@ -8,6 +8,74 @@
 
 namespace engine {
 
+void MeshRenderer::MeshDataStorage::uploadVertexData(
+          const std::vector<glm::vec3>& positions,
+          const std::vector<glm::vec3>& normals,
+          const std::vector<glm::vec3>& tangets,
+          const std::vector<glm::vec2>& texcoords) {
+  size_t vertex_count_to_upload = positions.size();
+  assert(normals.size() == vertex_count_to_upload);
+  assert(tangets.size() == vertex_count_to_upload);
+  assert(texcoords.size() == vertex_count_to_upload);
+
+  gl::Bind(vao);
+  if (vertex_allocation < vertex_count + vertex_count_to_upload) {
+    if (vertex_allocation == 0) {
+      vertex_allocation = vertex_count_to_upload;
+    } else {
+      vertex_allocation = 2 * (vertex_count + vertex_count_to_upload);
+    }
+
+    reallocUploadNewData(positions, positions_buffer, vertex_allocation, vertex_count);
+    reallocUploadNewData(normals, normals_buffer, vertex_allocation, vertex_count);
+    reallocUploadNewData(tangets, tangents_buffer, vertex_allocation, vertex_count);
+    reallocUploadNewData(texcoords, texcoords_buffer, vertex_allocation, vertex_count);
+
+    gl::Bind(positions_buffer);
+    gl::VertexAttribObject(kPositionAttribLocation).setup<glm::vec3>().enable();
+
+    gl::Bind(normals_buffer);
+    gl::VertexAttribObject(kNormalAttribLocation).setup<glm::vec3>().enable();
+
+    gl::Bind(tangents_buffer);
+    gl::VertexAttribObject(kTangentAttribLocation).setup<glm::vec3>().enable();
+
+    gl::Bind(texcoords_buffer);
+    gl::VertexAttribObject(kTexcoordAttribLocation).setup<glm::vec2>().enable();
+
+  } else {
+    uploadNewData(positions, positions_buffer, vertex_allocation, vertex_count);
+    uploadNewData(normals, normals_buffer, vertex_allocation, vertex_count);
+    uploadNewData(tangets, tangents_buffer, vertex_allocation, vertex_count);
+    uploadNewData(texcoords, texcoords_buffer, vertex_allocation, vertex_count);
+  }
+
+  vertex_count += vertex_count_to_upload;
+  gl::Unbind(gl::kArrayBuffer);
+  gl::Unbind(gl::kVertexArray);
+}
+
+void MeshRenderer::MeshDataStorage::uploadIndexData(const std::vector<GLuint>& indices) {
+  gl::Bind(vao);
+  if (idx_allocation < idx_count + indices.size()) {
+    if (idx_allocation == 0) {
+      idx_allocation = indices.size();
+    } else {
+      idx_allocation = 2 * (idx_count + indices.size());
+    }
+
+    reallocUploadNewData(indices, indices_buffer, idx_allocation, idx_count);
+
+  } else {
+    uploadNewData(indices, indices_buffer, idx_allocation, idx_count);
+  }
+
+  idx_count += indices.size();
+  gl::Bind(indices_buffer);
+  gl::Unbind(gl::kVertexArray);
+}
+
+
 /// Loads in the mesh from a file, and does some post-processing on it.
 /** @param filename - The name of the file to load in.
   * @param flags - The assimp post-process flags. */
@@ -15,12 +83,7 @@ MeshRenderer::MeshRenderer(const std::string& filename,
                            gl::Bitfield<aiPostProcessSteps> flags)
     : scene_(importer_.ReadFile(filename.c_str(), flags|aiProcess_Triangulate))
     , filename_(filename)
-    , entries_(scene_ ? scene_->mNumMeshes : 0)
-    , is_setup_positions_(false)
-    , is_setup_normals_(false)
-    , is_setup_tangents_(false)
-    , is_setup_tex_coords_(false)
-    , textures_enabled_(true) {
+    , entries_(scene_ ? scene_->mNumMeshes : 0) {
   if (!scene_) {
     throw std::runtime_error("Error parsing " + filename_ + " : " +
                              importer_.GetErrorString());
@@ -67,160 +130,148 @@ std::vector<int> MeshRenderer::btTriangles(btTriangleIndexVertexArray* triangles
   return indices_vector;
 }
 
-/// Returns a vector of the vertices
-std::vector<float> MeshRenderer::vertices() {
-  std::vector<float> verts_vector;
-  assert(3*sizeof(float) == sizeof(aiVector3D));
-
-  for (unsigned mesh_idx = 0; mesh_idx < scene_->mNumMeshes; ++mesh_idx) {
-    const aiMesh* mesh = scene_->mMeshes[mesh_idx];
-    verts_vector.insert(verts_vector.end(), (float*)mesh->mVertices,
-                        (float*)(mesh->mVertices+mesh->mNumVertices));
+void MeshRenderer::setup(gl::LazyVertexAttrib* positions,
+                         gl::LazyVertexAttrib* normals,
+                         gl::LazyVertexAttrib* tangents,
+                         gl::LazyVertexAttrib* texcoords)
+{
+  if (!is_setup_) {
+    is_setup_ = true;
+  } else {
+    std::cerr << "MeshRenderer::setup is called multiple times on the "
+                 "same object. If the two calls want to set positions up into "
+                 "the same attribute position, then the second call is "
+                 "unneccesary. If they want to set the positions to different "
+                 "attribute positions then the second call would make the "
+                 "first call not work anymore. Either way, calling "
+                 "setup multiply times is a design error, that should "
+                 "be avoided.";
+    std::terminate();
   }
 
-  return verts_vector;
+  MeshDataStorage& mesh_data_storage = getMeshDataStorage();
+  gl::Bind(mesh_data_storage.vao);
+
+  if (positions) {
+    positions->bindLocation(MeshDataStorage::kPositionAttribLocation);
+  }
+  if (normals) {
+    normals->bindLocation(MeshDataStorage::kNormalAttribLocation);
+  }
+  if (tangents) {
+    tangents->bindLocation(MeshDataStorage::kTangentAttribLocation);
+  }
+  if (texcoords) {
+    texcoords->bindLocation(MeshDataStorage::kTexcoordAttribLocation);
+  }
+
+  size_t idx_offset = mesh_data_storage.vertex_count;
+  for (size_t i = 0; i < entries_.size(); i++) {
+    entries_[i].base_vertex = mesh_data_storage.vertex_count;
+    entries_[i].base_idx = mesh_data_storage.idx_count;
+
+    const aiMesh* mesh = scene_->mMeshes[i];
+    std::vector<GLuint> indices = getIndices(mesh, idx_offset);
+    std::vector<glm::vec3> positions = getPositions(mesh);
+    std::vector<glm::vec3> normals = getNormals(mesh);
+    std::vector<glm::vec3> tangents = getTangents(mesh);
+    std::vector<glm::vec2> texcoords = getTexCoords(i);
+
+    mesh_data_storage.uploadVertexData(positions, normals, tangents, texcoords);
+    mesh_data_storage.uploadIndexData(indices);
+
+    entries_[i].vertex_count = mesh_data_storage.vertex_count - entries_[i].base_vertex;
+    entries_[i].idx_count = mesh_data_storage.idx_count - entries_[i].base_idx;
+  }
 }
 
-template <typename IdxType>
-/// A template for setting different types (byte/short/int) of indices.
-/** This expect the correct vao to be already bound!
-  * @param index - The index of the entry */
-void MeshRenderer::setIndices(size_t index) {
-  const aiMesh* mesh = scene_->mMeshes[index];
-
-  std::vector<IdxType> indices_vector;
+std::vector<GLuint> MeshRenderer::getIndices(const aiMesh* mesh, size_t idx_offset) {
+  std::vector<GLuint> indices_vector;
   indices_vector.reserve(mesh->mNumFaces * 3);
   bool invalid_triangles = false;
 
   for (size_t i = 0; i < mesh->mNumFaces; i++) {
     const aiFace& face = mesh->mFaces[i];
     if (face.mNumIndices == 3) {  // The invalid faces are just ignored.
-      indices_vector.push_back(face.mIndices[0]);
-      indices_vector.push_back(face.mIndices[1]);
-      indices_vector.push_back(face.mIndices[2]);
+      indices_vector.push_back(idx_offset + face.mIndices[0]);
+      indices_vector.push_back(idx_offset + face.mIndices[1]);
+      indices_vector.push_back(idx_offset + face.mIndices[2]);
     } else {
       invalid_triangles = true;
     }
   }
 
-  if(invalid_triangles) {
+  if (invalid_triangles) {
     std::cerr << "Mesh '" << filename_ << "' contains non-triangle faces. "
                  "This might result in rendering artifacts." << std::endl;
   }
 
-  gl::Bind(entries_[index].indices);
-  entries_[index].indices.data(indices_vector);
-  entries_[index].idx_count = indices_vector.size();
+  return indices_vector;
 }
 
-/// Loads in vertex positions and indices, and uploads the former into an attribute array.
-/** Uploads the vertex positions data to an attribute array, and sets it up for use.
-  * Calling this function changes the currently active VAO, ArrayBuffer and IndexBuffer.
-  * The mesh cannot be drawn without calling this function.
-  * @param attrib - The attribute array to use as destination. */
-void MeshRenderer::setupPositions(gl::VertexAttrib attrib) {
-  if (!is_setup_positions_) {
-    is_setup_positions_ = true;
-  } else {
-    std::cerr << "MeshRenderer::setupPositions is called multiple times on the "
-                 "same object. If the two calls want to set positions up into "
-                 "the same attribute position, then the second call is "
-                 "unneccesary. If they want to set the positions to different "
-                 "attribute positions then the second call would make the "
-                 "first call not work anymore. Either way, calling "
-                 "setupPositions multiply times is a design error, that should "
-                 "be avoided.";
-    std::terminate();
+std::vector<glm::vec3> MeshRenderer::getPositions(const aiMesh* mesh) {
+  std::vector<glm::vec3> positions_vector;
+  positions_vector.reserve(mesh->mNumVertices);
+  for (int i = 0; i < mesh->mNumVertices; ++i) {
+    const aiVector3D& pos = mesh->mVertices[i];
+    positions_vector.emplace_back(pos.x, pos.y, pos.z);
   }
 
-  for (size_t i = 0; i < entries_.size(); i++) {
-    const aiMesh* mesh = scene_->mMeshes[i];
-    gl::Bind(entries_[i].vao);
+  return positions_vector;
+}
 
-    // ~~~~~~<{ Load the vertices }>~~~~~~
-
-    gl::Bind(entries_[i].verts);
-    entries_[i].verts.data(mesh->mNumVertices*sizeof(aiVector3D), mesh->mVertices);
-    attrib.setup<glm::vec3>().enable();
-
-    // ~~~~~~<{ Load the indices }>~~~~~~
-
-    if (mesh->mNumFaces * 3 < UCHAR_MAX) {
-      entries_[i].idx_type = gl::kUnsignedByte;
-      setIndices<unsigned char>(i);
-    } else if (mesh->mNumFaces * 3 < USHRT_MAX) {
-      entries_[i].idx_type = gl::kUnsignedShort;
-      setIndices<unsigned short>(i);
-    } else {
-      entries_[i].idx_type = gl::kUnsignedInt;
-      setIndices<unsigned int>(i);
+std::vector<glm::vec3> MeshRenderer::getNormals(const aiMesh* mesh) {
+  std::vector<glm::vec3> normals_vector;
+  size_t vert_num = mesh->mNumVertices;
+  if (mesh->HasNormals()) {
+    normals_vector.reserve(vert_num);
+    for (int i = 0; i < vert_num; ++i) {
+      const aiVector3D& normal = mesh->mNormals[i];
+      normals_vector.emplace_back(normal.x, normal.y, normal.z);
     }
-  }
-
-  gl::Unbind(gl::kArrayBuffer);
-  gl::Unbind(gl::kVertexArray);
-}
-
-/// Loads in vertex normals, and uploads it to an attribute array.
-/** Uploads the vertex normals data to an attribute array, and sets it up for use.
-  * Calling this function changes the currently active VAO and ArrayBuffer.
-  * @param attrib - The attribute array to use as destination. */
-void MeshRenderer::setupNormals(gl::VertexAttrib attrib) {
-  if (!is_setup_normals_) {
-    is_setup_normals_ = true;
   } else {
-    std::cerr << "MeshRenderer::setupNormals is called multiple times on the "
-                 "same object. If the two calls want to set normals up into "
-                 "the same attribute position, then the second call is "
-                 "unneccesary. If they want to set the normals to different "
-                 "attribute positions then the second call would make the "
-                 "first call not work anymore. Either way, calling "
-                 "setupNormals multiply times is a design error, that should "
-                 "be avoided.";
-    std::terminate();
+    normals_vector.resize(vert_num);
   }
 
-  for (size_t i = 0; i < entries_.size(); i++) {
-    const aiMesh* mesh = scene_->mMeshes[i];
-    gl::Bind(entries_[i].vao);
-
-    gl::Bind(entries_[i].normals);
-    entries_[i].normals.data(mesh->mNumVertices*sizeof(aiVector3D), mesh->mNormals);
-    attrib.setup<float>(3).enable();
-  }
-
-  gl::Unbind(gl::kArrayBuffer);
-  gl::Unbind(gl::kVertexArray);
+  return normals_vector;
 }
 
-void MeshRenderer::setupTangents(gl::VertexAttrib attrib) {
-  if (!is_setup_tangents_) {
-    is_setup_tangents_ = true;
+std::vector<glm::vec3> MeshRenderer::getTangents(const aiMesh* mesh) {
+  std::vector<glm::vec3> tangents_vector;
+  size_t vert_num = mesh->mNumVertices;
+  if (mesh->HasTangentsAndBitangents()) {
+    tangents_vector.reserve(vert_num);
+    for (int i = 0; i < vert_num; ++i) {
+      const aiVector3D& tangent = mesh->mTangents[i];
+      tangents_vector.emplace_back(tangent.x, tangent.y, tangent.z);
+    }
   } else {
-    std::cerr << "MeshRenderer::setupTangents is called multiple times on the "
-                 "same object. If the two calls want to set tangents up into "
-                 "the same attribute position, then the second call is "
-                 "unneccesary. If they want to set the tangents to different "
-                 "attribute positions then the second call would make the "
-                 "first call not work anymore. Either way, calling "
-                 "setupTangents multiply times is a design error, that should "
-                 "be avoided.";
-    std::terminate();
+    tangents_vector.resize(vert_num);
   }
 
-  for (size_t i = 0; i < entries_.size(); i++) {
-    const aiMesh* mesh = scene_->mMeshes[i];
-    gl::Bind(entries_[i].vao);
-
-    gl::Bind(entries_[i].tangents);
-    entries_[i].tangents.data(mesh->mNumVertices*sizeof(aiVector3D), mesh->mTangents);
-    attrib.setup<float>(3).enable();
-  }
-
-  gl::Unbind(gl::kArrayBuffer);
-  gl::Unbind(gl::kVertexArray);
+  return tangents_vector;
 }
 
+std::vector<glm::vec2> MeshRenderer::getTexCoords(size_t index,
+                                                  unsigned char tex_coord_set) {
+  const aiMesh* mesh = scene_->mMeshes[index];
+  entries_[index].material_index = mesh->mMaterialIndex;
+
+  std::vector<glm::vec2> tex_coords_vector;
+
+  size_t vert_num = mesh->mNumVertices;
+  if (mesh->HasTextureCoords(tex_coord_set)) {
+    tex_coords_vector.reserve(vert_num);
+    for (size_t i = 0; i < vert_num; i++) {
+      const aiVector3D& tex_coord = mesh->mTextureCoords[tex_coord_set][i];
+      tex_coords_vector.emplace_back(tex_coord.x, tex_coord.y);
+    }
+  } else {
+    tex_coords_vector.resize(vert_num);
+  }
+
+  return tex_coords_vector;
+}
 
 /// Checks if every mesh in the scene has tex_coords
 /** Returns true if all of the meshes in the scene have texture
@@ -235,59 +286,6 @@ bool MeshRenderer::hasTexCoords(unsigned char tex_coord_set) {
   }
 
   return true;
-}
-
-/// Loads in vertex texture coordinates (the 0th set), and the materials.
-/** Uploads the vertex textures coordinates data to an attribute array,
-  * and sets it up for use. Also loads in the materials (textures) for
-  * the mesh. May write to the stderr if a material is missing.
-  * Calling this function changes the currently active VAO and ArrayBuffer.
-  * @param attrib - The attribute array to use as destination.
-  * @param tex_coord_set  Specifies the index of the texture coordinate set
-  *                     that should be used */
-void MeshRenderer::setupTexCoords(gl::VertexAttrib attrib,
-                                  unsigned char tex_coord_set) {
-  if (!is_setup_tex_coords_) {
-    is_setup_tex_coords_ = true;
-  } else {
-    std::cerr << "MeshRenderer::setupTexCoords is called multiple times on the "
-                 "same object. If the two calls want to set tex_coords up into "
-                 "the same attribute position, then the second call is "
-                 "unneccesary. If they want to set the tex_coords to different "
-                 "attribute positions then the second call would make the "
-                 "first call not work anymore. Either way, calling "
-                 "setupTexCoords multiply times is a design error, that should "
-                 "be avoided.";
-    std::terminate();
-  }
-
-  // Initialize TexCoords
-  for (size_t i = 0; i < entries_.size(); i++) {
-    const aiMesh* mesh = scene_->mMeshes[i];
-    entries_[i].material_index = mesh->mMaterialIndex;
-
-    std::vector<aiVector2D> tex_coords_vector;
-
-    size_t vert_num = mesh->mNumVertices;
-    if (mesh->HasTextureCoords(tex_coord_set)) {
-      tex_coords_vector.reserve(vert_num);
-      for (size_t i = 0; i < vert_num; i++) {
-        const aiVector3D& tex_coord = mesh->mTextureCoords[tex_coord_set][i];
-        tex_coords_vector.emplace_back(tex_coord.x, tex_coord.y);
-      }
-    } else {
-      tex_coords_vector.resize(vert_num);
-    }
-
-    gl::Bind(entries_[i].vao);
-
-    gl::Bind(entries_[i].tex_coords);
-    entries_[i].tex_coords.data(tex_coords_vector);
-    attrib.setup<float>(2).enable();
-  }
-
-  gl::Unbind(gl::kArrayBuffer);
-  gl::Unbind(gl::kVertexArray);
 }
 
 /**
@@ -384,11 +382,11 @@ void MeshRenderer::setupSpecularTextures(unsigned short texture_unit) {
 /// Renders the mesh.
 /** Changes the currently active VAO and may change the Texture2D binding */
 void MeshRenderer::render() {
-  if (!is_setup_positions_) {
+  if (!is_setup_) {
     return;  // we can't render the mesh, if we don't have any vertex.
   }
   for (size_t i = 0 ; i < entries_.size(); i++) {
-    gl::Bind(entries_[i].vao);
+    gl::Bind(getMeshDataStorage().vao);
 
     const size_t material_index = entries_[i].material_index;
 
@@ -402,7 +400,11 @@ void MeshRenderer::render() {
       }
     }
 
-    gl::DrawElements(gl::kTriangles, entries_[i].idx_count, entries_[i].idx_type);
+    glDrawElements(GL_TRIANGLES,
+                   entries_[i].idx_count,
+                   GL_UNSIGNED_INT,
+                   (void*)(entries_[i].base_idx * sizeof(unsigned)));
+    // gl::DrawElementsBaseVertex(gl::kTriangles, entries_[i].idx_count, gl::kUnsignedInt, entries_[i].base_idx);
 
     if (textures_enabled_) {
       for (auto iter = materials_.begin(); iter != materials_.end(); iter++) {
@@ -428,7 +430,7 @@ glm::mat4 MeshRenderer::worldTransform() const {
 
 /// Ensures that the model-space bounding box is calculated.
 void MeshRenderer::calculateModelSpaceBoundBox() const {
-  assert(is_setup_positions_);
+  assert(is_setup_);
 
   if (!is_setup_model_space_bounding_box_) {
     float zero = 0.0f;  // This is needed to bypass a visual c++ compile error

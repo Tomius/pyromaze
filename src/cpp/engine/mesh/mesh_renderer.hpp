@@ -18,19 +18,88 @@ namespace engine {
 /// A class that can load in and draw meshes using assimp.
 class MeshRenderer {
  protected:
+
+  struct MeshDataStorage {
+    gl::VertexArray vao;
+    gl::ArrayBuffer positions_buffer,
+                    normals_buffer,
+                    tangents_buffer,
+                    texcoords_buffer;
+    gl::IndexBuffer indices_buffer;
+
+    size_t vertex_count = 0;
+    size_t vertex_allocation = 0;
+    size_t idx_count = 0;
+    size_t idx_allocation = 0;
+
+    enum AttribPosition {
+      kPositionAttribLocation = 0,
+      kTexcoordAttribLocation = 1,
+      kNormalAttribLocation = 2,
+      kTangentAttribLocation = 3
+    };
+
+    void uploadVertexData(const std::vector<glm::vec3>& positions,
+                          const std::vector<glm::vec3>& normals,
+                          const std::vector<glm::vec3>& tangets,
+                          const std::vector<glm::vec2>& texcoords);
+
+    void uploadIndexData(const std::vector<GLuint>& indices);
+
+   private:
+    template<typename T, typename Buffer>
+    void uploadNewData(const std::vector<T>& data, Buffer& buffer,
+                       size_t allocation, size_t count) {
+      assert(allocation >= count + data.size());
+
+      gl::Bind(buffer);
+      buffer.subData(count * sizeof(T),
+                     data.size() * sizeof(T),
+                     data.data());
+    }
+
+    template<typename T, typename Buffer>
+    void reallocUploadNewData(const std::vector<T>& data, Buffer& buffer,
+                              size_t allocation, size_t count) {
+      assert(allocation >= count + data.size());
+      size_t prev_size = count*sizeof(T);
+      size_t new_size = allocation*sizeof(T);
+
+      // Alloc tmp buffer
+      Buffer temp_buffer;
+      gl::Bind(temp_buffer);
+      temp_buffer.data(new_size, nullptr);
+
+      // Copy old data to tmp buffer
+      glBindBuffer(GL_COPY_READ_BUFFER, buffer.expose());
+      glBindBuffer(GL_COPY_WRITE_BUFFER, temp_buffer.expose());
+      glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, prev_size);
+
+      // Upload new data
+      temp_buffer.subData(prev_size, data.size()*sizeof(T), data.data());
+
+      // Swap the buffers
+      buffer = std::move(temp_buffer);
+    }
+  };
+
+  MeshDataStorage& getMeshDataStorage() {
+    static MeshDataStorage instace;
+    return instace;
+  }
+
   /**
    * @brief A class to store per mesh data (the class loads in a scene, that
    *        might contain multiply meshes).
    */
   struct MeshEntry {
     constexpr static unsigned kInvalidMaterial = unsigned(-1);
-
-    gl::VertexArray vao;
-    gl::ArrayBuffer verts, normals, tangents, tex_coords;
-    gl::IndexBuffer indices;
-    unsigned idx_count;
     unsigned material_index = kInvalidMaterial;
-    gl::IndexType idx_type;
+
+    unsigned base_vertex = 0; // TODO: probably not needed
+    unsigned vertex_count = 0;
+    unsigned base_idx = 0;
+    unsigned idx_count = 0;
   };
 
   /// The assimp importer. The scene actually belongs to this.
@@ -64,14 +133,8 @@ class MeshRenderer {
   mutable BoundingBox model_space_bounding_box_;
   mutable bool is_setup_model_space_bounding_box_ = false;
 
-  /// Stores if the setupPositions function is called (they shouldn't be called more than once).
-  bool is_setup_positions_ = false;
-  /// Stores if the setupNormals function is called (they shouldn't be called more than once).
-  bool is_setup_normals_ = false;
-  /// Stores if the setupTangents function is called (they shouldn't be called more than once).
-  bool is_setup_tangents_ = false;
-  /// Stores if the setupTexCoords function is called (they shouldn't be called more than once).
-  bool is_setup_tex_coords_ = false;
+  /// Stores if the setup function was called (it shouldn't be called more than once).
+  bool is_setup_ = false;
   /// Textures can be disabled, and not used for rendering
   bool textures_enabled_ = true;
 
@@ -87,55 +150,31 @@ public:
   MeshRenderer(const std::string& filename,
                gl::Bitfield<aiPostProcessSteps> flags);
 
-  template <typename IdxType>
-  /// Returns a vector of the indices
-  std::vector<IdxType> indices();
-
-  /// Returns a vector of the vertices
-  std::vector<float> vertices();
-
   /// Sets up a btTriangleIndexVertexArray, and returns a vector of indices
   /// that should be stored throughout the lifetime of the bullet object
   std::vector<int> btTriangles(btTriangleIndexVertexArray* triangles);
 
+public:
+  void setup(gl::LazyVertexAttrib* positions,
+             gl::LazyVertexAttrib* normals,
+             gl::LazyVertexAttrib* tangents,
+             gl::LazyVertexAttrib* texcoords);
+
 private:
-  template <typename IdxType>
-  /// A template for setting different types (byte/short/int) of indices.
-  /** This expects the correct vao to be already bound!
-    * @param index - The index of the entry */
-  void setIndices(size_t index);
+  std::vector<GLuint>    getIndices(const aiMesh* mesh, size_t idx_offset);
+  std::vector<glm::vec3> getPositions(const aiMesh* mesh);
+  std::vector<glm::vec3> getNormals(const aiMesh* mesh);
+  std::vector<glm::vec3> getTangents(const aiMesh* mesh);
+  std::vector<glm::vec2> getTexCoords(size_t index,
+                                      unsigned char tex_coord_set = 0);
 
 public:
-  /// Loads in vertex positions and indices, and uploads the former into an attribute array.
-  /** Uploads the vertex positions data to an attribute array, and sets it up for use.
-    * Calling this function changes the currently active VAO, ArrayBuffer and IndexBuffer.
-    * The mesh cannot be drawn without calling this function.
-    * @param attrib - The attribute array to use as destination. */
-  void setupPositions(gl::VertexAttrib attrib);
-
-  /// Loads in vertex normals, and uploads it to an attribute array.
-  /** Uploads the vertex normals data to an attribute array, and sets it up for use.
-    * Calling this function changes the currently active VAO and ArrayBuffer.
-    * @param attrib - The attribute array to use as destination. */
-  void setupNormals(gl::VertexAttrib attrib);
-
-  void setupTangents(gl::VertexAttrib attrib);
 
   /// Checks if every mesh in the scene has tex_coords
   /** Returns true if all of the meshes in the scene have texture
     * coordinates in the specified texture coordinate set.
     * @param tex_coord_set - Specifies the index of the texture coordinate set that should be inspected */
   bool hasTexCoords(unsigned char tex_coord_set = 0);
-
-  /// Loads in vertex texture coordinates (the 0th set), and the materials.
-  /** Uploads the vertex textures coordinates data to an attribute array,
-    * and sets it up for use. Also loads in the materials (textures) for
-    * the mesh. May write to the stderr if a material is missing.
-    * Calling this function changes the currently active VAO and ArrayBuffer.
-    * @param attrib - The attribute array to use as destination.
-    * @param tex_coord_set Specifies the index of the texture coordinate set that should be used */
-  void setupTexCoords(gl::VertexAttrib attrib,
-                      unsigned char tex_coord_set = 0);
 
   /**
    * @brief Loads in a specified type of texture for every mesh. If no texture
@@ -207,7 +246,5 @@ public:
 };
 
 }  // namespace engine
-
-#include "engine/mesh/mesh_renderer-inl.hpp"
 
 #endif  // ENGINE_MESH_MESH_RENDERER_H_

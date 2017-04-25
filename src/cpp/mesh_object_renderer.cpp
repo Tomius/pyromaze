@@ -36,10 +36,7 @@ MeshObjectRenderer::MeshObjectRenderer (const std::string& mesh_path,
     , scp_uCameraMatrix_(shadow_cast_prog_, "uCameraMatrix")
     , scp_uModelMatrix_(shadow_cast_prog_, "uModelMatrix") {
   gl::Use(basic_prog_);
-  mesh_.setupPositions(basic_prog_ | "aPosition");
-  mesh_.setupTexCoords(basic_prog_ | "aTexCoord");
-  mesh_.setupNormals(basic_prog_ | "aNormal");
-  mesh_.setupTangents(gl::VertexAttrib{3});
+  mesh_.setup(nullptr, nullptr, nullptr, nullptr);
   mesh_.setupDiffuseTextures(engine::kDiffuseTextureSlot);
   gl::UniformSampler(basic_prog_, "uDiffuseTexture").set(engine::kDiffuseTextureSlot);
   basic_prog_.validate();
