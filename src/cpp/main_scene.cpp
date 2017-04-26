@@ -2,6 +2,8 @@
 #include "./fps_display.hpp"
 #include "./settings.hpp"
 
+#include "mesh_object_batch_renderer.hpp"
+
 #include "environment/ground.hpp"
 #include "environment/wall.hpp"
 #include "environment/skybox.hpp"
@@ -68,6 +70,9 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
 
   AddComponent<Skybox>("src/resource/skybox.png");
 
+  // must be the first object after skybox
+  AddComponent<MeshObjectBatchRenderer>();
+
   auto cam = AddComponent<engine::BulletFreeFlyCamera>(
       M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
   set_camera(cam);
@@ -76,6 +81,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   Player* player = AddComponent<Player>(playerTransform);
 
   CreateLabyrinth(player);
+
 
   AddComponent<FpsDisplay>();
 }

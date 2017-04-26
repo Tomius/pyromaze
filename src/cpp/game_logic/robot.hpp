@@ -15,7 +15,7 @@ class Robot : public MeshObject, public Explodable {
         Player* player);
 
  private:
-  Player* player;
+  Player* player_;
   engine::BulletRigidBody* rbody_;
   double activation_time_ = -1.0;
 

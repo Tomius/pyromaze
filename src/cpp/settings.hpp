@@ -11,7 +11,7 @@ enum class SceneComplexity {
   kVeryLow, kLow, kMedium, kHigh, kVeryHigh, kUltra
 };
 
-constexpr SceneComplexity kSceneComplexity = SceneComplexity::kLow;
+constexpr SceneComplexity kSceneComplexity = SceneComplexity::kVeryLow;
 
 constexpr int GetLabyrinthRadius () {
   switch (kSceneComplexity) {
@@ -36,17 +36,23 @@ constexpr int kLabyrinthDiameter = 2*(kLabyrinthRadius + 1/*border*/) + 1/*cente
 namespace Optimizations {
 
 constexpr bool kFrustumCulling = true;
+constexpr bool kAIBugFix = true;
+constexpr bool kResourceGrouping = true;
 
 }
 
 /*
-    +-----------------+---------+-----+--------+------+----------+-------+
-    |      Setup      | VeryLow | Low | Medium | High | VeryHigh | Ultra |
-    +-----------------+---------+-----+--------+------+----------+-------+
-    |     Default     |   654   | 205 |   78   |  30  |    12    |  1.44 |
-    +-----------------+---------+-----+--------+------+----------+-------+
-    | Frustum Culling |   683   | 346 |  106   |  41  |    16    |  1.65 |
-    +-----------------+---------+-----+--------+------+----------+-------+
+    +-------------------+---------+-----+--------+------+----------+-------+
+    |       Setup       | VeryLow | Low | Medium | High | VeryHigh | Ultra |
+    +-------------------+---------+-----+--------+------+----------+-------+
+    |      Default      |   654   | 205 |   78   |  30  |    12    |  1.44 |
+    +-------------------+---------+-----+--------+------+----------+-------+
+    |  Frustum Culling  |   810   | 353 |  121   |  42  |    15    |  1.42 |
+    +-------------------+---------+-----+--------+------+----------+-------+
+    |     AI Bug Fix    |   837   | 398 |  185   |  85  |    46    |  10.7 |
+    +-------------------+---------+-----+--------+------+----------+-------+
+    | Resource Grouping |   870   | 683 |  484   |  275 |    155   | 11.15 |
+    +-------------------+---------+-----+--------+------+----------+-------+
 */
 
 

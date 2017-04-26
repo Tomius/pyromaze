@@ -6,5 +6,6 @@
 Ground::Ground(GameObject* parent)
     : MeshObject(parent, "ground.obj") {
 
+  renderer_->set_cast_shadows(false);
   AddComponent<engine::BulletRigidBody>(0.0f, GetCollisionShape(), engine::kColStatic);
 }

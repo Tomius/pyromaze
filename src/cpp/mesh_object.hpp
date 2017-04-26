@@ -11,17 +11,13 @@ class MeshObject : public engine::GameObject {
              const engine::Transform& initial_transform = engine::Transform{},
              const std::string& vertex_shader = "mesh.vert");
 
-  void set_cast_shadows(bool value) { cast_shadows_ = value; }
-  void set_recieve_shadows(bool value) { recieve_shadows_ = value; }
-
   btCollisionShape* GetCollisionShape();
   engine::BoundingBox GetBoundingBox() const;
 
  protected:
-  bool cast_shadows_ = true;
-  bool recieve_shadows_ = true;
   MeshObjectRenderer* renderer_;
 
+  virtual void Update() override;
   virtual void Render() override;
   virtual void ShadowRender() override;
 };

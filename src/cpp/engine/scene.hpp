@@ -18,12 +18,21 @@
 
 namespace engine {
 
+class Scene;
+class GameEngine;
+class ShaderManager;
+
 class IMeshObjectRenderer {
 public:
+  virtual void ClearRenderBatch() = 0;
+  virtual void RenderBatch(engine::Scene* scene) = 0;
+
+  virtual void ClearShadowRenderBatch() = 0;
+  virtual void ShadowRenderBatch(engine::Scene* scene) = 0;
+
   virtual ~IMeshObjectRenderer() {}
 };
-class ShaderManager;
-class GameEngine;
+using MeshRendererCache = std::map<std::string, std::unique_ptr<engine::IMeshObjectRenderer>>;
 
 class Scene : public engine::GameObject {
  public:
@@ -59,7 +68,7 @@ class Scene : public engine::GameObject {
   const btDynamicsWorld* bt_world() const { return bt_world_.get(); }
   btDynamicsWorld* bt_world() { return bt_world_.get(); }
 
-  std::map<std::string, std::unique_ptr<IMeshObjectRenderer>>* mesh_cache() { return &mesh_cache_; }
+  MeshRendererCache* mesh_cache() { return &mesh_cache_; }
 
   virtual void Turn();
 
@@ -76,7 +85,7 @@ class Scene : public engine::GameObject {
   GLFWwindow* window_;
   engine::GameEngine* engine_;
   std::map<unsigned, LightSource> light_sources_;
-  std::map<std::string, std::unique_ptr<IMeshObjectRenderer>> mesh_cache_;
+  MeshRendererCache mesh_cache_;
 
   // Bullet classes
   std::unique_ptr<btCollisionConfiguration> bt_collision_config_;

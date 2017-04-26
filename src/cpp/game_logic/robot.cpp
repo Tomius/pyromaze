@@ -2,10 +2,11 @@
 #include "game_logic/player.hpp"
 #include "game_logic/fire.hpp"
 #include "engine/scene.hpp"
+#include "settings.hpp"
 
 Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transform,
              Player* player)
-    : MeshObject(parent, "robot.obj", initial_transform), player(player) {
+    : MeshObject(parent, "robot.obj", initial_transform), player_(player) {
   rbody_ = AddComponent<engine::BulletRigidBody>(1.0f, engine::make_unique<btSphereShape>(1.0), engine::kColDynamic);
   engine::BulletRigidBody::Restrains restrains;
   restrains.y_pos_lock = 1;
@@ -27,6 +28,18 @@ void Robot::Update() {
     parent()->RemoveComponent(this);
     GameObject* explosion = parent()->AddComponent<Explosion>();
     explosion->transform().set_local_pos(transform().local_pos());
+  }
+
+  Player* player = nullptr;
+  if (Optimizations::kAIBugFix) {
+    player = player_;
+  } else {
+    scene_->EnumerateChildren([&](engine::GameObject* obj) {
+      Player* p = dynamic_cast<Player*>(obj);
+      if (p != nullptr) {
+        player = p;
+      }
+    });
   }
 
   if (player != nullptr) {

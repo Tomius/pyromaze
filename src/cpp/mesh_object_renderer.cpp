@@ -56,16 +56,18 @@ btCollisionShape* MeshObjectRenderer::GetCollisionShape() {
   return bt_shape_.get();
 }
 
-void MeshObjectRenderer::Render(engine::Scene* scene,
-                                const engine::Transform& transform,
-                                bool recieve_shadows) {
-  const auto bounding_box = mesh_.boundingBox(transform.matrix());
-  const auto& cam = *scene->camera();
-  if (Optimizations::kFrustumCulling && !bounding_box.CollidesWithFrustum(cam.frustum())) {
-    return;
-  }
+void MeshObjectRenderer::AddInstanceToRenderBatch(const engine::Transform& transform) {
+  instance_transforms_.push_back(transform.matrix());
+}
 
-  if (recieve_shadows) {
+void MeshObjectRenderer::ClearRenderBatch() {
+  instance_transforms_.clear();
+}
+
+void MeshObjectRenderer::RenderBatch(engine::Scene* scene) {
+  const auto& cam = *scene->camera();
+
+  if (recieve_shadows_) {
     auto shadow_cam = scene->shadow_camera();
 
     gl::Use(shadow_recieve_prog_);
@@ -73,10 +75,13 @@ void MeshObjectRenderer::Render(engine::Scene* scene,
 
     srp_uProjectionMatrix_ = cam.projectionMatrix();
     srp_uCameraMatrix_ = cam.cameraMatrix();
-    srp_uModelMatrix_ = transform.matrix();
     srp_uShadowCP_ = shadow_cam->projectionMatrix() * shadow_cam->cameraMatrix();
 
-    mesh_.render();
+    for (auto& tf_matrix : instance_transforms_) {
+      srp_uModelMatrix_ = tf_matrix;
+      mesh_.render();
+    }
+
     gl::Unuse(shadow_recieve_prog_);
   } else {
     gl::Use(basic_prog_);
@@ -84,17 +89,26 @@ void MeshObjectRenderer::Render(engine::Scene* scene,
 
     bp_uProjectionMatrix_ = cam.projectionMatrix();
     bp_uCameraMatrix_ = cam.cameraMatrix();
-    bp_uModelMatrix_ = transform.matrix();
 
-    mesh_.render();
+    for (auto& tf_matrix : instance_transforms_) {
+      bp_uModelMatrix_ = tf_matrix;
+      mesh_.render();
+    }
+
     gl::Unuse(basic_prog_);
   }
 }
 
-void MeshObjectRenderer::ShadowRender(engine::Scene* scene,
-                                      const engine::Transform& transform,
-                                      bool cast_shadows) {
-  if (cast_shadows) {
+void MeshObjectRenderer::AddInstanceToShadowRenderBatch(const engine::Transform& transform) {
+  shadow_instance_transforms_.push_back(transform.matrix());
+}
+
+void MeshObjectRenderer::ClearShadowRenderBatch() {
+  shadow_instance_transforms_.clear();
+}
+
+void MeshObjectRenderer::ShadowRenderBatch(engine::Scene* scene) {
+  if (cast_shadows_) {
     const auto& shadow_cam = *scene->shadow_camera();
 
     gl::Use(shadow_cast_prog_);
@@ -102,9 +116,12 @@ void MeshObjectRenderer::ShadowRender(engine::Scene* scene,
 
     scp_uProjectionMatrix_ = shadow_cam.projectionMatrix();
     scp_uCameraMatrix_ = shadow_cam.cameraMatrix();
-    scp_uModelMatrix_ = transform.matrix();
 
-    mesh_.render();
+    for (auto& tf_matrix : shadow_instance_transforms_) {
+      scp_uModelMatrix_ = tf_matrix;
+      mesh_.render();
+    }
+
     gl::Unuse(shadow_cast_prog_);
   }
 }
