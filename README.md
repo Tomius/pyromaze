@@ -1,27 +1,13 @@
 Pyromaze
 =============
 
-Pyromaze is a universal OpenGL 4.2 game engine, with a simple game implemented in it.
-
-It features voxel cone tracing global illumination. The game tries to show how much difference it makes in especially dark scenes. A screenshot with global global illumation:
-![screenshot](screenshots/with_vct.png)
-And a screenshot without:
-![screenshot](screenshots/without_vct.png)
-
-By the way, the game is about blowing stuff up (it is not finished yet):
-![screenshot](screenshots/dynamite.png)
-![screenshot](screenshots/explosion.png)
-![screenshot](screenshots/after.png)
-
-Windows:
---------
-[Download Windows Executable](https://dl.dropboxusercontent.com/u/37129007/pyromaze.zip)
+Pyromaze is an OpenGL game engine, with a simple game implemented in it.
 
 
 External dependencies:
 ----------------------
 * C++11 compiler
-* OpenGL 4.2 with ```GL_ARB_shader_image_load_store```
+* OpenGL 4.5
 * CMake
 * Python 2
 
