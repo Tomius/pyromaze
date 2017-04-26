@@ -7,11 +7,15 @@
 #include "game_logic/explodable.hpp"
 #include "engine/physics/bullet_rigid_body.hpp"
 
+class Player;
+
 class Robot : public MeshObject, public Explodable {
  public:
-  Robot(engine::GameObject* parent, const engine::Transform& initial_transform);
+  Robot(engine::GameObject* parent, const engine::Transform& initial_transform,
+        Player* player);
 
  private:
+  Player* player;
   engine::BulletRigidBody* rbody_;
   double activation_time_ = -1.0;
 

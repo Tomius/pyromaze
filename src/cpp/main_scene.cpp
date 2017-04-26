@@ -68,19 +68,19 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
 
   AddComponent<Skybox>("src/resource/skybox.png");
 
-  CreateLabyrinth();
-
   auto cam = AddComponent<engine::BulletFreeFlyCamera>(
       M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
   set_camera(cam);
 
   engine::Transform playerTransform{&cam->transform()};
-  AddComponent<Player>(playerTransform);
+  Player* player = AddComponent<Player>(playerTransform);
+
+  CreateLabyrinth(player);
 
   AddComponent<FpsDisplay>();
 }
 
-void MainScene::CreateLabyrinth() {
+void MainScene::CreateLabyrinth(Player* player) {
   //auto envir = AddComponent<GameObject>(); // TODO
   auto envir = this;
 
@@ -97,7 +97,7 @@ void MainScene::CreateLabyrinth() {
         engine::Transform robot_transform;
         robot_transform.set_local_pos({x * kWallLength + kWallLength/2.0, 3,
                                        z * kWallLength + kWallLength/2.0});
-        AddComponent<Robot>(robot_transform);
+        AddComponent<Robot>(robot_transform, player);
       }
     }
   }

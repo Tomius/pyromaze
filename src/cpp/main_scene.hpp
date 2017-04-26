@@ -4,6 +4,8 @@
 #include "engine/scene.hpp"
 #include "engine/shadow.hpp"
 
+class Player;
+
 class MainScene : public engine::Scene {
  public:
   MainScene(engine::GameEngine* engine, GLFWwindow* window);
@@ -11,7 +13,7 @@ class MainScene : public engine::Scene {
  private:
   engine::Shadow* shadow_;
 
-  void CreateLabyrinth();
+  void CreateLabyrinth(Player* player);
 
   virtual void RenderAll() override;
 
