@@ -96,8 +96,6 @@ class MeshRenderer {
     constexpr static unsigned kInvalidMaterial = unsigned(-1);
     unsigned material_index = kInvalidMaterial;
 
-    unsigned base_vertex = 0; // TODO: probably not needed
-    unsigned vertex_count = 0;
     unsigned base_idx = 0;
     unsigned idx_count = 0;
   };
@@ -161,7 +159,7 @@ public:
              gl::LazyVertexAttrib* texcoords);
 
 private:
-  std::vector<GLuint>    getIndices(const aiMesh* mesh, size_t idx_offset);
+  std::vector<GLuint>    getIndices(const aiMesh* mesh);
   std::vector<glm::vec3> getPositions(const aiMesh* mesh);
   std::vector<glm::vec3> getNormals(const aiMesh* mesh);
   std::vector<glm::vec3> getTangents(const aiMesh* mesh);

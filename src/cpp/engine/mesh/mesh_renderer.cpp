@@ -165,13 +165,11 @@ void MeshRenderer::setup(gl::LazyVertexAttrib* positions,
     texcoords->bindLocation(MeshDataStorage::kTexcoordAttribLocation);
   }
 
-  size_t idx_offset = mesh_data_storage.vertex_count;
   for (size_t i = 0; i < entries_.size(); i++) {
-    entries_[i].base_vertex = mesh_data_storage.vertex_count;
     entries_[i].base_idx = mesh_data_storage.idx_count;
 
     const aiMesh* mesh = scene_->mMeshes[i];
-    std::vector<GLuint> indices = getIndices(mesh, idx_offset);
+    std::vector<GLuint> indices = getIndices(mesh);
     std::vector<glm::vec3> positions = getPositions(mesh);
     std::vector<glm::vec3> normals = getNormals(mesh);
     std::vector<glm::vec3> tangents = getTangents(mesh);
@@ -180,16 +178,16 @@ void MeshRenderer::setup(gl::LazyVertexAttrib* positions,
     mesh_data_storage.uploadVertexData(positions, normals, tangents, texcoords);
     mesh_data_storage.uploadIndexData(indices);
 
-    entries_[i].vertex_count = mesh_data_storage.vertex_count - entries_[i].base_vertex;
     entries_[i].idx_count = mesh_data_storage.idx_count - entries_[i].base_idx;
   }
 }
 
-std::vector<GLuint> MeshRenderer::getIndices(const aiMesh* mesh, size_t idx_offset) {
+std::vector<GLuint> MeshRenderer::getIndices(const aiMesh* mesh) {
   std::vector<GLuint> indices_vector;
   indices_vector.reserve(mesh->mNumFaces * 3);
   bool invalid_triangles = false;
 
+  size_t idx_offset = getMeshDataStorage().vertex_count;
   for (size_t i = 0; i < mesh->mNumFaces; i++) {
     const aiFace& face = mesh->mFaces[i];
     if (face.mNumIndices == 3) {  // The invalid faces are just ignored.
