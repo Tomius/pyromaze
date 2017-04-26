@@ -24,13 +24,11 @@ MeshObjectRenderer::MeshObjectRenderer (const std::string& mesh_path,
     , bp_uProjectionMatrix_(basic_prog_, "uProjectionMatrix")
     , bp_uCameraMatrix_(basic_prog_, "uCameraMatrix")
     , bp_uModelMatrix_(basic_prog_, "uModelMatrix")
-    , bp_uNormalMatrix_(basic_prog_, "uNormalMatrix")
 
     , srp_uProjectionMatrix_(shadow_recieve_prog_, "uProjectionMatrix")
     , srp_uCameraMatrix_(shadow_recieve_prog_, "uCameraMatrix")
     , srp_uModelMatrix_(shadow_recieve_prog_, "uModelMatrix")
     , srp_uShadowCP_(shadow_recieve_prog_, "uShadowCP")
-    , srp_uNormalMatrix_(shadow_recieve_prog_, "uNormalMatrix")
 
     , scp_uProjectionMatrix_(shadow_cast_prog_, "uProjectionMatrix")
     , scp_uCameraMatrix_(shadow_cast_prog_, "uCameraMatrix")
@@ -76,7 +74,6 @@ void MeshObjectRenderer::Render(engine::Scene* scene,
     srp_uProjectionMatrix_ = cam.projectionMatrix();
     srp_uCameraMatrix_ = cam.cameraMatrix();
     srp_uModelMatrix_ = transform.matrix();
-    srp_uNormalMatrix_ = glm::inverse(glm::mat3(transform.matrix()));
     srp_uShadowCP_ = shadow_cam->projectionMatrix() * shadow_cam->cameraMatrix();
 
     mesh_.render();
@@ -88,7 +85,6 @@ void MeshObjectRenderer::Render(engine::Scene* scene,
     bp_uProjectionMatrix_ = cam.projectionMatrix();
     bp_uCameraMatrix_ = cam.cameraMatrix();
     bp_uModelMatrix_ = transform.matrix();
-    bp_uNormalMatrix_ = glm::inverse(glm::mat3(transform.matrix()));
 
     mesh_.render();
     gl::Unuse(basic_prog_);

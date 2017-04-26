@@ -8,7 +8,6 @@ layout(location = 2) in vec3 aNormal;
 layout(location = 3) in vec3 aTangent;
 
 uniform mat4 uProjectionMatrix, uCameraMatrix, uModelMatrix;
-uniform mat3 uNormalMatrix;
 uniform vec3 uFirePos;
 
 out vec3 w_vPos;
@@ -17,8 +16,9 @@ out vec2 vTexCoord;
 out vec3 w_vTangent;
 
 void main() {
-  w_vNormal = aNormal * uNormalMatrix;
-  w_vTangent = aTangent * uNormalMatrix;
+  mat3 normalMatrix = inverse(mat3(uModelMatrix));
+  w_vNormal = aNormal * normalMatrix;
+  w_vTangent = aTangent * normalMatrix;
   vTexCoord = aTexCoord;
 
   bool fuse_already_burnt = aPosition.x > uFirePos.x && aPosition.y > 1.15;

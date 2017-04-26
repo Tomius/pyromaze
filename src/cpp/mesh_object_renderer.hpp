@@ -42,11 +42,9 @@ private:
 
   // basic_prog uniforms
   gl::LazyUniform<glm::mat4> bp_uProjectionMatrix_, bp_uCameraMatrix_, bp_uModelMatrix_;
-  gl::LazyUniform<glm::mat3> bp_uNormalMatrix_;
 
   // shadow_recieve_prog_ uniforms
   gl::LazyUniform<glm::mat4> srp_uProjectionMatrix_, srp_uCameraMatrix_, srp_uModelMatrix_, srp_uShadowCP_;
-  gl::LazyUniform<glm::mat3> srp_uNormalMatrix_;
 
   // shadow_cast_prog_ uniforms
   gl::LazyUniform<glm::mat4> scp_uProjectionMatrix_, scp_uCameraMatrix_, scp_uModelMatrix_;
