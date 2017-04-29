@@ -38,6 +38,7 @@ ShaderManager* Scene::shader_manager() const { return engine_->shader_manager();
 
 void Scene::Turn() {
   physics_finished_.WaitOne();
+  glfwPollEvents();
   UpdateAll();
   physics_can_run_.Set();
 

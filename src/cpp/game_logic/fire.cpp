@@ -187,7 +187,7 @@ void Explosion::Update() {
   }
   float life_time = current_time - born_at_;
   if (life_time < 0.5) {
-    scene_->EnumerateChildren([&](engine::GameObject* obj) {
+    scene_->EnumerateChildren(true, [&](engine::GameObject* obj) {
       Explodable* explodable = dynamic_cast<Explodable*>(obj);
       if (explodable != nullptr) {
         explodable->ReactToExplosion(transform().pos(), 10);

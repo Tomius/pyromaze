@@ -67,6 +67,15 @@ void MeshObjectRenderer::ClearRenderBatch() {
 void MeshObjectRenderer::RenderBatch(engine::Scene* scene) {
   const auto& cam = *scene->camera();
 
+  mesh_.bindVao();
+  gl::Bind(model_matrix_buffer_);
+  // std::cout << glm::vec3(instance_transforms_[0][3]) << std::endl;
+  EnsureModelMatrixBufferSize(instance_transforms_.size());
+  model_matrix_buffer_.subData(0, instance_transforms_.size() * sizeof(glm::mat4),
+                                  instance_transforms_.data());
+  SetupModelMatrixAttrib();
+  gl::Unbind(gl::kVertexArray);
+
   if (recieve_shadows_) {
     auto shadow_cam = scene->shadow_camera();
 
@@ -77,10 +86,7 @@ void MeshObjectRenderer::RenderBatch(engine::Scene* scene) {
     srp_uCameraMatrix_ = cam.cameraMatrix();
     srp_uShadowCP_ = shadow_cam->projectionMatrix() * shadow_cam->cameraMatrix();
 
-    for (auto& tf_matrix : instance_transforms_) {
-      srp_uModelMatrix_ = tf_matrix;
-      mesh_.render();
-    }
+    mesh_.render(instance_transforms_.size());
 
     gl::Unuse(shadow_recieve_prog_);
   } else {
@@ -90,10 +96,7 @@ void MeshObjectRenderer::RenderBatch(engine::Scene* scene) {
     bp_uProjectionMatrix_ = cam.projectionMatrix();
     bp_uCameraMatrix_ = cam.cameraMatrix();
 
-    for (auto& tf_matrix : instance_transforms_) {
-      bp_uModelMatrix_ = tf_matrix;
-      mesh_.render();
-    }
+    mesh_.render(instance_transforms_.size());
 
     gl::Unuse(basic_prog_);
   }
@@ -111,16 +114,21 @@ void MeshObjectRenderer::ShadowRenderBatch(engine::Scene* scene) {
   if (cast_shadows_) {
     const auto& shadow_cam = *scene->shadow_camera();
 
+    mesh_.bindVao();
+    gl::Bind(model_matrix_buffer_);
+    EnsureModelMatrixBufferSize(shadow_instance_transforms_.size());
+    model_matrix_buffer_.subData(0, shadow_instance_transforms_.size() * sizeof(glm::mat4),
+                                    shadow_instance_transforms_.data());
+    SetupModelMatrixAttrib();
+    gl::Unbind(gl::kVertexArray);
+
     gl::Use(shadow_cast_prog_);
     shadow_cast_prog_.update();
 
     scp_uProjectionMatrix_ = shadow_cam.projectionMatrix();
     scp_uCameraMatrix_ = shadow_cam.cameraMatrix();
 
-    for (auto& tf_matrix : shadow_instance_transforms_) {
-      scp_uModelMatrix_ = tf_matrix;
-      mesh_.render();
-    }
+    mesh_.render(shadow_instance_transforms_.size());
 
     gl::Unuse(shadow_cast_prog_);
   }
@@ -140,5 +148,22 @@ MeshObjectRenderer* GetMeshRenderer(const std::string& str, engine::ShaderManage
     return renderer;
   } else {
     return dynamic_cast<MeshObjectRenderer*>(iter->second.get());
+  }
+}
+
+void MeshObjectRenderer::EnsureModelMatrixBufferSize(size_t size) {
+  if (model_matrix_buffer_alloc_ < size) {
+    model_matrix_buffer_alloc_ = 2*size;
+    model_matrix_buffer_.data(model_matrix_buffer_alloc_ * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
+    SetupModelMatrixAttrib();
+  }
+}
+
+void MeshObjectRenderer::SetupModelMatrixAttrib() {
+  for (int i = 0; i < 4; ++i) {
+    auto attrib = gl::VertexAttribObject(kModelMatrixAttributeLocation + i);
+    attrib.pointer(4, gl::kFloat, false, sizeof(glm::mat4), (void*)(i*sizeof(glm::vec4)));
+    attrib.divisor(1);
+    attrib.enable();
   }
 }

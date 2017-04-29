@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <oglwrap/oglwrap.h>
 #include "engine/mesh/mesh_renderer.hpp"
+#include "settings.hpp"
 
 namespace engine {
 
@@ -271,6 +272,10 @@ std::vector<glm::vec2> MeshRenderer::getTexCoords(size_t index,
   return tex_coords_vector;
 }
 
+void MeshRenderer::bindVao() {
+  gl::Bind(getMeshDataStorage().vao);
+}
+
 /// Checks if every mesh in the scene has tex_coords
 /** Returns true if all of the meshes in the scene have texture
   * coordinates in the specified texture coordinate set.
@@ -379,7 +384,7 @@ void MeshRenderer::setupSpecularTextures(unsigned short texture_unit) {
 
 /// Renders the mesh.
 /** Changes the currently active VAO and may change the Texture2D binding */
-void MeshRenderer::render() {
+void MeshRenderer::render(size_t instance_count) {
   if (!is_setup_) {
     return;  // we can't render the mesh, if we don't have any vertex.
   }
@@ -398,11 +403,23 @@ void MeshRenderer::render() {
       }
     }
 
-    glDrawElements(GL_TRIANGLES,
-                   entries_[i].idx_count,
-                   GL_UNSIGNED_INT,
-                   (void*)(entries_[i].base_idx * sizeof(unsigned)));
-    // gl::DrawElementsBaseVertex(gl::kTriangles, entries_[i].idx_count, gl::kUnsignedInt, entries_[i].base_idx);
+    if (Optimizations::kInstancing) {
+      glDrawElementsInstanced(GL_TRIANGLES,
+                              entries_[i].idx_count,
+                              GL_UNSIGNED_INT,
+                              (void*)(entries_[i].base_idx * sizeof(unsigned)),
+                              instance_count);
+    } else {
+      for (int instance = 0; instance < instance_count; ++instance) {
+        glDrawElementsInstancedBaseInstance(GL_TRIANGLES,
+                                            entries_[i].idx_count,
+                                            GL_UNSIGNED_INT,
+                                            (void*)(entries_[i].base_idx * sizeof(unsigned)),
+                                            1,
+                                            instance);
+      }
+    }
+
 
     if (textures_enabled_) {
       for (auto iter = materials_.begin(); iter != materials_.end(); iter++) {

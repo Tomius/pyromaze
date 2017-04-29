@@ -7,7 +7,8 @@
 Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transform,
              Player* player)
     : MeshObject(parent, "robot.obj", initial_transform), player_(player) {
-  rbody_ = AddComponent<engine::BulletRigidBody>(1.0f, engine::make_unique<btSphereShape>(1.0), engine::kColDynamic);
+  rbody_ = AddComponent<engine::BulletRigidBody>(1.0f, engine::make_unique<btSphereShape>(1.0),
+                                                 initial_transform.pos(), engine::kColDynamic);
   engine::BulletRigidBody::Restrains restrains;
   restrains.y_pos_lock = 1;
   restrains.x_rot_lock = 1;
@@ -15,9 +16,15 @@ Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transf
   restrains.z_rot_lock = 1;
   rbody_->set_restrains(restrains);
   rbody_->bt_rigid_body()->setGravity(btVector3{0, 0, 0});
+  if (Optimizations::kSleepRobots) {
+    btScalar dtime = scene_->game_time().current_time() + 1e10f;
+    rbody_->bt_rigid_body()->setDeactivationTime(dtime);
+  }
 }
 
 void Robot::Update() {
+  MeshObject::Update();
+
   constexpr bool kRobotExplodes = false;
   constexpr float kTimeToExplode = 2.0f;
   constexpr float kSpeed = 9.0f;
@@ -34,7 +41,7 @@ void Robot::Update() {
   if (Optimizations::kAIBugFix) {
     player = player_;
   } else {
-    scene_->EnumerateChildren([&](engine::GameObject* obj) {
+    scene_->EnumerateChildren(true, [&](engine::GameObject* obj) {
       Player* p = dynamic_cast<Player*>(obj);
       if (p != nullptr) {
         player = p;
@@ -45,8 +52,14 @@ void Robot::Update() {
   if (player != nullptr) {
     glm::vec3 to_player = player->transform().pos() - transform().pos();
     if (length(to_player) > kDetectionRadius) {
+      rbody_->bt_rigid_body()->setLinearVelocity({0, 0, 0});
+      if (Optimizations::kSleepRobots) {
+        btScalar dtime = scene_->game_time().current_time() + 1e10f;
+        rbody_->bt_rigid_body()->setDeactivationTime(dtime);
+      }
       return;
     }
+
     rbody_->bt_rigid_body()->activate();
     if (activation_time_ < 0) {
       activation_time_ = scene_->game_time().current_time();

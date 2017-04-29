@@ -167,6 +167,7 @@ private:
                                       unsigned char tex_coord_set = 0);
 
 public:
+  void bindVao();
 
   /// Checks if every mesh in the scene has tex_coords
   /** Returns true if all of the meshes in the scene have texture
@@ -208,7 +209,7 @@ public:
 
   /// Renders the mesh.
   /** Changes the currently active VAO and may change the Texture2D binding */
-  void render();
+  void render(size_t instance_count = 1);
 
 private:
   /// Ensures that the model-space bounding box is calculated.

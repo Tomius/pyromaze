@@ -33,18 +33,24 @@ GameObject* GameObject::AddComponent(std::unique_ptr<GameObject>&& component) {
   }
 }
 
-void GameObject::EnumerateChildren(const std::function<void(GameObject*)>& processor) {
+void GameObject::EnumerateChildren(bool recursive, const std::function<void(GameObject*)>& processor) {
   for (auto& child : components_) {
     if (child) {
       processor(child.get());
+      if (recursive) {
+        child->EnumerateChildren(recursive, processor);
+      }
     }
   }
 }
 
-void GameObject::EnumerateChildren(const std::function<void(const GameObject*)>& processor) const {
+void GameObject::EnumerateConstChildren(bool recursive, const std::function<void(const GameObject*)>& processor) const {
   for (auto& child : components_) {
     if (child) {
       processor(child.get());
+      if (recursive) {
+        child->EnumerateConstChildren(recursive, processor);
+      }
     }
   }
 }

@@ -13,6 +13,7 @@ class MeshObject : public engine::GameObject {
 
   btCollisionShape* GetCollisionShape();
   engine::BoundingBox GetBoundingBox() const;
+  MeshObjectRenderer* GetRenderer() const { return renderer_; }
 
  protected:
   MeshObjectRenderer* renderer_;

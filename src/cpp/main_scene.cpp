@@ -82,13 +82,12 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
 
   CreateLabyrinth(player);
 
-
   AddComponent<FpsDisplay>();
 }
 
 void MainScene::CreateLabyrinth(Player* player) {
-  //auto envir = AddComponent<GameObject>(); // TODO
-  auto envir = this;
+  auto envir = AddComponent<GameObject>(); // TODO
+  // auto envir = this;
 
   envir->AddComponent<Ground>();
 
@@ -103,7 +102,7 @@ void MainScene::CreateLabyrinth(Player* player) {
         engine::Transform robot_transform;
         robot_transform.set_local_pos({x * kWallLength + kWallLength/2.0, 3,
                                        z * kWallLength + kWallLength/2.0});
-        AddComponent<Robot>(robot_transform, player);
+        envir->AddComponent<Robot>(robot_transform, player);
       }
     }
   }

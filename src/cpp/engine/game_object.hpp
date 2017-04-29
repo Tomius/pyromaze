@@ -38,9 +38,9 @@ class GameObject {
 
   void RemoveComponent(GameObject* component_to_remove);
 
-  void EnumerateChildren(const std::function<void(GameObject*)>& processor);
+  void EnumerateChildren(bool recursive, const std::function<void(GameObject*)>& processor);
 
-  void EnumerateChildren(const std::function<void(const GameObject*)>& processor) const;
+  void EnumerateConstChildren(bool recursive, const std::function<void(const GameObject*)>& processor) const;
 
   Transform& transform() { return *transform_.get(); }
   const Transform& transform() const { return *transform_.get(); }

@@ -15,6 +15,8 @@ Dynamite::Dynamite(GameObject *parent,
 }
 
 void Dynamite::Update() {
+  MeshObject::Update();
+
   constexpr size_t kNumPositions = 6;
   std::pair<float, glm::vec3> positions[kNumPositions] = {
     {0, {0.52, 1.6, 0.05}},
@@ -62,5 +64,4 @@ void Dynamite::Update() {
     }
   }
 
-  MeshObject::Update();
 }

@@ -133,7 +133,7 @@ void GameEngine::Run() {
 
       glfwSwapBuffers(window_);
     }
-    glfwPollEvents();
+    // glfwPollEvents();
   }
 }
 
