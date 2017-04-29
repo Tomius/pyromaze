@@ -12,7 +12,7 @@ Wall::Wall(GameObject *parent, const engine::Transform& initial_transform)
   pillars_bb_ = pillars->GetBoundingBox();
 
   for (int i = 0; i < 4; ++i) {
-    if ((rand() % 10) != 0) {
+    if ((rand() % 4) != 0) {
       wall_parts_[i] = AddComponent<MeshObject>("wall/wall" + std::to_string(i+1) + ".obj", initial_transform);
       wall_parts_[i]->AddComponent<engine::BulletRigidBody>(0.0f, wall_parts_[i]->GetCollisionShape(), engine::kColStatic);
       walls_bb_[i] = wall_parts_[i]->GetBoundingBox();
