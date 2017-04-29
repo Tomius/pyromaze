@@ -3,7 +3,7 @@
 #ifndef PLAYER_HPP_
 #define PLAYER_HPP_
 
-#include "./mesh_object.hpp"
+#include "engine/game_object.hpp"
 #include "game_logic/explodable.hpp"
 
 class Player : public engine::GameObject, public Explodable {

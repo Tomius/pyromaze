@@ -2,8 +2,6 @@
 #include "./fps_display.hpp"
 #include "./settings.hpp"
 
-#include "mesh_object_batch_renderer.hpp"
-
 #include "environment/ground.hpp"
 #include "environment/wall.hpp"
 #include "environment/skybox.hpp"
@@ -14,8 +12,10 @@
 #include "game_logic/robot.hpp"
 #include "game_logic/player.hpp"
 
+#include "engine/game_engine.hpp"
 #include "engine/common/make_unique.hpp"
 #include "engine/camera/bullet_free_fly_camera.hpp"
+#include "engine/mesh/mesh_object_batch_renderer.hpp"
 
 #include "debug/debug_shape.hpp"
 #include "debug/debug_texture.hpp"
@@ -86,8 +86,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
 }
 
 void MainScene::CreateLabyrinth(Player* player) {
-  auto envir = AddComponent<GameObject>(); // TODO
-  // auto envir = this;
+  auto envir = AddComponent<GameObject>();
 
   envir->AddComponent<Ground>();
 

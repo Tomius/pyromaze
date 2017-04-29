@@ -43,10 +43,6 @@ private:
   engine::ShaderProgram shadow_recieve_prog_;
   engine::ShaderProgram shadow_cast_prog_;
 
-  gl::ArrayBuffer model_matrix_buffer_;
-  size_t model_matrix_buffer_alloc_ = 0;
-  constexpr static unsigned kModelMatrixAttributeLocation = 4;
-
   // basic_prog uniforms
   gl::LazyUniform<glm::mat4> bp_uProjectionMatrix_, bp_uCameraMatrix_, bp_uModelMatrix_;
 

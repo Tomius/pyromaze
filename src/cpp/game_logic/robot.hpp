@@ -3,7 +3,7 @@
 #ifndef ROBOT_HPP_
 #define ROBOT_HPP_
 
-#include "./mesh_object.hpp"
+#include "engine/mesh/mesh_object.hpp"
 #include "game_logic/explodable.hpp"
 #include "engine/physics/bullet_rigid_body.hpp"
 

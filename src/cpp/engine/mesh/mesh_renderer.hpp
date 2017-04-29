@@ -17,27 +17,30 @@ namespace engine {
 
 /// A class that can load in and draw meshes using assimp.
 class MeshRenderer {
- protected:
+ public:
+  enum AttribPosition {
+    kPositionAttribLocation = 0,
+    kTexcoordAttribLocation = 1,
+    kNormalAttribLocation = 2,
+    kTangentAttribLocation = 3,
+    kModelMatrixAttributeLocation = 4
+  };
 
+ protected:
   struct MeshDataStorage {
     gl::VertexArray vao;
     gl::ArrayBuffer positions_buffer,
                     normals_buffer,
                     tangents_buffer,
-                    texcoords_buffer;
+                    texcoords_buffer,
+                    model_matrix_buffer;
     gl::IndexBuffer indices_buffer;
 
     size_t vertex_count = 0;
     size_t vertex_allocation = 0;
     size_t idx_count = 0;
     size_t idx_allocation = 0;
-
-    enum AttribPosition {
-      kPositionAttribLocation = 0,
-      kTexcoordAttribLocation = 1,
-      kNormalAttribLocation = 2,
-      kTangentAttribLocation = 3
-    };
+    size_t model_matrix_buffer_allocation = 0;
 
     void uploadVertexData(const std::vector<glm::vec3>& positions,
                           const std::vector<glm::vec3>& normals,
@@ -45,6 +48,8 @@ class MeshRenderer {
                           const std::vector<glm::vec2>& texcoords);
 
     void uploadIndexData(const std::vector<GLuint>& indices);
+
+    void uploadModelMatrices(const std::vector<glm::mat4>& matrices);
 
    private:
     template<typename T, typename Buffer>
@@ -81,6 +86,9 @@ class MeshRenderer {
       // Swap the buffers
       buffer = std::move(temp_buffer);
     }
+
+    void ensureModelMatrixBufferSize(size_t size);
+    void setupModelMatrixAttrib();
   };
 
   MeshDataStorage& getMeshDataStorage() {
@@ -153,10 +161,7 @@ public:
   std::vector<int> btTriangles(btTriangleIndexVertexArray* triangles);
 
 public:
-  void setup(gl::LazyVertexAttrib* positions,
-             gl::LazyVertexAttrib* normals,
-             gl::LazyVertexAttrib* tangents,
-             gl::LazyVertexAttrib* texcoords);
+  void setup();
 
 private:
   std::vector<GLuint>    getIndices(const aiMesh* mesh);
@@ -167,7 +172,7 @@ private:
                                       unsigned char tex_coord_set = 0);
 
 public:
-  void bindVao();
+  void uploadModelMatrices(const std::vector<glm::mat4>& matrices);
 
   /// Checks if every mesh in the scene has tex_coords
   /** Returns true if all of the meshes in the scene have texture

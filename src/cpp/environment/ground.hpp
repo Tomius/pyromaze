@@ -3,7 +3,7 @@
 #ifndef GROUND_HPP_
 #define GROUND_HPP_
 
-#include "./mesh_object.hpp"
+#include "engine/mesh/mesh_object.hpp"
 
 class Ground : public MeshObject {
  public:

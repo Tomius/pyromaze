@@ -1,4 +1,4 @@
-#include "mesh_object.hpp"
+#include "engine/mesh/mesh_object.hpp"
 #include "settings.hpp"
 
 #include "engine/scene.hpp"

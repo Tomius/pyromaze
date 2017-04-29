@@ -3,7 +3,7 @@
 #ifndef MESH_OBJECT_HPP_
 #define MESH_OBJECT_HPP_
 
-#include "mesh_object_renderer.hpp"
+#include "engine/mesh/mesh_object_renderer.hpp"
 
 class MeshObject : public engine::GameObject {
  public:

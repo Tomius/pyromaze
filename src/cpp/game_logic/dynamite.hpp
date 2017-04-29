@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include <oglwrap/oglwrap.h>
 
-#include "./mesh_object.hpp"
+#include "engine/mesh/mesh_object.hpp"
 
 #include "game_logic/fire.hpp"
 

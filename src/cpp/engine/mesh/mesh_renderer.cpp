@@ -76,6 +76,31 @@ void MeshRenderer::MeshDataStorage::uploadIndexData(const std::vector<GLuint>& i
   gl::Unbind(gl::kVertexArray);
 }
 
+void MeshRenderer::MeshDataStorage::uploadModelMatrices(const std::vector<glm::mat4>& matrices) {
+  gl::Bind(vao);
+  gl::Bind(model_matrix_buffer);
+  ensureModelMatrixBufferSize(matrices.size());
+  model_matrix_buffer.subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+  gl::Unbind(model_matrix_buffer);
+  gl::Unbind(vao);
+}
+
+void MeshRenderer::MeshDataStorage::ensureModelMatrixBufferSize(size_t size) {
+  if (model_matrix_buffer_allocation < size) {
+    model_matrix_buffer_allocation = 2*size;
+    model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
+    setupModelMatrixAttrib();
+  }
+}
+
+void MeshRenderer::MeshDataStorage::setupModelMatrixAttrib() {
+  for (int i = 0; i < 4; ++i) {
+    auto attrib = gl::VertexAttribObject(kModelMatrixAttributeLocation + i);
+    attrib.pointer(4, gl::kFloat, false, sizeof(glm::mat4), (void*)(i*sizeof(glm::vec4)));
+    attrib.divisor(1);
+    attrib.enable();
+  }
+}
 
 /// Loads in the mesh from a file, and does some post-processing on it.
 /** @param filename - The name of the file to load in.
@@ -131,10 +156,7 @@ std::vector<int> MeshRenderer::btTriangles(btTriangleIndexVertexArray* triangles
   return indices_vector;
 }
 
-void MeshRenderer::setup(gl::LazyVertexAttrib* positions,
-                         gl::LazyVertexAttrib* normals,
-                         gl::LazyVertexAttrib* tangents,
-                         gl::LazyVertexAttrib* texcoords)
+void MeshRenderer::setup()
 {
   if (!is_setup_) {
     is_setup_ = true;
@@ -152,19 +174,6 @@ void MeshRenderer::setup(gl::LazyVertexAttrib* positions,
 
   MeshDataStorage& mesh_data_storage = getMeshDataStorage();
   gl::Bind(mesh_data_storage.vao);
-
-  if (positions) {
-    positions->bindLocation(MeshDataStorage::kPositionAttribLocation);
-  }
-  if (normals) {
-    normals->bindLocation(MeshDataStorage::kNormalAttribLocation);
-  }
-  if (tangents) {
-    tangents->bindLocation(MeshDataStorage::kTangentAttribLocation);
-  }
-  if (texcoords) {
-    texcoords->bindLocation(MeshDataStorage::kTexcoordAttribLocation);
-  }
 
   for (size_t i = 0; i < entries_.size(); i++) {
     entries_[i].base_idx = mesh_data_storage.idx_count;
@@ -272,8 +281,8 @@ std::vector<glm::vec2> MeshRenderer::getTexCoords(size_t index,
   return tex_coords_vector;
 }
 
-void MeshRenderer::bindVao() {
-  gl::Bind(getMeshDataStorage().vao);
+void MeshRenderer::uploadModelMatrices(const std::vector<glm::mat4>& matrices) {
+  getMeshDataStorage().uploadModelMatrices(matrices);
 }
 
 /// Checks if every mesh in the scene has tex_coords
