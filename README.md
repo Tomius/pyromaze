@@ -3,6 +3,11 @@ Pyromaze
 
 Pyromaze is an OpenGL game engine, with a simple game implemented in it.
 
+The game is about blowing up walls and enemies in a labyrinth in order to escape from it:
+![screenshot](screenshots/dynamite.png)
+
+The game engine can handle pretty large scenes with a steady 60 fps, even labyrinths as big as this one:
+![screenshot](screenshots/large_scene.png)
 
 External dependencies:
 ----------------------

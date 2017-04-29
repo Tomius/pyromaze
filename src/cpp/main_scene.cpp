@@ -62,7 +62,7 @@ MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
   });
 
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.05f}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.10f}});
 
   glm::vec4 scene_bsphere{0, 0, 0, (Settings::kLabyrinthRadius+1)*kWallLength};
   shadow_ = AddComponent<engine::Shadow>(kLightPos, scene_bsphere, 4096);
