@@ -32,15 +32,22 @@ constexpr int kLabyrinthDiameter = 2*(kLabyrinthRadius + 1/*border*/) + 1/*cente
 namespace Optimizations {
 
 constexpr bool kFrustumCulling = true;
-constexpr bool kAIBugFix = true;
+
 constexpr bool kResourceGrouping = true;
-// Only effective if kResourceGrouping is true
-constexpr bool kInstancing = false;
+constexpr bool kAttribModelMat = true;
+constexpr bool kInstancing = true;
+
+constexpr bool kAIBugFix = true;
 constexpr bool kSleepRobots = true;
+
+static_assert(!kAttribModelMat || kResourceGrouping, "kAttribModelMat should only be set if kResourceGrouping is true");
+static_assert(!kInstancing || kAttribModelMat, "kInstancing should only be set if kAttribModelMat is true");
 
 }
 
 /*
+  TODO: These FPS numbers are out of date, regenerate them at the end
+
   +-------------------+---------+-----+--------+------+----------+-------+
   |       Setup       | VeryLow | Low | Medium | High | VeryHigh |  Mega |
   +-------------------+---------+-----+--------+------+----------+-------+

@@ -18,7 +18,9 @@ MeshObjectRenderer::MeshObjectRenderer (const std::string& mesh_path,
                   shader_manager->get("mesh.frag"))
     , shadow_recieve_prog_(shader_manager->get(vertex_shader),
                            shader_manager->get("mesh_shadow.frag"))
-    , shadow_cast_prog_(shader_manager->get("shadow.vert"),
+    , shadow_cast_prog_(shader_manager->get(
+               Optimizations::kAttribModelMat ? "shadow_attribute_model_mat.vert"
+                                              : "shadow_uniform_model_mat.vert"),
                         shader_manager->get("shadow.frag"))
 
     , bp_uProjectionMatrix_(basic_prog_, "uProjectionMatrix")
@@ -84,8 +86,19 @@ void MeshObjectRenderer::RenderBatch(engine::Scene* scene) {
     bp_uCameraMatrix_ = cam.cameraMatrix();
   }
 
-  mesh_.uploadModelMatrices(instance_transforms_);
-  mesh_.render(instance_transforms_.size());
+  if (Optimizations::kAttribModelMat) {
+    mesh_.uploadModelMatrices(instance_transforms_);
+    mesh_.render(instance_transforms_.size());
+  } else {
+    for (glm::mat4& transform : instance_transforms_) {
+      if (recieve_shadows_) {
+        srp_uModelMatrix_ = transform;
+      } else {
+        bp_uModelMatrix_ = transform;
+      }
+      mesh_.render(1);
+    }
+  }
   gl::UnuseProgram();
 }
 
@@ -107,8 +120,15 @@ void MeshObjectRenderer::ShadowRenderBatch(engine::Scene* scene) {
     scp_uProjectionMatrix_ = shadow_cam.projectionMatrix();
     scp_uCameraMatrix_ = shadow_cam.cameraMatrix();
 
-    mesh_.uploadModelMatrices(shadow_instance_transforms_);
-    mesh_.render(shadow_instance_transforms_.size());
+    if (Optimizations::kAttribModelMat) {
+      mesh_.uploadModelMatrices(shadow_instance_transforms_);
+      mesh_.render(shadow_instance_transforms_.size());
+    } else {
+      for (glm::mat4& transform : shadow_instance_transforms_) {
+        scp_uModelMatrix_ = transform;
+        mesh_.render(1);
+      }
+    }
 
     gl::Unuse(shadow_cast_prog_);
   }
