@@ -105,7 +105,7 @@ class Scene : public engine::GameObject {
 
   virtual void Render2DAll() override;
 
-  virtual void UpdatePhysics();
+  virtual void UpdatePhysicsInBackgroundThread();
 };
 
 }  // namespace engine

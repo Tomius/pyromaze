@@ -60,6 +60,7 @@ class GameObject {
   virtual void ShadowRender() {}
   virtual void Render2D() {}
   virtual void Update() {}
+  virtual void UpdatePhysics() {}
   virtual void ScreenResizedClean() {}
   virtual void ScreenResized(size_t /*width*/, size_t /*height*/) {}
   virtual void KeyAction(int /*key*/, int /*scancode*/, int /*action*/, int /*mods*/) {}
@@ -72,6 +73,7 @@ class GameObject {
   virtual void ShadowRenderAll();
   virtual void Render2DAll();
   virtual void UpdateAll();
+  virtual void UpdatePhysicsAll();
   virtual void ScreenResizedCleanAll();
   virtual void ScreenResizedAll(size_t /*width*/, size_t /*height*/);
   virtual void KeyActionAll(int /*key*/, int /*scancode*/, int /*action*/, int /*mods*/);

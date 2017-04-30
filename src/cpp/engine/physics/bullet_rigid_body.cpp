@@ -113,7 +113,7 @@ void BulletRigidBody::setWorldTransform(const btTransform &t) {
   up_to_date_ = false;
 }
 
-void BulletRigidBody::Update() {
+void BulletRigidBody::UpdatePhysics() {
   if (!up_to_date_) {
     const btVector3& o = new_transform_.getOrigin();
     parent_->transform().set_pos(glm::vec3{o.x(), o.y(), o.z()});

@@ -88,7 +88,7 @@ void MeshRenderer::MeshDataStorage::uploadModelMatrices(const std::vector<glm::m
 void MeshRenderer::MeshDataStorage::ensureModelMatrixBufferSize(size_t size) {
   if (model_matrix_buffer_allocation < size) {
     model_matrix_buffer_allocation = 2*size;
-    model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
+    model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kDynamicDraw);
     setupModelMatrixAttrib();
   }
 }

@@ -18,7 +18,7 @@ Scene::Scene(engine::GameEngine* engine, GLFWwindow* window)
       while (true) {
         physics_can_run_.WaitOne();
         if (physics_thread_should_quit_) { return; }
-        UpdatePhysics();
+        UpdatePhysicsInBackgroundThread();
         physics_finished_.Set();
       }
     }} {
@@ -38,10 +38,10 @@ ShaderManager* Scene::shader_manager() const { return engine_->shader_manager();
 
 void Scene::Turn() {
   physics_finished_.WaitOne();
-  glfwPollEvents();
-  UpdateAll();
+  UpdatePhysicsAll();
   physics_can_run_.Set();
 
+  UpdateAll();
   RenderAll();
   Render2DAll();
 }
@@ -101,7 +101,7 @@ void Scene::Render2DAll() {
   GameObject::Render2DAll();
 }
 
-void Scene::UpdatePhysics() {
+void Scene::UpdatePhysicsInBackgroundThread() {
   if (bt_world_) {
     bt_world_->stepSimulation(game_time().dt(), 16, btScalar(1.)/btScalar(120.));
   }

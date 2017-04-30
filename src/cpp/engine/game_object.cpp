@@ -115,6 +115,15 @@ void GameObject::UpdateAll() {
   }
 }
 
+void GameObject::UpdatePhysicsAll() {
+  if (!enabled_) { return; }
+
+  UpdatePhysics();
+  for (auto& component : components_) {
+    component->UpdatePhysicsAll();
+  }
+}
+
 void GameObject::KeyActionAll(int key, int scancode, int action, int mods) {
   if (!enabled_) { return; }
 

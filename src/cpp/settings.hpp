@@ -11,24 +11,18 @@ enum class SceneComplexity {
   kVeryLow, kLow, kMedium, kHigh, kVeryHigh, kMega, kUltra, kWtf
 };
 
-constexpr SceneComplexity kSceneComplexity = SceneComplexity::kMega;
+constexpr SceneComplexity kSceneComplexity = SceneComplexity::kHigh;
 
-constexpr int GetLabyrinthRadius () {
-  switch (kSceneComplexity) {
-    case SceneComplexity::kVeryLow:  return 2;
-    case SceneComplexity::kLow:      return 5;
-    case SceneComplexity::kMedium:   return 8;
-    case SceneComplexity::kHigh:     return 12;
-    case SceneComplexity::kVeryHigh: return 16;
-    case SceneComplexity::kMega:     return 32;
-    case SceneComplexity::kUltra:    return 48;
-    case SceneComplexity::kWtf:      return 64;
-  }
+constexpr int kLabyrinthRadius =
+  kSceneComplexity == SceneComplexity::kVeryLow  ? 2 :
+  kSceneComplexity == SceneComplexity::kLow      ? 5 :
+  kSceneComplexity == SceneComplexity::kMedium   ? 8 :
+  kSceneComplexity == SceneComplexity::kHigh     ? 12 :
+  kSceneComplexity == SceneComplexity::kVeryHigh ? 16 :
+  kSceneComplexity == SceneComplexity::kMega     ? 32 :
+  kSceneComplexity == SceneComplexity::kUltra    ? 48 :
+  /*kSceneComplexity == SceneComplexity::kWtf*/    64;
 
-  return 0;
-}
-
-constexpr int kLabyrinthRadius = GetLabyrinthRadius();
 constexpr int kLabyrinthDiameter = 2*(kLabyrinthRadius + 1/*border*/) + 1/*center*/;
 
 }
@@ -41,7 +35,7 @@ constexpr bool kFrustumCulling = true;
 constexpr bool kAIBugFix = true;
 constexpr bool kResourceGrouping = true;
 // Only effective if kResourceGrouping is true
-constexpr bool kInstancing = true;
+constexpr bool kInstancing = false;
 constexpr bool kSleepRobots = true;
 
 }

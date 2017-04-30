@@ -86,7 +86,7 @@ class BulletRigidBody : public engine::GameObject, public btMotionState {
   void Init(float mass, btCollisionShape* shape, CollisionType collision_type);
 
   // GameObject virtual functions
-  virtual void Update() override;
+  virtual void UpdatePhysics() override;
 
   // btMotionState virtual functions
   virtual void getWorldTransform(btTransform &t) const override;
