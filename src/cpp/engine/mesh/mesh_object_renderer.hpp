@@ -69,9 +69,6 @@ private:
 
   void EnsureModelMatrixBufferSize(size_t size);
   void SetupModelMatrixAttrib();
-
-  std::vector<glm::mat4> ReorderTransforms(std::vector<const engine::GameObject*>& instances,
-                                           const engine::ICamera& camera);
 };
 
 MeshObjectRenderer* GetMeshRenderer(const std::string& str, engine::ShaderManager* shader_manager,

@@ -58,6 +58,22 @@ btCollisionShape* MeshObjectRenderer::GetCollisionShape() {
   return bt_shape_.get();
 }
 
+static std::vector<glm::mat4> ReorderTransforms(std::vector<const engine::GameObject*>& instances,
+                                                const engine::ICamera& camera) {
+  std::vector<glm::mat4> transforms;
+  if (Optimizations::kDepthOrdering) {
+    glm::vec3 camPos = camera.transform().pos();
+    std::sort(instances.begin(), instances.end(), [camPos](const engine::GameObject* a, const engine::GameObject* b) -> bool {
+      return glm::length(a->transform().pos() - camPos) < glm::length(b->transform().pos() - camPos);
+    });
+  }
+  for (const engine::GameObject* instance : instances) {
+    transforms.push_back(instance->transform());
+  }
+
+  return transforms;
+}
+
 void MeshObjectRenderer::AddInstanceToRenderBatch(const engine::GameObject* game_object) {
   if (Optimizations::kDelayedModelMatrixEvalutaion) {
     instances_.push_back(game_object);
@@ -159,23 +175,6 @@ void MeshObjectRenderer::ShadowRenderBatch(engine::Scene* scene) {
     gl::Unuse(shadow_cast_prog_);
   }
 }
-
-std::vector<glm::mat4> MeshObjectRenderer::ReorderTransforms(std::vector<const engine::GameObject*>& instances,
-                                                             const engine::ICamera& camera) {
-  std::vector<glm::mat4> transforms;
-  if (Optimizations::kDepthOrdering) {
-    glm::vec3 camPos = camera.transform().pos();
-    std::sort(instances_.begin(), instances_.end(), [camPos](const engine::GameObject* a, const engine::GameObject* b) -> bool {
-      return glm::length(a->transform().pos() - camPos) < glm::length(b->transform().pos() - camPos);
-    });
-  }
-  for (const engine::GameObject* instance : instances_) {
-    transforms.push_back(instance->transform());
-  }
-
-  return transforms;
-}
-
 
 engine::BoundingBox MeshObjectRenderer::GetBoundingBox(const glm::mat4& transform) const {
   return mesh_.boundingBox(transform);

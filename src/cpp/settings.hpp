@@ -36,7 +36,7 @@ constexpr bool kFrustumCulling = true;
 constexpr bool kDepthOrdering = false;
 
 // Driver overhead reduction
-constexpr bool kResourceGrouping = true;
+constexpr bool kInstanceGrouping = true;
 constexpr bool kAttribModelMat = true;
 constexpr bool kInstancing = true;
 
@@ -45,8 +45,8 @@ constexpr bool kAIBugFix = true;
 constexpr bool kSleepRobots = true;
 constexpr bool kDelayedModelMatrixEvalutaion = true;
 
-static_assert(!kAttribModelMat || kResourceGrouping,
-              "kAttribModelMat should only be set if kResourceGrouping is true");
+static_assert(!kAttribModelMat || kInstanceGrouping,
+              "kAttribModelMat should only be set if kInstanceGrouping is true");
 static_assert(!kInstancing || kAttribModelMat,
               "kInstancing should only be set if kAttribModelMat is true");
 static_assert(!kDepthOrdering || kAttribModelMat,

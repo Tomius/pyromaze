@@ -20,7 +20,7 @@ engine::BoundingBox MeshObject::GetBoundingBox() const {
 }
 
 void MeshObject::Update() {
-  if (Optimizations::kResourceGrouping) {
+  if (Optimizations::kInstanceGrouping) {
     auto bbox = GetBoundingBox();
     const auto& cam = *scene()->camera();
     bool is_visible = !Optimizations::kFrustumCulling ||
@@ -39,7 +39,7 @@ void MeshObject::Update() {
 }
 
 void MeshObject::Render() {
-  if (!Optimizations::kResourceGrouping) {
+  if (!Optimizations::kInstanceGrouping) {
     const auto& cam = *scene()->camera();
     bool is_visible = !Optimizations::kFrustumCulling ||
                        GetBoundingBox().CollidesWithFrustum(cam.frustum());
@@ -52,7 +52,7 @@ void MeshObject::Render() {
 }
 
 void MeshObject::ShadowRender() {
-  if (!Optimizations::kResourceGrouping) {
+  if (!Optimizations::kInstanceGrouping) {
     const auto& shadow_cam = *scene()->shadow_camera();
     bool is_visible = !Optimizations::kFrustumCulling ||
                        GetBoundingBox().CollidesWithFrustum(shadow_cam.frustum());
