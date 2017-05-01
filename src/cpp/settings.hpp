@@ -25,6 +25,8 @@ constexpr int kLabyrinthRadius =
 
 constexpr int kLabyrinthDiameter = 2*(kLabyrinthRadius + 1/*border*/) + 1/*center*/;
 
+constexpr bool kDetermininistic = true;
+
 }
 
 // ========================= Algorithmic optimizations =========================
@@ -34,6 +36,7 @@ namespace Optimizations {
 // Algorithmic enhancement
 constexpr bool kFrustumCulling = true;
 constexpr bool kDepthOrdering = false;
+constexpr bool kInverseDepthOrdering = false;
 
 // Driver overhead reduction
 constexpr bool kInstanceGrouping = true;
@@ -53,6 +56,8 @@ static_assert(!kDepthOrdering || kAttribModelMat,
               "kDepthOrdering should only be set if kAttribModelMat is true");
 static_assert(!kDepthOrdering || kDelayedModelMatrixEvalutaion,
               "kDepthOrdering should only be set if kDelayedModelMatrixEvalutaion is true");
+static_assert(!kInverseDepthOrdering || kDepthOrdering,
+              "kInverseDepthOrdering should only be set if kDepthOrdering is true");
 
 }
 

@@ -24,7 +24,9 @@ constexpr float kWallLength = 20;
 
 MainScene::MainScene(engine::GameEngine* engine, GLFWwindow* window)
     : Scene(engine, window) {
-  srand(time(nullptr));
+  if (!Settings::kDetermininistic) {
+    srand(time(nullptr));
+  }
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   { // Bullet initilization
