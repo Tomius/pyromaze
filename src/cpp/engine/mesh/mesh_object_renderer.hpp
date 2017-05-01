@@ -29,9 +29,9 @@ public:
 
   engine::BoundingBox GetBoundingBox(const glm::mat4& transform) const;
 
-  engine::ShaderProgram& basic_prog() { return basic_prog_; }
-  engine::ShaderProgram& shadow_recieve_prog() { return shadow_recieve_prog_; }
-  engine::ShaderProgram& shadow_cast_prog() { return shadow_cast_prog_; }
+  engine::ShaderProgram& basic_prog() { return prog_cache_.basic_prog_; }
+  engine::ShaderProgram& shadow_recieve_prog() { return prog_cache_.shadow_recieve_prog_; }
+  engine::ShaderProgram& shadow_cast_prog() { return prog_cache_.shadow_cast_prog_; }
 
   void set_cast_shadows(bool value) { cast_shadows_ = value; }
   void set_recieve_shadows(bool value) { recieve_shadows_ = value; }
@@ -39,18 +39,26 @@ public:
 private:
   engine::MeshRenderer mesh_;
 
-  engine::ShaderProgram basic_prog_;
-  engine::ShaderProgram shadow_recieve_prog_;
-  engine::ShaderProgram shadow_cast_prog_;
+  struct ProgramCacheEntry {
+    engine::ShaderProgram basic_prog_;
+    engine::ShaderProgram shadow_recieve_prog_;
+    engine::ShaderProgram shadow_cast_prog_;
 
-  // basic_prog uniforms
-  gl::LazyUniform<glm::mat4> bp_uProjectionMatrix_, bp_uCameraMatrix_, bp_uModelMatrix_;
+    // basic_prog uniforms
+    gl::LazyUniform<glm::mat4> bp_uProjectionMatrix_, bp_uCameraMatrix_, bp_uModelMatrix_;
 
-  // shadow_recieve_prog_ uniforms
-  gl::LazyUniform<glm::mat4> srp_uProjectionMatrix_, srp_uCameraMatrix_, srp_uModelMatrix_, srp_uShadowCP_;
+    // shadow_recieve_prog_ uniforms
+    gl::LazyUniform<glm::mat4> srp_uProjectionMatrix_, srp_uCameraMatrix_, srp_uModelMatrix_, srp_uShadowCP_;
 
-  // shadow_cast_prog_ uniforms
-  gl::LazyUniform<glm::mat4> scp_uProjectionMatrix_, scp_uCameraMatrix_, scp_uModelMatrix_;
+    // shadow_cast_prog_ uniforms
+    gl::LazyUniform<glm::mat4> scp_uProjectionMatrix_, scp_uCameraMatrix_, scp_uModelMatrix_;
+
+    ProgramCacheEntry(engine::ShaderManager* shader_manager,
+                      const std::string& vertex_shader);
+  };
+
+  ProgramCacheEntry local_prog_cache_;
+  ProgramCacheEntry& prog_cache_;
 
   std::vector<int> bt_indices_;
   std::unique_ptr<btTriangleIndexVertexArray> bt_triangles_;
@@ -69,6 +77,8 @@ private:
 
   void EnsureModelMatrixBufferSize(size_t size);
   void SetupModelMatrixAttrib();
+  static ProgramCacheEntry& GetProgramCacheEntry(engine::ShaderManager* shader_manager,
+                                                 const std::string& vertex_shader);
 };
 
 MeshObjectRenderer* GetMeshRenderer(const std::string& str, engine::ShaderManager* shader_manager,

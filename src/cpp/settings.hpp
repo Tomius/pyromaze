@@ -35,13 +35,15 @@ namespace Optimizations {
 
 // Algorithmic enhancement
 constexpr bool kFrustumCulling = true;
-constexpr bool kDepthOrdering = false;
-constexpr bool kInverseDepthOrdering = false;
+constexpr bool kDepthOrdering = false; /* performance drop */
+constexpr bool kInverseDepthOrdering = false; /* useless */
 
 // Driver overhead reduction
 constexpr bool kInstanceGrouping = true;
 constexpr bool kAttribModelMat = true;
 constexpr bool kInstancing = true;
+constexpr bool kSharedPrograms = true; /* useless */
+constexpr bool kInvalidateBuffer = true;
 
 // CPU bottleneck fixes
 constexpr bool kAIBugFix = true;
@@ -58,6 +60,8 @@ static_assert(!kDepthOrdering || kDelayedModelMatrixEvalutaion,
               "kDepthOrdering should only be set if kDelayedModelMatrixEvalutaion is true");
 static_assert(!kInverseDepthOrdering || kDepthOrdering,
               "kInverseDepthOrdering should only be set if kDepthOrdering is true");
+static_assert(!kInvalidateBuffer || kAttribModelMat,
+              "kInvalidateBuffer should only be set if kAttribModelMat is true");
 
 }
 

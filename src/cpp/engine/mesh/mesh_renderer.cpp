@@ -80,16 +80,26 @@ void MeshRenderer::MeshDataStorage::uploadModelMatrices(const std::vector<glm::m
   gl::Bind(vao);
   gl::Bind(model_matrix_buffer);
   ensureModelMatrixBufferSize(matrices.size());
-  model_matrix_buffer.subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+  if (Optimizations::kInvalidateBuffer) {
+    model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
+    model_matrix_buffer.subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+  } else {
+    model_matrix_buffer.subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+  }
+
   gl::Unbind(model_matrix_buffer);
   gl::Unbind(vao);
 }
 
 void MeshRenderer::MeshDataStorage::ensureModelMatrixBufferSize(size_t size) {
   if (model_matrix_buffer_allocation < size) {
+    if (model_matrix_buffer_allocation == 0) {
+      setupModelMatrixAttrib();
+    }
     model_matrix_buffer_allocation = 2*size;
-    model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kDynamicDraw);
-    setupModelMatrixAttrib();
+    if (!Optimizations::kInvalidateBuffer) {
+      model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kDynamicDraw);
+    }
   }
 }
 
