@@ -19,11 +19,11 @@ public:
 
   btCollisionShape* GetCollisionShape();
 
-  void AddInstanceToRenderBatch(const engine::Transform& transform);
+  void AddInstanceToRenderBatch(const engine::GameObject* game_object);
   virtual void ClearRenderBatch() override;
   virtual void RenderBatch(engine::Scene* scene) override;
 
-  void AddInstanceToShadowRenderBatch(const engine::Transform& transform);
+  void AddInstanceToShadowRenderBatch(const engine::GameObject* game_object);
   virtual void ClearShadowRenderBatch() override;
   virtual void ShadowRenderBatch(engine::Scene* scene) override;
 
@@ -56,6 +56,11 @@ private:
   std::unique_ptr<btTriangleIndexVertexArray> bt_triangles_;
   std::unique_ptr<btCollisionShape> bt_shape_;
 
+  // used if (Optimizations::kDelayedModelMatrixEvalutaion)
+  std::vector<const engine::GameObject*> instances_;
+  std::vector<const engine::GameObject*> shadow_instances_;
+
+  // used if (!Optimizations::kDelayedModelMatrixEvalutaion)
   std::vector<glm::mat4> instance_transforms_;
   std::vector<glm::mat4> shadow_instance_transforms_;
 
@@ -64,6 +69,9 @@ private:
 
   void EnsureModelMatrixBufferSize(size_t size);
   void SetupModelMatrixAttrib();
+
+  std::vector<glm::mat4> ReorderTransforms(std::vector<const engine::GameObject*>& instances,
+                                           const engine::ICamera& camera);
 };
 
 MeshObjectRenderer* GetMeshRenderer(const std::string& str, engine::ShaderManager* shader_manager,

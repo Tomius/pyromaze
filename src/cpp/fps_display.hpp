@@ -23,14 +23,21 @@ class FpsDisplay : public engine::GameObject {
   const float kRefreshInterval;
   double sum_frame_num_ = 0, sum_time_ = 0, accum_time_;
   int calls_ = 0;
+  bool first_display_interval_ = true;
 
   virtual void Update() override {
     calls_++;
     accum_time_ += scene_->camera_time().dt();
     if (accum_time_ > kRefreshInterval && accum_time_ != 0) {
-      std::cout << "FPS: " << calls_ / accum_time_ << std::endl;
-      sum_frame_num_ += calls_;
-      sum_time_ += accum_time_;
+      if (first_display_interval_) {
+        // The first interval is usually much slower, remove that bias
+        first_display_interval_ = false;
+      } else {
+        std::cout << "FPS: " << calls_ / accum_time_ << std::endl;
+        sum_frame_num_ += calls_;
+        sum_time_ += accum_time_;
+      }
+
       accum_time_ = calls_ = 0;
     }
   }

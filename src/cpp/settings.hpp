@@ -31,17 +31,28 @@ constexpr int kLabyrinthDiameter = 2*(kLabyrinthRadius + 1/*border*/) + 1/*cente
 
 namespace Optimizations {
 
+// Algorithmic enhancement
 constexpr bool kFrustumCulling = true;
+constexpr bool kDepthOrdering = false;
 
+// Driver overhead reduction
 constexpr bool kResourceGrouping = true;
 constexpr bool kAttribModelMat = true;
 constexpr bool kInstancing = true;
 
+// CPU bottleneck fixes
 constexpr bool kAIBugFix = true;
 constexpr bool kSleepRobots = true;
+constexpr bool kDelayedModelMatrixEvalutaion = true;
 
-static_assert(!kAttribModelMat || kResourceGrouping, "kAttribModelMat should only be set if kResourceGrouping is true");
-static_assert(!kInstancing || kAttribModelMat, "kInstancing should only be set if kAttribModelMat is true");
+static_assert(!kAttribModelMat || kResourceGrouping,
+              "kAttribModelMat should only be set if kResourceGrouping is true");
+static_assert(!kInstancing || kAttribModelMat,
+              "kInstancing should only be set if kAttribModelMat is true");
+static_assert(!kDepthOrdering || kAttribModelMat,
+              "kDepthOrdering should only be set if kAttribModelMat is true");
+static_assert(!kDepthOrdering || kDelayedModelMatrixEvalutaion,
+              "kDepthOrdering should only be set if kDelayedModelMatrixEvalutaion is true");
 
 }
 
