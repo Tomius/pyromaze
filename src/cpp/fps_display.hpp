@@ -3,13 +3,14 @@
 #ifndef LOD_FPS_DISPLAY_H_
 #define LOD_FPS_DISPLAY_H_
 
+#include "statistics.hpp"
 #include "engine/scene.hpp"
 #include "engine/game_object.hpp"
 
 class FpsDisplay : public engine::GameObject {
  public:
   explicit FpsDisplay(engine::GameObject* parent)
-      : engine::GameObject(parent), kRefreshInterval(0.5f)
+      : engine::GameObject(parent)
       , accum_time_(scene_->camera_time().dt()) {
   }
 
@@ -20,7 +21,7 @@ class FpsDisplay : public engine::GameObject {
   }
 
  private:
-  const float kRefreshInterval;
+  constexpr static float kRefreshInterval = 0.25f;
   double sum_frame_num_ = 0, sum_time_ = 0, accum_time_;
   int calls_ = 0;
   bool first_display_interval_ = true;
@@ -33,7 +34,9 @@ class FpsDisplay : public engine::GameObject {
         // The first interval is usually much slower, remove that bias
         first_display_interval_ = false;
       } else {
-        std::cout << "FPS: " << calls_ / accum_time_ << std::endl;
+        std::cout << "Object Count: " << Statistics::object_count << std::endl;
+        std::cout << "Triangle count: " << Statistics::triangle_count << std::endl;
+        std::cout << "FPS: " << calls_ / accum_time_ << std::endl << std::endl;
         sum_frame_num_ += calls_;
         sum_time_ += accum_time_;
       }

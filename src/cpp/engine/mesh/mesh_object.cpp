@@ -1,5 +1,6 @@
 #include "engine/mesh/mesh_object.hpp"
 #include "settings.hpp"
+#include "statistics.hpp"
 
 #include "engine/scene.hpp"
 #include "engine/shadow.hpp"
@@ -9,7 +10,13 @@ MeshObject::MeshObject(engine::GameObject* parent, const std::string& mesh_path,
                        const std::string& vertex_shader)
     : GameObject(parent, initial_transform)
     , renderer_(GetMeshRenderer(mesh_path, scene_->shader_manager(), scene_->mesh_cache(), vertex_shader))
-{ }
+{
+  Statistics::triangle_count += renderer_->triangle_count();
+}
+
+MeshObject::~MeshObject() {
+  Statistics::triangle_count -= renderer_->triangle_count();
+}
 
 btCollisionShape* MeshObject::GetCollisionShape() {
   return renderer_->GetCollisionShape();

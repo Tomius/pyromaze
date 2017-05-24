@@ -4,6 +4,7 @@
 #define ENGINE_GAME_OBJECT_INL_HPP_
 
 #include <iostream>
+#include "statistics.hpp"
 #include "engine/game_object.hpp"
 
 namespace engine {
@@ -13,6 +14,7 @@ GameObject::GameObject(GameObject* parent, const Transform_t& transform)
     : scene_(parent ? parent->scene_ : nullptr), parent_(parent)
     , transform_(new Transform_t{transform})
     , enabled_(true) {
+  Statistics::object_count++;
   if (parent && transform.parent() == nullptr) {
     transform_->set_parent(&parent_->transform());
   }

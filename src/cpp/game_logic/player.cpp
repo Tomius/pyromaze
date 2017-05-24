@@ -43,7 +43,7 @@ void Player::KeyAction(int key, int scancode, int action, int mods) {
       dynamite_trafo.set_pos({pos.x, 0, pos.z});
       scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Math::Rand01());
     } else if (key == GLFW_KEY_F1) {
-      for (int i = 0; i < 2; ++i) {
+      for (int i = 0; i < 4; ++i) {
         dynamite_trafo.set_pos({Math::Rand01()*256-128, 0, Math::Rand01()*256-128});
         scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Math::Rand01());
       }

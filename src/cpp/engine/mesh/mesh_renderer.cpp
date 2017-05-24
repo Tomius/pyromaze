@@ -51,6 +51,9 @@ void MeshRenderer::MeshDataStorage::uploadVertexData(
     uploadNewData(texcoords, texcoords_buffer, vertex_allocation, vertex_count);
   }
 
+  gl::Bind(model_matrix_buffer);
+  setupModelMatrixAttrib();
+
   vertex_count += vertex_count_to_upload;
   gl::Unbind(gl::kArrayBuffer);
   gl::Unbind(gl::kVertexArray);
@@ -76,29 +79,50 @@ void MeshRenderer::MeshDataStorage::uploadIndexData(const std::vector<GLuint>& i
   gl::Unbind(gl::kVertexArray);
 }
 
+gl::ArrayBuffer& MeshRenderer::MeshDataStorage::currentModelMatrixBuffer() {
+  if (first_model_matrix_buffer) {
+    return model_matrix_buffer;
+  } else {
+    return model_matrix_buffer_2;
+  }
+}
+
 void MeshRenderer::MeshDataStorage::uploadModelMatrices(const std::vector<glm::mat4>& matrices) {
   gl::Bind(vao);
   gl::Bind(model_matrix_buffer);
-  ensureModelMatrixBufferSize(matrices.size());
   if (Optimizations::kInvalidateBuffer) {
-    model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
-    model_matrix_buffer.subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+    model_matrix_buffer.data(matrices, gl::kStreamDraw);
   } else {
-    model_matrix_buffer.subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+    ensureModelMatrixBufferSize(matrices.size());
+    if (Optimizations::kPingPongBuffer) {
+      first_model_matrix_buffer = !first_model_matrix_buffer;
+      gl::Bind(currentModelMatrixBuffer());
+      glInvalidateBufferData(currentModelMatrixBuffer().expose());
+      currentModelMatrixBuffer().subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+      setupModelMatrixAttrib();
+    } else {
+      glInvalidateBufferData(model_matrix_buffer.expose());
+      model_matrix_buffer.subData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
+    }
   }
-
-  gl::Unbind(model_matrix_buffer);
+  gl::Unbind(currentModelMatrixBuffer());
   gl::Unbind(vao);
 }
 
 void MeshRenderer::MeshDataStorage::ensureModelMatrixBufferSize(size_t size) {
   if (model_matrix_buffer_allocation < size) {
-    if (model_matrix_buffer_allocation == 0) {
-      setupModelMatrixAttrib();
-    }
     model_matrix_buffer_allocation = 2*size;
     if (!Optimizations::kInvalidateBuffer) {
-      model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kDynamicDraw);
+      if (Optimizations::kPingPongBuffer) {
+        // model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
+        glBufferStorage(GL_ARRAY_BUFFER, model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
+        gl::Bind(model_matrix_buffer_2);
+        // model_matrix_buffer_2.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
+        glBufferStorage(GL_ARRAY_BUFFER, model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
+      } else {
+        glBufferStorage(GL_ARRAY_BUFFER, model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
+        // model_matrix_buffer.data(model_matrix_buffer_allocation * sizeof(glm::mat4), nullptr, gl::kStreamDraw);
+      }
     }
   }
 }
@@ -130,6 +154,10 @@ MeshRenderer::MeshRenderer(const std::string& filename,
   // is stored as an attribute of the scene's root node.
   world_transformation_ =
     glm::inverse(engine::convertMatrix(scene_->mRootNode->mTransformation));
+
+  for (unsigned mesh_idx = 0; mesh_idx < scene_->mNumMeshes; ++mesh_idx) {
+    triangle_count += scene_->mMeshes[mesh_idx]->mNumFaces;
+  }
 }
 
 /// Sets up a btTriangleIndexVertexArray, and returns a vector of indices

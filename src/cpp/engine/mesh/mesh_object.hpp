@@ -13,6 +13,7 @@ class MeshObject : public engine::GameObject {
              const std::string& vertex_shader =
                 Optimizations::kAttribModelMat ? "mesh_attribute_model_mat.vert"
                                                : "mesh_uniform_model_mat.vert");
+  virtual ~MeshObject();
 
   btCollisionShape* GetCollisionShape();
   engine::BoundingBox GetBoundingBox() const;

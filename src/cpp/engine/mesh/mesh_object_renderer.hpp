@@ -36,6 +36,8 @@ public:
   void set_cast_shadows(bool value) { cast_shadows_ = value; }
   void set_recieve_shadows(bool value) { recieve_shadows_ = value; }
 
+  unsigned triangle_count() const { return mesh_.triangleCount(); }
+
 private:
   engine::MeshRenderer mesh_;
 

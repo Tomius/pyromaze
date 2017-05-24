@@ -11,7 +11,7 @@ enum class SceneComplexity {
   kVeryLow, kLow, kMedium, kHigh, kVeryHigh, kMega, kUltra, kWtf
 };
 
-constexpr SceneComplexity kSceneComplexity = SceneComplexity::kHigh;
+constexpr SceneComplexity kSceneComplexity = SceneComplexity::kLow;
 
 constexpr int kLabyrinthRadius =
   kSceneComplexity == SceneComplexity::kVeryLow  ? 2 :
@@ -29,26 +29,29 @@ constexpr bool kDetermininistic = true;
 
 }
 
-// ========================= Algorithmic optimizations =========================
+// ========================= Optimizations =========================
 
 namespace Optimizations {
 
-// Algorithmic enhancement
-constexpr bool kFrustumCulling = true;
-constexpr bool kDepthOrdering = false; /* performance drop */
-constexpr bool kInverseDepthOrdering = false; /* useless */
+// CPU overhead "bugs" in original code
+constexpr bool kAIBugFix = true;
+constexpr bool kSleepRobots = true;
 
 // Driver overhead reduction
 constexpr bool kInstanceGrouping = true;
 constexpr bool kAttribModelMat = true;
-constexpr bool kInstancing = true;
-constexpr bool kSharedPrograms = true; /* useless */
 constexpr bool kInvalidateBuffer = true;
+constexpr bool kInstancing = true;
+constexpr bool kSharedPrograms = false; /* useless */
+constexpr bool kPingPongBuffer = false; /* useless */
 
-// CPU bottleneck fixes
-constexpr bool kAIBugFix = true;
-constexpr bool kSleepRobots = true;
-constexpr bool kDelayedModelMatrixEvalutaion = true;
+// GPU bottleneck fixes
+constexpr bool kFrustumCulling = true;
+
+// Not so successful optimizations
+constexpr bool kDelayedModelMatrixEvalutaion = false; /* performance drop */
+constexpr bool kDepthOrdering = false;                /* performance drop */
+constexpr bool kInverseDepthOrdering = false;         /* useless */
 
 static_assert(!kAttribModelMat || kInstanceGrouping,
               "kAttribModelMat should only be set if kInstanceGrouping is true");
@@ -62,8 +65,32 @@ static_assert(!kInverseDepthOrdering || kDepthOrdering,
               "kInverseDepthOrdering should only be set if kDepthOrdering is true");
 static_assert(!kInvalidateBuffer || kAttribModelMat,
               "kInvalidateBuffer should only be set if kAttribModelMat is true");
-
 }
+
+
+
+
+/*
+
+Default                      -> 0.2   FPS
+kAIBugFix                    -> 7.1   FPS
+kFrustumCulling              -> 13    FPS
+kInstanceGrouping            -> 38.27 FPS
+kAttribModelMat              -> 77    FPS
+-----------------------------------------
+kInvalidateBuffer            -> 79    FPS
+kInstancing (first try)      -> 61    FPS
+kInstancing + driver update  -> 89    FPS
+
+kDelayedModelMatrixEvalutaion   -> 67 FPS
+kDepthOrdering (std::sort)      -> 15 FPS
+kDepthOrdering (compute shader) -> 42 FPS
+
+Smaller scene + Keep order      -> 330 FPS
+Smaller scene + Far to close    -> 328 FPS
+Smaller scene + Close to far    -> 315 FPS
+*/
+
 
 /*
   TODO: These FPS numbers are out of date, regenerate them at the end

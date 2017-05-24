@@ -33,7 +33,8 @@ class MeshRenderer {
                     normals_buffer,
                     tangents_buffer,
                     texcoords_buffer,
-                    model_matrix_buffer;
+                    model_matrix_buffer,
+                    model_matrix_buffer_2;
     gl::IndexBuffer indices_buffer;
 
     size_t vertex_count = 0;
@@ -41,6 +42,7 @@ class MeshRenderer {
     size_t idx_count = 0;
     size_t idx_allocation = 0;
     size_t model_matrix_buffer_allocation = 0;
+    bool first_model_matrix_buffer = true;
 
     void uploadVertexData(const std::vector<glm::vec3>& positions,
                           const std::vector<glm::vec3>& normals,
@@ -87,6 +89,7 @@ class MeshRenderer {
       buffer = std::move(temp_buffer);
     }
 
+    gl::ArrayBuffer& currentModelMatrixBuffer();
     void ensureModelMatrixBufferSize(size_t size);
     void setupModelMatrixAttrib();
   };
@@ -143,6 +146,8 @@ class MeshRenderer {
   bool is_setup_ = false;
   /// Textures can be disabled, and not used for rendering
   bool textures_enabled_ = true;
+
+  unsigned triangle_count = 0;
 
   /// It shouldn't be copyable.
   MeshRenderer(const MeshRenderer& src) = delete;
@@ -241,6 +246,8 @@ public:
 
   /// Returns the radius of the bounding sphere.
   float bSphereRadius() const;
+
+  unsigned triangleCount() const { return triangle_count; }
 
   /// Enables the use of textures for rendering.
   void enableTextures() { textures_enabled_ = true; }

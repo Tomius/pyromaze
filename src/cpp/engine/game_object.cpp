@@ -1,5 +1,6 @@
 // Copyright (c) Tamas Csala
 
+#include "statistics.hpp"
 #include "engine/scene.hpp"
 #include "engine/game_object.hpp"
 #include "engine/game_engine.hpp"
@@ -16,6 +17,7 @@ GameObject::~GameObject() {
   // The childrens destructor have to run before this one's,
   // as those functions might try to access this object via the parent_ ptr
   ResetChildren ();
+  Statistics::object_count--;
 }
 
 GameObject* GameObject::AddComponent(std::unique_ptr<GameObject>&& component) {
