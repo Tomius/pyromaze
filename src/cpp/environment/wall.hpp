@@ -4,21 +4,22 @@
 #define WALL_HPP_
 
 #include <array>
-#include "engine/mesh/mesh_object.hpp"
+#include <Silice3D/mesh/mesh_object.hpp>
+#include <Silice3D/collision/bounding_box.hpp>
+
 #include "game_logic/explodable.hpp"
-#include "engine/collision/bounding_box.hpp"
 
-class Wall : public engine::GameObject, public Explodable {
+class Wall : public Silice3D::GameObject, public Explodable {
  public:
-  Wall(GameObject *parent, const engine::Transform& initial_transform);
+  Wall(GameObject *parent, const Silice3D::Transform& initial_transform);
 
-  engine::BoundingBox GetBoundingBox() const;
+  Silice3D::BoundingBox GetBoundingBox() const;
   double GetLength() const;
 
  private:
-  std::array<MeshObject*, 4> wall_parts_;
-  engine::BoundingBox pillars_bb_;
-  engine::BoundingBox walls_bb_[4];
+  std::array<Silice3D::MeshObject*, 4> wall_parts_;
+  Silice3D::BoundingBox pillars_bb_;
+  Silice3D::BoundingBox walls_bb_[4];
 
   virtual void ReactToExplosion(const glm::vec3& exp_position, float exp_radius) override;
 };

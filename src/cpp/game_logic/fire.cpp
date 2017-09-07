@@ -1,7 +1,8 @@
+#include <Silice3D/common/math.hpp>
+#include <Silice3D/core/scene.hpp>
+
 #include "game_logic/fire.hpp"
 #include "game_logic/explodable.hpp"
-#include "engine/common/math.hpp"
-#include "engine/scene.hpp"
 
 bool Particle::IsAlive(float current_time) {
   return born_at + lifespan > current_time;
@@ -187,7 +188,7 @@ void Explosion::Update() {
   }
   float life_time = current_time - born_at_;
   if (life_time < 0.5) {
-    scene_->EnumerateChildren(true, [&](engine::GameObject* obj) {
+    scene_->EnumerateChildren(true, [&](Silice3D::GameObject* obj) {
       Explodable* explodable = dynamic_cast<Explodable*>(obj);
       if (explodable != nullptr) {
         explodable->ReactToExplosion(transform().pos(), 10);

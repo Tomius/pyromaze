@@ -1,17 +1,17 @@
 #ifndef SCENES_MAIN_SCENE_HPP_
 #define SCENES_MAIN_SCENE_HPP_
 
-#include "engine/scene.hpp"
-#include "engine/shadow.hpp"
+#include <Silice3D/core/scene.hpp>
+#include <Silice3D/lighting/shadow.hpp>
 
 class Player;
 
-class MainScene : public engine::Scene {
+class MainScene : public Silice3D::Scene {
  public:
-  MainScene(engine::GameEngine* engine, GLFWwindow* window);
+  MainScene(Silice3D::GameEngine* engine, GLFWwindow* window);
 
  private:
-  engine::Shadow* shadow_;
+  Silice3D::Shadow* shadow_;
 
   void CreateLabyrinth(Player* player);
 

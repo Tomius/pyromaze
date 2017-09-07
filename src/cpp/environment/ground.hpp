@@ -3,9 +3,9 @@
 #ifndef GROUND_HPP_
 #define GROUND_HPP_
 
-#include "engine/mesh/mesh_object.hpp"
+#include <Silice3D/mesh/mesh_object.hpp>
 
-class Ground : public MeshObject {
+class Ground : public Silice3D::MeshObject {
  public:
   Ground(GameObject *parent);
 };

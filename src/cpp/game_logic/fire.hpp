@@ -5,8 +5,8 @@
 #include <oglwrap/oglwrap.h>
 #include <oglwrap/shapes/cube_shape.h>
 
-#include "engine/game_object.hpp"
-#include "engine/shader_manager.hpp"
+#include <Silice3D/core/game_object.hpp>
+#include <Silice3D/shaders/shader_manager.hpp>
 
 struct Particle {
   glm::vec3 pos, speed, accel;
@@ -21,7 +21,7 @@ struct Particle {
 
 typedef Particle (*ParticleGen)(glm::vec3 startpos, float current_time);
 
-class ParticleSystem : public engine::GameObject {
+class ParticleSystem : public Silice3D::GameObject {
  public:
   ParticleSystem(GameObject* parent, ParticleGen generator,
                  int max_particles_at_once, int max_particle_per_sec,
@@ -30,7 +30,7 @@ class ParticleSystem : public engine::GameObject {
  protected:
   gl::CubeShape cube_;
 
-  engine::ShaderProgram prog_;
+  Silice3D::ShaderProgram prog_;
   gl::LazyUniform<glm::mat4> uProjectionMatrix_, uCameraMatrix_, uModelMatrix_;
   gl::LazyUniform<float> uLifeTime_;
 

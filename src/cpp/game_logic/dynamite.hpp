@@ -5,15 +5,14 @@
 
 #include <glad/glad.h>
 #include <oglwrap/oglwrap.h>
-
-#include "engine/mesh/mesh_object.hpp"
+#include <Silice3D/mesh/mesh_object.hpp>
 
 #include "game_logic/fire.hpp"
 
-class Dynamite : public MeshObject {
+class Dynamite : public Silice3D::MeshObject {
  public:
   Dynamite(GameObject *parent,
-           const engine::Transform& initial_transform = engine::Transform{},
+           const Silice3D::Transform& initial_transform = Silice3D::Transform{},
            double time_to_explode = 5.0);
 
  private:

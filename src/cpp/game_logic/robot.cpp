@@ -1,15 +1,16 @@
+#include <Silice3D/core/scene.hpp>
+
 #include "game_logic/robot.hpp"
 #include "game_logic/player.hpp"
 #include "game_logic/fire.hpp"
-#include "engine/scene.hpp"
 #include "settings.hpp"
 
-Robot::Robot(engine::GameObject* parent, const engine::Transform& initial_transform,
+Robot::Robot(Silice3D::GameObject* parent, const Silice3D::Transform& initial_transform,
              Player* player)
-    : MeshObject(parent, "robot.obj", initial_transform), player_(player) {
-  rbody_ = AddComponent<engine::BulletRigidBody>(1.0f, engine::make_unique<btSphereShape>(1.0),
-                                                 initial_transform.pos(), engine::kColDynamic);
-  engine::BulletRigidBody::Restrains restrains;
+    : Silice3D::MeshObject(parent, "robot.obj", initial_transform), player_(player) {
+  rbody_ = AddComponent<Silice3D::BulletRigidBody>(1.0f, Silice3D::make_unique<btSphereShape>(1.0),
+                                                 initial_transform.pos(), Silice3D::kColDynamic);
+  Silice3D::BulletRigidBody::Restrains restrains;
   restrains.y_pos_lock = 1;
   restrains.x_rot_lock = 1;
   restrains.y_rot_lock = 1;
@@ -38,10 +39,11 @@ void Robot::Update() {
   }
 
   Player* player = nullptr;
-  if (Optimizations::kAIBugFix) {
+  constexpr bool kAIBugFix = true;
+  if (kAIBugFix) {
     player = player_;
   } else {
-    scene_->EnumerateChildren(true, [&](engine::GameObject* obj) {
+    scene_->EnumerateChildren(true, [&](Silice3D::GameObject* obj) {
       Player* p = dynamic_cast<Player*>(obj);
       if (p != nullptr) {
         player = p;

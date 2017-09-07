@@ -3,12 +3,12 @@
 #ifndef ENVIRONMENT_BORDER_WALL_HPP_
 #define ENVIRONMENT_BORDER_WALL_HPP_
 
-#include "engine/mesh/mesh_object.hpp"
+#include <Silice3D/mesh/mesh_object.hpp>
 #include "game_logic/explodable.hpp"
 
-class BorderWall : public MeshObject, public Explodable {
+class BorderWall : public Silice3D::MeshObject, public Explodable {
  public:
-  BorderWall(engine::GameObject* parent, const std::string& path, const engine::Transform& initial_transform);
+  BorderWall(Silice3D::GameObject* parent, const std::string& path, const Silice3D::Transform& initial_transform);
 
  private:
   void ShowYouWonScreen();

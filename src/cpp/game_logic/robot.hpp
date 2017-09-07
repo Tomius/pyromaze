@@ -3,20 +3,21 @@
 #ifndef ROBOT_HPP_
 #define ROBOT_HPP_
 
-#include "engine/mesh/mesh_object.hpp"
+#include <Silice3D/mesh/mesh_object.hpp>
+#include <Silice3D/physics/bullet_rigid_body.hpp>
+
 #include "game_logic/explodable.hpp"
-#include "engine/physics/bullet_rigid_body.hpp"
 
 class Player;
 
-class Robot : public MeshObject, public Explodable {
+class Robot : public Silice3D::MeshObject, public Explodable {
  public:
-  Robot(engine::GameObject* parent, const engine::Transform& initial_transform,
+  Robot(Silice3D::GameObject* parent, const Silice3D::Transform& initial_transform,
         Player* player);
 
  private:
   Player* player_;
-  engine::BulletRigidBody* rbody_;
+  Silice3D::BulletRigidBody* rbody_;
   double activation_time_ = -1.0;
 
   virtual void Update() override;

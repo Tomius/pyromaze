@@ -1,7 +1,7 @@
 #include <lodepng.h>
+#include <Silice3D/core/scene.hpp>
 
 #include "./skybox.hpp"
-#include "engine/scene.hpp"
 
 Skybox::Skybox(GameObject* parent, const std::string& path)
     : GameObject(parent)
@@ -24,7 +24,7 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
   assert(width / 4 == height / 3);
   unsigned size = width / 4;
 
-  gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
+  gl::BindToTexUnit(texture_, Silice3D::kDiffuseTextureSlot);
   for (int i = 0; i < 6; ++i) {
     std::vector<unsigned> subdata;
     unsigned startx, starty;
@@ -51,7 +51,7 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
 
   gl::Use(prog_);
   prog_.validate();
-  gl::UniformSampler(prog_, "uTex") = engine::kDiffuseTextureSlot;
+  gl::UniformSampler(prog_, "uTex") = Silice3D::kDiffuseTextureSlot;
   (prog_ | "aPosition").bindLocation(cube_.kPosition);
   gl::Unuse(prog_);
 }
@@ -68,7 +68,7 @@ void Skybox::Render() {
   gl::TemporaryDisable depth_test{gl::kDepthTest};
   gl::TemporaryEnable cubemapSeamless{gl::kTextureCubeMapSeamless};
 
-  gl::BindToTexUnit(texture_, engine::kDiffuseTextureSlot);
+  gl::BindToTexUnit(texture_, Silice3D::kDiffuseTextureSlot);
   gl::DepthMask(false);
 
   cube_.render();

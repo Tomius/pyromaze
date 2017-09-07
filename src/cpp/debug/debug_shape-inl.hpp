@@ -5,7 +5,6 @@
 
 #include "./debug_shape.hpp"
 
-namespace engine {
 namespace debug {
 
 template<typename Shape_t>
@@ -41,6 +40,5 @@ void DebugShape<Shape_t>::Render() {
 }
 
 }  // namespace debug
-}  // namespace engine
 
 #endif

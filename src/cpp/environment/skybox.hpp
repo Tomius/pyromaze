@@ -5,17 +5,17 @@
 #include <oglwrap/oglwrap.h>
 #include <oglwrap/shapes/cube_shape.h>
 
-#include "engine/game_object.hpp"
-#include "engine/shader_manager.hpp"
+#include <Silice3D/core/game_object.hpp>
+#include <Silice3D/shaders/shader_manager.hpp>
 
-class Skybox : public engine::GameObject {
+class Skybox : public Silice3D::GameObject {
  public:
   Skybox(GameObject* parent, const std::string& path);
 
  private:
   gl::CubeShape cube_;
 
-  engine::ShaderProgram prog_;
+  Silice3D::ShaderProgram prog_;
   gl::TextureCube texture_;
   gl::LazyUniform<glm::mat4> uProjectionMatrix_;
   gl::LazyUniform<glm::mat3> uCameraMatrix_;

@@ -3,12 +3,13 @@
 #ifndef PLAYER_HPP_
 #define PLAYER_HPP_
 
-#include "engine/game_object.hpp"
+#include <Silice3D/core/game_object.hpp>
+
 #include "game_logic/explodable.hpp"
 
-class Player : public engine::GameObject, public Explodable {
+class Player : public Silice3D::GameObject, public Explodable {
  public:
-  Player(engine::GameObject* parent, const engine::Transform& initial_transform);
+  Player(Silice3D::GameObject* parent, const Silice3D::Transform& initial_transform);
 
  private:
   virtual void KeyAction(int key, int scancode, int action, int mods) override;

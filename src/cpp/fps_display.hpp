@@ -3,14 +3,13 @@
 #ifndef LOD_FPS_DISPLAY_H_
 #define LOD_FPS_DISPLAY_H_
 
-#include "statistics.hpp"
-#include "engine/scene.hpp"
-#include "engine/game_object.hpp"
+#include <Silice3D/core/scene.hpp>
+#include <Silice3D/core/game_object.hpp>
 
-class FpsDisplay : public engine::GameObject {
+class FpsDisplay : public Silice3D::GameObject {
  public:
-  explicit FpsDisplay(engine::GameObject* parent)
-      : engine::GameObject(parent)
+  explicit FpsDisplay(Silice3D::GameObject* parent)
+      : Silice3D::GameObject(parent)
       , accum_time_(scene_->camera_time().dt()) {
   }
 
@@ -34,8 +33,8 @@ class FpsDisplay : public engine::GameObject {
         // The first interval is usually much slower, remove that bias
         first_display_interval_ = false;
       } else {
-        std::cout << "Object Count: " << Statistics::object_count << std::endl;
-        std::cout << "Triangle count: " << Statistics::triangle_count << std::endl;
+        // std::cout << "Object Count: " << Statistics::object_count << std::endl;
+        // std::cout << "Triangle count: " << Statistics::triangle_count << std::endl;
         std::cout << "FPS: " << calls_ / accum_time_ << std::endl << std::endl;
         sum_frame_num_ += calls_;
         sum_time_ += accum_time_;

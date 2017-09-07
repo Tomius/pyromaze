@@ -1,16 +1,17 @@
 // Copyright (c) Tamas Csala
 
-#include "environment/border_wall.hpp"
-
 #include <lodepng.h>
+#include <Silice3D/core/game_engine.hpp>
+#include <Silice3D/physics/bullet_rigid_body.hpp>
+
 #include "main_scene.hpp"
 #include "debug/debug_texture.hpp"
-#include "engine/game_engine.hpp"
-#include "engine/physics/bullet_rigid_body.hpp"
+#include "environment/border_wall.hpp"
 
-BorderWall::BorderWall(engine::GameObject* parent, const std::string& path, const engine::Transform& initial_transform)
+
+BorderWall::BorderWall(Silice3D::GameObject* parent, const std::string& path, const Silice3D::Transform& initial_transform)
     : MeshObject(parent, path, initial_transform) {
-  AddComponent<engine::BulletRigidBody>(0.0f, GetCollisionShape(), engine::kColStatic);
+  AddComponent<Silice3D::BulletRigidBody>(0.0f, GetCollisionShape(), Silice3D::kColStatic);
 }
 
 void BorderWall::ShowYouWonScreen() {
@@ -38,7 +39,7 @@ void BorderWall::ReactToExplosion(const glm::vec3& exp_position, float exp_radiu
     ShowYouWonScreen();
     glfwSwapBuffers(scene_->window());
     auto eng = scene_->engine();
-    eng->LoadScene(std::unique_ptr<engine::Scene>{new MainScene{eng, eng->window()}});
+    eng->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{eng, eng->window()}});
   }
 }
 

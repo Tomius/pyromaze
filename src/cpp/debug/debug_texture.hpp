@@ -9,20 +9,20 @@
 #include <oglwrap/textures/texture_2D.h>
 #include <oglwrap/smart_enums.h>
 
-#include "engine/shader_manager.hpp"
+#include <Silice3D/shaders/shader_manager.hpp>
 
 class DebugTexture {
   gl::RectangleShape rect_;
-  engine::ShaderProgram prog_;
+  Silice3D::ShaderProgram prog_;
 
 public:
-  DebugTexture(engine::ShaderManager* shader_manager)
+  DebugTexture(Silice3D::ShaderManager* shader_manager)
       : rect_({gl::RectangleShape::kPosition, gl::RectangleShape::kTexCoord})
       , prog_(shader_manager->get("debug_texture.vert"),
               shader_manager->get("debug_texture.frag")) {
 
     gl::Use(prog_);
-    gl::UniformSampler(prog_, "uTex") = engine::kDiffuseTextureSlot;
+    gl::UniformSampler(prog_, "uTex") = Silice3D::kDiffuseTextureSlot;
     (prog_ | "aPosition").bindLocation(rect_.kPosition);
     (prog_ | "aTexCoord").bindLocation(rect_.kTexCoord);
     prog_.validate();
@@ -31,7 +31,7 @@ public:
 
   void Render(const gl::Texture2D& tex) {
     gl::Use(prog_);
-    gl::BindToTexUnit(tex, engine::kDiffuseTextureSlot);
+    gl::BindToTexUnit(tex, Silice3D::kDiffuseTextureSlot);
 
     gl::TemporarySet capabilies{{{gl::kCullFace, false},
                                  {gl::kDepthTest, false}}};

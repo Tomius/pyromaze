@@ -1,10 +1,11 @@
 // Copyright (c) Tamas Csala
 
+#include <Silice3D/core/scene.hpp>
+
 #include "game_logic/dynamite.hpp"
-#include "engine/scene.hpp"
 
 Dynamite::Dynamite(GameObject *parent,
-                   const engine::Transform& initial_transform,
+                   const Silice3D::Transform& initial_transform,
                    double time_to_explode)
     : MeshObject(parent, "dynamite.obj", initial_transform,
                  Optimizations::kAttribModelMat ? "dynamite_attribute_model_mat.vert"
@@ -13,7 +14,7 @@ Dynamite::Dynamite(GameObject *parent,
     , time_to_explode_(time_to_explode) {
   fire_ = AddComponent<Fire>();
   fire_->transform().set_local_pos({0, 1.25, 0});
-  AddComponent<engine::BulletRigidBody>(0.0f, GetCollisionShape(), engine::kColStatic);
+  AddComponent<Silice3D::BulletRigidBody>(0.0f, GetCollisionShape(), Silice3D::kColStatic);
 }
 
 void Dynamite::Update() {

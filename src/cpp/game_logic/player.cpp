@@ -1,15 +1,16 @@
+
+#include <lodepng.h>
+#include <Silice3D/core/scene.hpp>
+#include <Silice3D/core/game_engine.hpp>
+
+#include "debug/debug_texture.hpp"
 #include "game_logic/player.hpp"
 #include "game_logic/dynamite.hpp"
 #include "./main_scene.hpp"
 
-#include "engine/scene.hpp"
-#include "engine/game_engine.hpp"
-#include "debug/debug_texture.hpp"
-
-#include <lodepng.h>
 
 
-void ShowYouDiedScreen(engine::ShaderManager* shader_manager) {
+void ShowYouDiedScreen(Silice3D::ShaderManager* shader_manager) {
   unsigned width, height;
   std::vector<unsigned char> data;
   unsigned error = lodepng::decode(data, width, height, "src/resource/died.png", LCT_RGBA, 8);
@@ -30,13 +31,13 @@ void ShowYouDiedScreen(engine::ShaderManager* shader_manager) {
 }
 
 
-Player::Player(engine::GameObject* parent, const engine::Transform& initial_transform)
-  : engine::GameObject(parent, initial_transform)
+Player::Player(Silice3D::GameObject* parent, const Silice3D::Transform& initial_transform)
+  : Silice3D::GameObject(parent, initial_transform)
 { }
 
 void Player::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
-    engine::Transform dynamite_trafo;
+    Silice3D::Transform dynamite_trafo;
     if (key == GLFW_KEY_SPACE) {
       glm::vec3 pos = transform().pos();
       pos += 3.0f * transform().forward();
@@ -58,6 +59,6 @@ void Player::ReactToExplosion(const glm::vec3& exp_position, float exp_radius) {
     ShowYouDiedScreen(scene_->shader_manager());
     glfwSwapBuffers(scene_->window());
     auto eng = scene_->engine();
-    eng->LoadScene(std::unique_ptr<engine::Scene>{new MainScene{eng, eng->window()}});
+    eng->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{eng, eng->window()}});
   }
 }

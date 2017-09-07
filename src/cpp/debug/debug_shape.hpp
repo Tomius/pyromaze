@@ -8,15 +8,13 @@
 #include <oglwrap/shapes/cube_shape.h>
 #include <oglwrap/shapes/sphere_shape.h>
 
-#include "engine/scene.hpp"
-#include "engine/game_object.hpp"
-#include "engine/shader_manager.hpp"
+#include <Silice3D/core/scene.hpp>
+#include <Silice3D/core/game_object.hpp>
 
-namespace engine {
 namespace debug {
 
 template <typename Shape_t>
-class DebugShape : public GameObject {
+class DebugShape : public Silice3D::GameObject {
  public:
   DebugShape(GameObject* parent, const glm::vec3& color = glm::vec3());
 
@@ -25,7 +23,7 @@ class DebugShape : public GameObject {
 
  private:
   Shape_t shape_;
-  engine::ShaderProgram prog_;
+  Silice3D::ShaderProgram prog_;
   gl::LazyUniform<glm::mat4> uProjectionMatrix_, uCameraMatrix_, uModelMatrix_;
   gl::LazyUniform<glm::vec3> uColor_;
 
@@ -38,7 +36,6 @@ using DebugCube = DebugShape<gl::CubeShape>;
 using DebugSphere = DebugShape<gl::SphereShape>;
 
 }  // namespcae debug
-}  // namespace engine
 
 #include "./debug_shape-inl.hpp"
 
