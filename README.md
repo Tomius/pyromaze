@@ -1,13 +1,12 @@
 Pyromaze
 =============
 
-
-Pyromaze is a simple labyrinth escape game built on Silice3D.
+Pyromaze is an OpenGL game engine, with a simple game implemented in it.
 
 The game is about blowing up walls and enemies in a labyrinth in order to escape from it:
 ![screenshot](screenshots/dynamite.jpg)
 
-One purpose of this game is to show that Silice3D can handle pretty large scenes with a steady 60 fps, even labyrinths as big as this one:
+The game engine can handle pretty large scenes with a steady 60 fps, even labyrinths as big as this one:
 ![screenshot](screenshots/large_scene.jpg)
 
 External dependencies:
