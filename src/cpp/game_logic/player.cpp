@@ -8,8 +8,6 @@
 #include "game_logic/dynamite.hpp"
 #include "./main_scene.hpp"
 
-
-
 void ShowYouDiedScreen(Silice3D::ShaderManager* shader_manager) {
   unsigned width, height;
   std::vector<unsigned char> data;

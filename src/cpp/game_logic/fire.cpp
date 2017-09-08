@@ -65,32 +65,6 @@ void ParticleSystem::Update() {
       particles_generated_++;
     }
   }
-
-  // double ds = dt * 8;
-  // glm::dvec3 local_pos = transform().local_pos();
-  // GLFWwindow* window = scene_->window();
-
-  // glm::dvec3 forward = scene_->camera()->transform().forward();
-  // forward.y = 0;
-  // forward = normalize(forward);
-
-  // glm::dvec3 right = scene_->camera()->transform().right();
-  // right.y = 0;
-  // right = normalize(right);
-
-  // if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-  //   local_pos += forward * ds;
-  // }
-  // if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-  //   local_pos -= forward * ds;
-  // }
-  // if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-  //   local_pos += right * ds;
-  // }
-  // if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-  //   local_pos -= right * ds;
-  // }
-  // transform().set_local_pos(local_pos);
 }
 
 void ParticleSystem::Render() {

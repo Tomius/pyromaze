@@ -27,7 +27,7 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
   if (!Settings::kDetermininistic) {
     srand(time(nullptr));
   }
-  //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   { // Bullet initilization
     bt_collision_config_ = Silice3D::make_unique<btDefaultCollisionConfiguration>();

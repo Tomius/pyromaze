@@ -38,21 +38,8 @@ void Robot::Update() {
     explosion->transform().set_local_pos(transform().local_pos());
   }
 
-  Player* player = nullptr;
-  constexpr bool kAIBugFix = true;
-  if (kAIBugFix) {
-    player = player_;
-  } else {
-    scene_->EnumerateChildren(true, [&](Silice3D::GameObject* obj) {
-      Player* p = dynamic_cast<Player*>(obj);
-      if (p != nullptr) {
-        player = p;
-      }
-    });
-  }
-
-  if (player != nullptr) {
-    glm::vec3 to_player = player->transform().pos() - transform().pos();
+  if (player_ != nullptr) {
+    glm::vec3 to_player = player_->transform().pos() - transform().pos();
     if (length(to_player) > kDetectionRadius) {
       rbody_->bt_rigid_body()->setLinearVelocity({0, 0, 0});
       if (Optimizations::kSleepRobots) {
