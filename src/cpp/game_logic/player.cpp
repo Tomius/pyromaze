@@ -2,8 +2,8 @@
 #include <lodepng.h>
 #include <Silice3D/core/scene.hpp>
 #include <Silice3D/core/game_engine.hpp>
+#include <Silice3D/debug/debug_texture.hpp>
 
-#include "debug/debug_texture.hpp"
 #include "game_logic/player.hpp"
 #include "game_logic/dynamite.hpp"
 #include "./main_scene.hpp"
@@ -25,7 +25,7 @@ void ShowYouDiedScreen(Silice3D::ShaderManager* shader_manager) {
   texture.magFilter(gl::kLinear);
   gl::Unbind(texture);
 
-  DebugTexture{shader_manager}.Render(texture);
+  Silice3D::DebugTexture{shader_manager}.Render(texture);
 }
 
 

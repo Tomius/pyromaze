@@ -1,5 +1,4 @@
 #include "./main_scene.hpp"
-#include "./fps_display.hpp"
 #include "./settings.hpp"
 
 #include "environment/ground.hpp"
@@ -16,9 +15,9 @@
 #include <Silice3D/common/make_unique.hpp>
 #include <Silice3D/camera/bullet_free_fly_camera.hpp>
 #include <Silice3D/mesh/mesh_object_batch_renderer.hpp>
-
-#include "debug/debug_shape.hpp"
-#include "debug/debug_texture.hpp"
+#include <Silice3D/debug/fps_display.hpp>
+#include <Silice3D/debug/debug_shape.hpp>
+#include <Silice3D/debug/debug_texture.hpp>
 
 constexpr float kWallLength = 20;
 
@@ -84,7 +83,7 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
 
   CreateLabyrinth(player);
 
-  AddComponent<FpsDisplay>();
+  AddComponent<Silice3D::FpsDisplay>();
 }
 
 void MainScene::CreateLabyrinth(Player* player) {
@@ -132,7 +131,7 @@ void MainScene::RenderAll() {
   shadow_->End();
 
 #if 0
-  DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
+  Silice3D::DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
 #else
   gl::BindToTexUnit(shadow_->shadow_texture(), Silice3D::kShadowTextureSlot);
   Scene::RenderAll();

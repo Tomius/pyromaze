@@ -3,9 +3,9 @@
 #include <lodepng.h>
 #include <Silice3D/core/game_engine.hpp>
 #include <Silice3D/physics/bullet_rigid_body.hpp>
+#include <Silice3D/debug/debug_texture.hpp>
 
 #include "main_scene.hpp"
-#include "debug/debug_texture.hpp"
 #include "environment/border_wall.hpp"
 
 
@@ -31,7 +31,7 @@ void BorderWall::ShowYouWonScreen() {
   texture.magFilter(gl::kLinear);
   gl::Unbind(texture);
 
-  DebugTexture{scene_->shader_manager()}.Render(texture);
+  Silice3D::DebugTexture{scene_->shader_manager()}.Render(texture);
 }
 
 void BorderWall::ReactToExplosion(const glm::vec3& exp_position, float exp_radius) {
