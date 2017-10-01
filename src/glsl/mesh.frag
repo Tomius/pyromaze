@@ -12,7 +12,7 @@ varying vec2 vTexCoord;
 uniform sampler2D uDiffuseTexture;
 
 void main() {
-  vec3 lighting = DiffuseLighting(w_vPos, normalize(w_vNormal), false);
+  vec3 lighting = DiffuseLighting(w_vPos, normalize(w_vNormal), 0.0);
   vec4 color = texture2D(uDiffuseTexture, vTexCoord);
 
   gl_FragColor = vec4(PostProcess(color.rgb * lighting), color.a);

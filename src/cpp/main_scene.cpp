@@ -65,21 +65,20 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
   AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.40f}});
 
-  glm::vec4 scene_bsphere{0, 0, 0, (Settings::kLabyrinthRadius+1)*kWallLength*sqrt(2)};
-  shadow_ = AddComponent<Silice3D::Shadow>(kLightPos, scene_bsphere, 4096);
-  set_shadow_camera(shadow_);
+  shadow_ = AddComponent<Silice3D::Shadow>(kLightPos, 4096);
+  set_shadow(shadow_);
 
   AddComponent<Skybox>("src/resource/skybox.png");
 
   // must be the first object after skybox
   AddComponent<Silice3D::MeshObjectBatchRenderer>();
 
-  auto cam = AddComponent<Silice3D::BulletFreeFlyCamera>(
-      M_PI/3, 1, 2000, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
+  auto cam = AddComponent<Silice3D::/*Bullet*/FreeFlyCamera>(
+      M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
   set_camera(cam);
 
-  Silice3D::Transform playerTransform{&cam->transform()};
-  Player* player = AddComponent<Player>(playerTransform);
+  // Silice3D::Transform playerTransform{&cam->transform()};
+  Player* player = AddComponent<Player>(Silice3D::Transform{}/*playerTransform*/);
 
   CreateLabyrinth(player);
 
@@ -126,9 +125,7 @@ void MainScene::CreateLabyrinth(Player* player) {
 }
 
 void MainScene::RenderAll() {
-  shadow_->Begin();
-  Scene::ShadowRenderAll();
-  shadow_->End();
+  shadow_->FillShadowMap(this);
 
 #if 0
   auto& shadow_tex = shadow_->shadow_texture();
