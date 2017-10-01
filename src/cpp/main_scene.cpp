@@ -65,7 +65,7 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
   AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.40f}});
 
-  glm::vec4 scene_bsphere{0, 0, 0, (Settings::kLabyrinthRadius+1)*kWallLength};
+  glm::vec4 scene_bsphere{0, 0, 0, (Settings::kLabyrinthRadius+1)*kWallLength*sqrt(2)};
   shadow_ = AddComponent<Silice3D::Shadow>(kLightPos, scene_bsphere, 4096);
   set_shadow_camera(shadow_);
 
@@ -131,7 +131,11 @@ void MainScene::RenderAll() {
   shadow_->End();
 
 #if 0
-  Silice3D::DebugTexture(shader_manager()).Render(shadow_->shadow_texture());
+  auto& shadow_tex = shadow_->shadow_texture();
+  auto tex_bind = gl::MakeTemporaryBind(shadow_tex);
+  shadow_tex.compareMode(gl::kNone);
+  Silice3D::DebugTexture(shader_manager()).Render(shadow_tex);
+  shadow_tex.compareMode(gl::kCompareRefToTexture);
 #else
   gl::BindToTexUnit(shadow_->shadow_texture(), Silice3D::kShadowTextureSlot);
   Scene::RenderAll();

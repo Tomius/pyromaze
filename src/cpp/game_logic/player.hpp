@@ -14,7 +14,7 @@ class Player : public Silice3D::GameObject, public Explodable {
  private:
   virtual void KeyAction(int key, int scancode, int action, int mods) override;
 
-  virtual void ReactToExplosion(const glm::vec3& exp_position, float exp_radius) override;
+  virtual void ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) override;
 };
 
 #endif

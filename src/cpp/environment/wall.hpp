@@ -21,7 +21,7 @@ class Wall : public Silice3D::GameObject, public Explodable {
   Silice3D::BoundingBox pillars_bb_;
   Silice3D::BoundingBox walls_bb_[4];
 
-  virtual void ReactToExplosion(const glm::vec3& exp_position, float exp_radius) override;
+  virtual void ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) override;
 };
 
 #endif  // LOD_TREE_H_

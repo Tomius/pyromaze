@@ -37,23 +37,23 @@ void Player::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     Silice3D::Transform dynamite_trafo;
     if (key == GLFW_KEY_SPACE) {
-      glm::vec3 pos = transform().pos();
-      pos += 3.0f * transform().forward();
+      glm::dvec3 pos = transform().pos();
+      pos += 3.0 * transform().forward();
       dynamite_trafo.set_pos({pos.x, 0, pos.z});
-      scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Math::Rand01());
+      scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Silice3D::Math::Rand01());
     } else if (key == GLFW_KEY_F1) {
       for (int i = 0; i < 4; ++i) {
-        dynamite_trafo.set_pos({Math::Rand01()*256-128, 0, Math::Rand01()*256-128});
-        scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Math::Rand01());
+        dynamite_trafo.set_pos({Silice3D::Math::Rand01()*256-128, 0, Silice3D::Math::Rand01()*256-128});
+        scene()->AddComponent<Dynamite>(dynamite_trafo, 2.5 + 1.0*Silice3D::Math::Rand01());
       }
     }
   }
 }
 
-void Player::ReactToExplosion(const glm::vec3& exp_position, float exp_radius) {
-  glm::vec3 pos = transform().pos();
+void Player::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
+  glm::dvec3 pos = transform().pos();
   pos.y = 0;
-  if (length(pos - exp_position) < 1.2f*exp_radius) {
+  if (length(pos - exp_position) < 1.2*exp_radius) {
     ShowYouDiedScreen(scene_->shader_manager());
     glfwSwapBuffers(scene_->window());
     auto eng = scene_->engine();

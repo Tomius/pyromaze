@@ -5,7 +5,7 @@
 
 class Explodable {
 public:
-  virtual void ReactToExplosion(const glm::vec3& exp_position, float exp_radius) = 0;
+  virtual void ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) = 0;
 };
 
 #endif

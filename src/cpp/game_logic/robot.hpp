@@ -22,7 +22,7 @@ class Robot : public Silice3D::MeshObject, public Explodable {
 
   virtual void Update() override;
 
-  virtual void ReactToExplosion(const glm::vec3& exp_position, float exp_radius) override;
+  virtual void ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) override;
 };
 
 #endif

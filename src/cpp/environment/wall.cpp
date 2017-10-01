@@ -30,7 +30,7 @@ double Wall::GetLength() const {
   return pillars_bb_.extent().x;
 }
 
-void Wall::ReactToExplosion(const glm::vec3& exp_position, float exp_radius) {
+void Wall::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
   for (int i = 0; i < 4; ++i) {
     if (wall_parts_[i]) {
       if (glm::length(exp_position - walls_bb_[i].center()) < exp_radius) {

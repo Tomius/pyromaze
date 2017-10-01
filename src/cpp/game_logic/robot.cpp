@@ -27,9 +27,9 @@ void Robot::Update() {
   MeshObject::Update();
 
   constexpr bool kRobotExplodes = false;
-  constexpr float kTimeToExplode = 2.0f;
-  constexpr float kSpeed = 9.0f;
-  constexpr float kDetectionRadius = 15.0f;
+  constexpr double kTimeToExplode = 2.0f;
+  constexpr double kSpeed = 9.0f;
+  constexpr double kDetectionRadius = 15.0f;
 
   if (kRobotExplodes && activation_time_ > 0 &&
       scene_->game_time().current_time() - activation_time_ > kTimeToExplode) {
@@ -39,7 +39,7 @@ void Robot::Update() {
   }
 
   if (player_ != nullptr) {
-    glm::vec3 to_player = player_->transform().pos() - transform().pos();
+    glm::dvec3 to_player = player_->transform().pos() - transform().pos();
     if (length(to_player) > kDetectionRadius) {
       rbody_->bt_rigid_body()->setLinearVelocity({0, 0, 0});
       if (Optimizations::kSleepRobots) {
@@ -53,18 +53,18 @@ void Robot::Update() {
     if (activation_time_ < 0) {
       activation_time_ = scene_->game_time().current_time();
     }
-    glm::vec3 dir = to_player;
+    glm::dvec3 dir = to_player;
     dir.y = 0;
-    if (length(dir) > Math::kEpsilon) {
+    if (length(dir) > Silice3D::Math::kEpsilon) {
       dir = normalize(dir);
     }
-    glm::vec3 speed = kSpeed * dir;
+    glm::dvec3 speed = kSpeed * dir;
     rbody_->bt_rigid_body()->setLinearVelocity(btVector3{speed.x, speed.y, speed.z});
   }
 }
 
-void Robot::ReactToExplosion(const glm::vec3& exp_position, float exp_radius) {
-  glm::vec3 pos = transform().pos();
+void Robot::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
+  glm::dvec3 pos = transform().pos();
   pos.y = 0;
   if (length(pos - exp_position) < 1.2f*exp_radius) {
     parent_->RemoveComponent(this);

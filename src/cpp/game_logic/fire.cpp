@@ -97,28 +97,28 @@ Particle FireParticle(glm::vec3 startpos, float current_time) {
   p.pos = startpos;
 
   // Make the particles converge at (0, 4, 0)
-  p.accel = 0.5f*normalize(startpos + glm::vec3{0, 4, 0} - p.pos + 0.2f*Math::RandomDir());
-  p.speed = 0.2f*Math::RandomDir() + 4.0f*p.accel;
+  p.accel = 0.5f*normalize(startpos + glm::vec3{0, 4, 0} - p.pos + 0.2f*Silice3D::Math::RandomDir());
+  p.speed = 0.2f*Silice3D::Math::RandomDir() + 4.0f*p.accel;
 
   // 1 - 3 sec lifespan
   p.lifespan = (rand()%20) / 10.0 + 1;
 
-  p.scale = 0.025 + 0.025*Math::Rand01();
+  p.scale = 0.025 + 0.025*Silice3D::Math::Rand01();
   return p;
 }
 
 Particle ExplosionParticle(glm::vec3 startpos, float current_time) {
   Particle p;
   p.born_at = current_time;
-  p.pos = startpos + Math::RandomDir();
-  p.accel = (5.0f + 5.0f*Math::Rand01())*normalize(Math::RandomDir());
+  p.pos = startpos + Silice3D::Math::RandomDir();
+  p.accel = (5.0f + 5.0f*Silice3D::Math::Rand01())*normalize(Silice3D::Math::RandomDir());
   // p.accel.y = std::max(p.accel.y, 0.0f);
   p.speed = 2.0f*p.accel;
 
   // 0.5 - 1 sec lifespan
   p.lifespan = (rand()%5) / 10.0 + 0.5;
 
-  p.scale = 0.1 + 0.1*Math::Rand01();
+  p.scale = 0.1 + 0.1*Silice3D::Math::Rand01();
   return p;
 }
 

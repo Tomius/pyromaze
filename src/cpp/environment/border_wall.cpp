@@ -34,7 +34,7 @@ void BorderWall::ShowYouWonScreen() {
   Silice3D::DebugTexture{scene_->shader_manager()}.Render(texture);
 }
 
-void BorderWall::ReactToExplosion(const glm::vec3& exp_position, float exp_radius) {
+void BorderWall::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
   if (glm::length(exp_position - transform().pos()) < 1.2*exp_radius) {
     ShowYouWonScreen();
     glfwSwapBuffers(scene_->window());
