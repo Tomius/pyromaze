@@ -1,19 +1,22 @@
 // Copyright (c) Tamas Csala
 
-#version 120
+#version 330
 
 #include "lighting.frag"
 #include "post_process.frag"
+#include "bicubic_sampling.glsl"
 
-varying vec3 w_vPos;
-varying vec3 w_vNormal;
-varying vec2 vTexCoord;
+in vec3 w_vPos;
+in vec3 w_vNormal;
+in vec2 vTexCoord;
+
+out vec4 fragColor;
 
 uniform sampler2D uDiffuseTexture;
 
 void main() {
-  vec3 lighting = DiffuseLighting(w_vPos, normalize(w_vNormal), 0.0);
-  vec4 color = texture2D(uDiffuseTexture, vTexCoord);
+  vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal), 1.0);
+  vec4 color = texture(uDiffuseTexture, vTexCoord);
 
-  gl_FragColor = vec4(PostProcess(color.rgb * lighting), color.a);
+  fragColor = vec4(PostProcess(color.rgb * lighting), color.a);
 }

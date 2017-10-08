@@ -60,12 +60,13 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
     }
     gl::Uniform<int>(prog, "uDirectionalLightCount") = dir_light_count;
     gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
+    gl::Uniform<glm::vec3>(prog, "w_uCamPos") = glm::vec3{scene()->camera()->transform().pos()};
   });
 
   const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.40f}});
+  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.50f}});
 
-  shadow_ = AddComponent<Silice3D::Shadow>(kLightPos, 4096);
+  shadow_ = AddComponent<Silice3D::Shadow>(kLightPos, 1 << 13);
   set_shadow(shadow_);
 
   AddComponent<Skybox>("src/resource/skybox.png");

@@ -4,6 +4,7 @@
 
 #include "lighting.frag"
 #include "post_process.frag"
+#include "bicubic_sampling.glsl"
 
 in vec3 w_vPos;
 in vec3 w_vNormal;
@@ -11,38 +12,53 @@ in vec2 vTexCoord;
 
 uniform sampler2DArrayShadow uShadowMap;
 uniform sampler2D uDiffuseTexture;
-#define kCascadesCount 4
+#define kCascadesCount 3
 uniform mat4 uShadowCP[kCascadesCount];
 
 #define DEBUG_VISUALIZATION_OF_CASCADES 0
 
 out vec4 fragColor;
 
-void main() {
-  vec4 color = texture2D(uDiffuseTexture, vTexCoord);
+vec4 GetShadowCoord(int cascade_num) {
+  vec4 shadow_coord = uShadowCP[cascade_num] * vec4(w_vPos, 1.0);
+  shadow_coord.xyz /= shadow_coord.w;
+  shadow_coord.z -= 0.002;
+  shadow_coord.xyz = (shadow_coord.xyz + 1) * 0.5;
+  return vec4(shadow_coord.xy, cascade_num, shadow_coord.z);
+}
 
-  int layer = 0;
-  vec4 shadow_coord = vec4(0.0);
-  const float kShadowBorder = 0.9; // border of shadow coordinates utilazed area
+void main() {
+  vec4 color = textureBicubic(uDiffuseTexture, vTexCoord);
+
+  int cascade_num = 0;
+  float alpha = 0.0;
+  const float kShadowBorder = 1.0; // border of shadow coordinates' utilized area
+  const float kBlendingStart = 0.8;
   for (int i = 0; i < kCascadesCount; ++i) {
-    shadow_coord = uShadowCP[i] * vec4(w_vPos, 1.0);
+    vec4 shadow_coord = uShadowCP[i] * vec4(w_vPos, 1.0);
     shadow_coord.xyz /= shadow_coord.w;
-    if (i == kCascadesCount - 1 || (abs(shadow_coord.x) < kShadowBorder &&
-                                    abs(shadow_coord.y) < kShadowBorder &&
-                                    abs(shadow_coord.z) < kShadowBorder)) {
-      layer = i;
+    float max_coord = max(max(abs(shadow_coord.x), abs(shadow_coord.y)), abs(shadow_coord.z));
+    if (i == kCascadesCount - 1 || max_coord < kShadowBorder) {
+      cascade_num = i;
+      alpha = clamp((max_coord - kBlendingStart) / (kShadowBorder - kBlendingStart), 0.0, 1.0);
       break;
     }
   }
 
-  shadow_coord.z -= 0.001;
-  shadow_coord.xyz = (shadow_coord.xyz + 1) * 0.5;
-  float visibility = texture(uShadowMap, vec4(shadow_coord.xy, layer, shadow_coord.z));
+  int next_cascade_num = min(cascade_num+1, kCascadesCount - 1);
+  int next_next_cascade_num = min(cascade_num+2, kCascadesCount - 1);
 
-  vec3 lighting = DiffuseLighting(w_vPos, normalize(w_vNormal), visibility);
+  // if two cascade nums are the same, then the texture calls will use the exact same
+  // shadowCoord, so the fetched texel will come from cache, which is practically for free
+  float current_visibility = textureBicubic(uShadowMap, GetShadowCoord (cascade_num));
+  float next_visibility = textureBicubic(uShadowMap, GetShadowCoord (next_cascade_num));
+  float next_next_visibility = textureBicubic(uShadowMap, GetShadowCoord (next_next_cascade_num));
+  float visibility = mix(current_visibility*next_visibility, next_visibility*next_next_visibility, alpha);
+
+  vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal), visibility);
 
 #if DEBUG_VISUALIZATION_OF_CASCADES
-  switch (layer) {
+  switch (cascade_num) {
     case 0: color = vec4(1, 0, 0, 1); break;
     case 1: color = vec4(0, 1, 0, 1); break;
     case 2: color = vec4(0, 0, 1, 1); break;
