@@ -73,12 +73,12 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
   // must be the first object after skybox
   AddComponent<Silice3D::MeshObjectBatchRenderer>();
 
-  auto cam = AddComponent<Silice3D::/*Bullet*/FreeFlyCamera>(
+  player_camera_ = AddComponent<Silice3D::BulletFreeFlyCamera>(
       M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
-  set_camera(cam);
+  set_camera(player_camera_);
 
-  // Silice3D::Transform playerTransform{&cam->transform()};
-  Player* player = AddComponent<Player>(Silice3D::Transform{}/*playerTransform*/);
+  Silice3D::Transform playerTransform{&player_camera_->transform()};
+  Player* player = AddComponent<Player>(playerTransform);
 
   CreateLabyrinth(player);
 
@@ -142,7 +142,26 @@ void MainScene::RenderAll() {
 
 void MainScene::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS && key == GLFW_KEY_F2) {
-    auto eng = scene_->engine();
+    auto eng = engine();
     eng->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{eng, eng->window()}});
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_TAB) {
+    static bool frozen = false;
+    frozen = !frozen;
+
+    if (frozen) {
+      // freeze the scene now
+      game_time().Stop();
+      Silice3D::ICamera* free_fly_cam = AddComponent<Silice3D::FreeFlyCamera>(
+        M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength,
+        player_camera_->transform().pos(),
+        player_camera_->transform().pos() + player_camera_->transform().forward(),
+        16, 10);
+      set_camera(free_fly_cam);
+    } else {
+      // unfreeze the scene now
+      game_time().Start();
+      RemoveComponent(camera());
+      set_camera(player_camera_);
+    }
   }
 }

@@ -11,6 +11,7 @@ class MainScene : public Silice3D::Scene {
   MainScene(Silice3D::GameEngine* engine, GLFWwindow* window);
 
  private:
+  Silice3D::ICamera* player_camera_;
   Silice3D::Shadow* shadow_;
 
   void CreateLabyrinth(Player* player);
