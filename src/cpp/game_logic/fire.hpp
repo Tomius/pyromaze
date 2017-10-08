@@ -47,24 +47,24 @@ class ParticleSystem : public Silice3D::GameObject {
 class Fire : public ParticleSystem {
 public:
   Fire(GameObject* parent);
-  ~Fire();
 
 private:
   unsigned lightid_;
 
   virtual void Update() override;
+  virtual void RemovedFromScene() override;
 };
 
 class Explosion : public ParticleSystem {
 public:
   Explosion(GameObject* parent);
-  ~Explosion();
 
 private:
   unsigned lightid_;
   float born_at_;
 
   virtual void Update() override;
+  virtual void RemovedFromScene() override;
 };
 
 #endif

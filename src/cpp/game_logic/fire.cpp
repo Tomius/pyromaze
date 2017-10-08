@@ -130,13 +130,13 @@ Fire::Fire(GameObject* parent)
                                      glm::vec3{2.0}});
 }
 
-Fire::~Fire() {
-  scene_->RemoveLightSource(lightid_);
-}
-
 void Fire::Update() {
   scene_->GetLightSource(lightid_).position = transform().pos();
   ParticleSystem::Update();
+}
+
+void Fire::RemovedFromScene() {
+  scene_->RemoveLightSource(lightid_);
 }
 
 Explosion::Explosion(GameObject* parent)
@@ -145,10 +145,6 @@ Explosion::Explosion(GameObject* parent)
                                      transform().pos(),
                                      glm::vec3{0.0}});
   born_at_ = scene_->game_time().current_time();
-}
-
-Explosion::~Explosion() {
-  scene_->RemoveLightSource(lightid_);
 }
 
 void Explosion::Update() {
@@ -173,4 +169,8 @@ void Explosion::Update() {
   scene_->GetLightSource(lightid_).color = glm::vec3{lightness};
   scene_->GetLightSource(lightid_).position = transform().pos();
   ParticleSystem::Update();
+}
+
+void Explosion::RemovedFromScene() {
+  scene_->RemoveLightSource(lightid_);
 }
