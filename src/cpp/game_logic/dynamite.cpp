@@ -7,9 +7,7 @@
 Dynamite::Dynamite(GameObject *parent,
                    const Silice3D::Transform& initial_transform,
                    double time_to_explode)
-    : MeshObject(parent, "dynamite.obj", initial_transform,
-                 Optimizations::kAttribModelMat ? "dynamite_attribute_model_mat.vert"
-                                                : "dynamite_uniform_model_mat.vert")
+    : MeshObject(parent, "dynamite.obj", initial_transform, "dynamite.vert")
     , spawn_time_(scene_->game_time().current_time())
     , time_to_explode_(time_to_explode) {
   fire_ = AddComponent<Fire>();

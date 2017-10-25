@@ -1,3 +1,4 @@
+// Copyright (c) Tamas Csala
 
 #include <lodepng.h>
 #include <Silice3D/core/scene.hpp>

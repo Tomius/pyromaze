@@ -1,3 +1,5 @@
+// Copyright (c) Tamas Csala
+
 #ifndef FIRE_HPP_
 #define FIRE_HPP_
 

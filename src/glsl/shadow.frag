@@ -1,7 +1,9 @@
 // Copyright (c) Tamas Csala
 
-#version 120
+#version 330 core
+
+out vec4 fragColor;
 
 void main() {
-  gl_FragColor = vec4(1.0);
+  fragColor = vec4(1.0);
 }

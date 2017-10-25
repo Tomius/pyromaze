@@ -1,18 +1,24 @@
 // Copyright (c) Tamas Csala
 
-#version 120
+#version 330 core
+#extension GL_ARB_bindless_texture : require
 
 #export vec3 CalculateLighting(vec3 position, vec3 normal, float visibility);
 
+#define kMaxCascadesCount 3
+
 struct DirectionalLightSource {
   vec3 direction, color;
+  uvec2 shadowMapId; // sampler2DArrayShadow
+  mat4 shadowCP[kMaxCascadesCount];
+  int cascades_count;
 };
 
 struct PointLightSource {
   vec3 position, color;
 };
 
-#define MAX_LIGHTS 100
+#define MAX_LIGHTS 32 // TODO: Uniform buffer
 uniform DirectionalLightSource uDirectionalLights[MAX_LIGHTS];
 uniform int uDirectionalLightCount;
 

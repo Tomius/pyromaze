@@ -1,3 +1,5 @@
+// Copyright (c) Tamas Csala
+
 #ifndef SCENES_MAIN_SCENE_HPP_
 #define SCENES_MAIN_SCENE_HPP_
 

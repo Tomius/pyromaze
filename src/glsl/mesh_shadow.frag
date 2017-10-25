@@ -1,6 +1,7 @@
 // Copyright (c) Tamas Csala
 
-#version 130
+#version 330 core
+#extension GL_ARB_bindless_texture : require
 
 #include "lighting.frag"
 #include "post_process.frag"
@@ -10,8 +11,8 @@ in vec3 w_vPos;
 in vec3 w_vNormal;
 in vec2 vTexCoord;
 
-uniform sampler2DArrayShadow uShadowMap;
-uniform sampler2D uDiffuseTexture;
+uniform uvec2 uShadowMapId;
+uniform uvec2 uDiffuseTextureId;
 #define kCascadesCount 3
 uniform mat4 uShadowCP[kCascadesCount];
 
@@ -28,7 +29,7 @@ vec4 GetShadowCoord(int cascade_num) {
 }
 
 void main() {
-  vec4 color = textureBicubic(uDiffuseTexture, vTexCoord);
+  vec4 color = textureBicubic(sampler2D(uDiffuseTextureId), vTexCoord);
 
   int cascade_num = 0;
   float alpha = 0.0;
@@ -50,9 +51,10 @@ void main() {
 
   // if two cascade nums are the same, then the texture calls will use the exact same
   // shadowCoord, so the fetched texel will come from cache, which is practically for free
-  float current_visibility = textureBicubic(uShadowMap, GetShadowCoord (cascade_num));
-  float next_visibility = textureBicubic(uShadowMap, GetShadowCoord (next_cascade_num));
-  float next_next_visibility = textureBicubic(uShadowMap, GetShadowCoord (next_next_cascade_num));
+  sampler2DArrayShadow shadowMap = sampler2DArrayShadow(uShadowMapId);
+  float current_visibility = textureBicubic(shadowMap, GetShadowCoord (cascade_num));
+  float next_visibility = textureBicubic(shadowMap, GetShadowCoord (next_cascade_num));
+  float next_next_visibility = textureBicubic(shadowMap, GetShadowCoord (next_next_cascade_num));
   float visibility = mix(current_visibility*next_visibility, next_visibility*next_next_visibility, alpha);
 
   vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal), visibility);

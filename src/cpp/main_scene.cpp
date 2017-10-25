@@ -1,3 +1,5 @@
+// Copyright (c) Tamas Csala
+
 #include "./main_scene.hpp"
 #include "./settings.hpp"
 
