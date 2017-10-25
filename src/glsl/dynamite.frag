@@ -1,13 +1,12 @@
 // Copyright (c) Tamas Csala
 
 #version 330 core
-#extension GL_ARB_bindless_texture : require
 
 in vec3 c_vPos;
 in vec3 w_vNormal;
 in vec2 vTexCoord;
 
-uniform uvec2 uDiffuseTextureId;
+uniform sampler2D uDiffuseTexture;
 
 out vec4 fragColor;
 
@@ -16,7 +15,7 @@ void main() {
   float dot_value = dot(normalize(w_vNormal), fake_light_pos);
   vec3 fake_lighting = mix(vec3(0.09), vec3(0.9), (1 + dot_value)/2);
 
-  vec4 color = texture2D(uDiffuseTextureId, vTexCoord);
+  vec4 color = texture2D(uDiffuseTexture, vTexCoord);
 
   fragColor = vec4(color.rgb * fake_lighting, color.a);
 }
