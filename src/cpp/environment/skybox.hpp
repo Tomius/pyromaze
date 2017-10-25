@@ -1,3 +1,5 @@
+// Copyright (c) Tamas Csala
+
 #ifndef SKYBOX_HPP_
 #define SKYBOX_HPP_
 

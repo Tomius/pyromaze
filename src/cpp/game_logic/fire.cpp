@@ -1,3 +1,5 @@
+// Copyright (c) Tamas Csala
+
 #include <Silice3D/common/math.hpp>
 #include <Silice3D/core/scene.hpp>
 
