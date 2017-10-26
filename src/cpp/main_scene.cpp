@@ -41,24 +41,42 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
     bt_world_->setGravity(btVector3(0, -9.81, 0));
   }
 
-  const glm::vec3 lightPos = glm::normalize(glm::vec3{1.0});
-  const glm::vec3 lightColor {0.50f};
-  const size_t shadow_map_size = 1 << 13;
-  const size_t shadow_cascades_count = 3;
-  Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
-      lightColor, shadow_map_size, shadow_cascades_count);
-  light_source->transform().set_pos(lightPos);
-
   AddComponent<Skybox>("src/resource/skybox.png");
 
   // must be the first object after skybox
   AddComponent<Silice3D::MeshObjectBatchRenderer>();
 
-  player_camera_ = AddComponent<Silice3D::BulletFreeFlyCamera>(
+  cameras_ = AddComponent<Silice3D::GameObject>();
+
+  player_camera_ = cameras_->AddComponent<Silice3D::BulletFreeFlyCamera>(
       M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
   set_camera(player_camera_);
 
   Player* player = player_camera_->AddComponent<Player>();
+
+  // Shadows must be added after the cameras (update order!)
+  const glm::vec3 lightPos = glm::normalize(glm::vec3{1.0});
+  const glm::vec3 lightColor {0.50f};
+  const size_t shadow_map_size = 1 << 11;
+  const size_t shadow_cascades_count = 4;
+  constexpr bool multiLight = false;
+  if (multiLight) {
+    Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
+      glm::vec3{0, 1.0f, 0}, shadow_map_size, shadow_cascades_count);
+    light_source->transform().set_pos(lightPos);
+
+    Silice3D::DirectionalLightSource* light_source2 = AddComponent<Silice3D::DirectionalLightSource>(
+        glm::vec3{0, 0, 1.0f}, shadow_map_size, shadow_cascades_count);
+    light_source2->transform().set_pos(glm::vec3{-lightPos.x, lightPos.y, lightPos.z});
+
+    Silice3D::DirectionalLightSource* light_source3 = AddComponent<Silice3D::DirectionalLightSource>(
+        glm::vec3{1.0f, 0.0f, 0}, shadow_map_size, shadow_cascades_count);
+    light_source3->transform().set_pos(glm::vec3{-lightPos.x, lightPos.y, -lightPos.z});
+  } else {
+    Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
+      lightColor, shadow_map_size, shadow_cascades_count);
+    light_source->transform().set_pos(lightPos);
+  }
 
   CreateLabyrinth(player);
 
@@ -115,7 +133,7 @@ void MainScene::KeyAction(int key, int scancode, int action, int mods) {
     if (frozen) {
       // freeze the scene now
       game_time().Stop();
-      Silice3D::ICamera* free_fly_cam = AddComponent<Silice3D::FreeFlyCamera>(
+      Silice3D::ICamera* free_fly_cam = cameras_->AddComponent<Silice3D::FreeFlyCamera>(
         M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength,
         player_camera_->transform().pos(),
         player_camera_->transform().pos() + player_camera_->transform().forward(),
@@ -124,7 +142,7 @@ void MainScene::KeyAction(int key, int scancode, int action, int mods) {
     } else {
       // unfreeze the scene now
       game_time().Start();
-      RemoveComponent(camera());
+      cameras_->RemoveComponent(camera());
       set_camera(player_camera_);
     }
   }

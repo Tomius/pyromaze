@@ -138,7 +138,7 @@ void Fire::Update() {
 
 Explosion::Explosion(GameObject* parent)
     : ParticleSystem(parent, ExplosionParticle, 2800, 0, 3000) {
-  glm::vec3 color = glm::vec3{100.0f};
+  glm::vec3 color = glm::vec3{1.0f};
   glm::vec3 attenuation = glm::vec3{1, 0.1, 0.1};
   light_source = AddComponent<Silice3D::PointLightSource>(color, attenuation);
   born_at_ = scene_->game_time().current_time();
@@ -162,7 +162,7 @@ void Explosion::Update() {
       }
     });
   }
-  float lightness = std::min(std::pow(100000, 1.0f-sqrt(life_time)), 100.0);
+  float lightness = std::min(std::pow(100000, 1.0-sqrt(life_time)), 100.0);
   light_source->set_color(glm::vec3{lightness});
   ParticleSystem::Update();
 }

@@ -7,7 +7,7 @@
 
 #export vec3 CalculateLighting(vec3 position, vec3 normal);
 
-#define kMaxCascadesCount 3
+#define kMaxCascadesCount 5
 #define DEBUG_VISUALIZATION_OF_CASCADES 0
 
 struct DirectionalLightSource {
@@ -40,18 +40,18 @@ float GetSpecularPower(vec3 position, vec3 normal, vec3 light_dir, float shinine
   return pow(max(dot(half_vector, normal), 0.0f), shininess);
 }
 
-vec4 GetShadowCoord(vec3 position, int lightNum, int cascade_num) {
-  vec4 shadow_coord = uDirectionalLights[lightNum].shadowCP[cascade_num] * vec4(position, 1.0);
+vec4 GetShadowCoord(vec3 position, int lightNum, int selected_cascade) {
+  vec4 shadow_coord = uDirectionalLights[lightNum].shadowCP[selected_cascade] * vec4(position, 1.0);
   shadow_coord.xyz /= shadow_coord.w;
-  shadow_coord.z -= 0.002;
+  shadow_coord.z -= 0.0001 * pow(3, selected_cascade);
   shadow_coord.xyz = (shadow_coord.xyz + 1) * 0.5;
-  return vec4(shadow_coord.xy, cascade_num, shadow_coord.z);
+  return vec4(shadow_coord.xy, selected_cascade, shadow_coord.z);
 }
 
 vec3 CalculateLighting(vec3 position, vec3 normal) {
   vec3 sum_lighting = vec3(0.0);
   const float kShininess = 16;
-  const float kAmbientPower = 0.2;
+  float kAmbientPower = 0.05;
 
   for (int i = 0; i < min(uDirectionalLightCount, MAX_LIGHTS); ++i) {
     vec3 light_dir = uDirectionalLights[i].direction;
@@ -59,41 +59,29 @@ vec3 CalculateLighting(vec3 position, vec3 normal) {
     float diffuse_power = GetDiffusePower(normal, light_dir);
     float specular_power = GetSpecularPower(position, normal, light_dir, kShininess);
 
+    int selected_cascade = 0;
     float shadow_mult = 1.0;
     int cascades_count = uDirectionalLights[i].cascades_count;
     if (cascades_count > 0) {
       // Visibility
-      float alpha = 0.0;
-      int cascade_num = 0;
-      const float kShadowBorder = 1.0; // border of shadow coordinates' utilized area
-      const float kBlendingStart = 0.8;
       for (int j = 0; j < cascades_count; ++j) {
         vec4 shadow_coord = uDirectionalLights[i].shadowCP[j] * vec4(position, 1.0);
         shadow_coord.xyz /= shadow_coord.w;
         float max_coord = max(max(abs(shadow_coord.x), abs(shadow_coord.y)), abs(shadow_coord.z));
-        if (i == cascades_count - 1 || max_coord < kShadowBorder) {
-          cascade_num = j;
-          alpha = clamp((max_coord - kBlendingStart) / (kShadowBorder - kBlendingStart), 0.0, 1.0);
+        if (i == cascades_count - 1 || max_coord < 1.0) {
+          selected_cascade = j;
           break;
         }
       }
 
-      int next_cascade_num = min(cascade_num+1, cascades_count - 1);
-      int next_next_cascade_num = min(cascade_num+2, cascades_count - 1);
-
-      // if two cascade nums are the same, then the texture calls will use the exact same
-      // shadowCoord, so the fetched texel will come from cache, which is practically for free
       sampler2DArrayShadow shadowMap = sampler2DArrayShadow(uDirectionalLights[i].shadowMapId);
-      float current_visibility = textureBicubic(shadowMap, GetShadowCoord (position, i, cascade_num));
-      float next_visibility = textureBicubic(shadowMap, GetShadowCoord (position, i, next_cascade_num));
-      float next_next_visibility = textureBicubic(shadowMap, GetShadowCoord (position, i, next_next_cascade_num));
-      float visibility = mix(current_visibility*next_visibility, next_visibility*next_next_visibility, alpha);
+      float visibility = textureBicubic(shadowMap, GetShadowCoord (position, i, selected_cascade));
       shadow_mult = (visibility*0.95 + 0.05);
     }
 
     vec3 lightColor = uDirectionalLights[i].color;
     #if DEBUG_VISUALIZATION_OF_CASCADES
-    switch (cascade_num) {
+    switch (selected_cascade) {
       case 0: lightColor = vec3(1, 0, 0); break;
       case 1: lightColor = vec3(0, 1, 0); break;
       case 2: lightColor = vec3(0, 0, 1); break;

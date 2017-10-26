@@ -36,6 +36,7 @@ void Robot::Update() {
     parent()->RemoveComponent(this);
     GameObject* explosion = parent()->AddComponent<Explosion>();
     explosion->transform().set_local_pos(transform().local_pos());
+    return;
   }
 
   if (player_ != nullptr) {
