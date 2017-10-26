@@ -30,8 +30,8 @@ void ShowYouDiedScreen(Silice3D::ShaderManager* shader_manager) {
 }
 
 
-Player::Player(Silice3D::GameObject* parent, const Silice3D::Transform& initial_transform)
-  : Silice3D::GameObject(parent, initial_transform)
+Player::Player(Silice3D::GameObject* parent)
+  : Silice3D::GameObject(parent)
 { }
 
 void Player::KeyAction(int key, int scancode, int action, int mods) {

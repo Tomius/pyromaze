@@ -41,35 +41,13 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
     bt_world_->setGravity(btVector3(0, -9.81, 0));
   }
 
-  shader_manager()->get("lighting.frag")->set_update_func([this](const gl::Program& prog) {
-    // gl::Use(prog);
-    int dir_light_count = 0, pos_light_count = 0;
-    for (const auto& pair : light_sources_) {
-      const LightSource& light = pair.second;
-      if (light.type == LightSource::Type::kPoint) {
-        std::string uniform_name = "uPointLights[";
-        uniform_name += std::to_string(pos_light_count++);
-        uniform_name += "]";
-        gl::Uniform<glm::vec3>(prog, uniform_name + ".position") = light.position;
-        gl::Uniform<glm::vec3>(prog, uniform_name + ".color") = light.color;
-      } else if (light.type == LightSource::Type::kDirectional) {
-        std::string uniform_name = "uDirectionalLights[";
-        uniform_name += std::to_string(dir_light_count++);
-        uniform_name += "]";
-        gl::Uniform<glm::vec3>(prog, uniform_name + ".direction") = light.position;
-        gl::Uniform<glm::vec3>(prog, uniform_name + ".color") = light.color;
-      }
-    }
-    gl::Uniform<int>(prog, "uDirectionalLightCount") = dir_light_count;
-    gl::Uniform<int>(prog, "uPointLightCount") = pos_light_count;
-    gl::Uniform<glm::vec3>(prog, "w_uCamPos") = glm::vec3{scene()->camera()->transform().pos()};
-  });
-
-  const glm::vec3 kLightPos = glm::normalize(glm::vec3{1.0});
-  AddLightSource({LightSource::Type::kDirectional, kLightPos, glm::vec3{0.50f}});
-
-  shadow_ = AddComponent<Silice3D::Shadow>(kLightPos, 1 << 13);
-  set_shadow(shadow_);
+  const glm::vec3 lightPos = glm::normalize(glm::vec3{1.0});
+  const glm::vec3 lightColor {0.50f};
+  const size_t shadow_map_size = 1 << 13;
+  const size_t shadow_cascades_count = 3;
+  Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
+      lightColor, shadow_map_size, shadow_cascades_count);
+  light_source->transform().set_pos(lightPos);
 
   AddComponent<Skybox>("src/resource/skybox.png");
 
@@ -80,8 +58,7 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
       M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
   set_camera(player_camera_);
 
-  Silice3D::Transform playerTransform{&player_camera_->transform()};
-  Player* player = AddComponent<Player>(playerTransform);
+  Player* player = player_camera_->AddComponent<Player>();
 
   CreateLabyrinth(player);
 
@@ -125,22 +102,6 @@ void MainScene::CreateLabyrinth(Player* player) {
       envir->AddComponent<BorderWall>("wall/bigwall2.obj", wall_transform);
     }
   }
-}
-
-void MainScene::RenderAll() {
-  shadow_->FillShadowMap(this);
-
-#if 0
-  auto& shadow_tex = shadow_->shadow_texture();
-  auto tex_bind = gl::MakeTemporaryBind(shadow_tex);
-  shadow_tex.compareMode(gl::kNone);
-  Silice3D::DebugTexture(shader_manager()).Render(shadow_tex);
-  shadow_tex.compareMode(gl::kCompareRefToTexture);
-#else
-  gl::BindToTexUnit(shadow_->shadow_texture(), Silice3D::kShadowTextureSlot);
-  Scene::RenderAll();
-  gl::UnbindFromTexUnit(shadow_->shadow_texture(), Silice3D::kShadowTextureSlot);
-#endif
 }
 
 void MainScene::KeyAction(int key, int scancode, int action, int mods) {

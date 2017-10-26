@@ -64,5 +64,4 @@ void Dynamite::Update() {
       break;
     }
   }
-
 }

@@ -9,7 +9,7 @@
 
 class Player : public Silice3D::GameObject, public Explodable {
  public:
-  Player(Silice3D::GameObject* parent, const Silice3D::Transform& initial_transform);
+  Player(Silice3D::GameObject* parent);
 
  private:
   virtual void KeyAction(int key, int scancode, int action, int mods) override;

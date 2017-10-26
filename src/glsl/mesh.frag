@@ -15,7 +15,7 @@ out vec4 fragColor;
 uniform sampler2D uDiffuseTexture;
 
 void main() {
-  vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal), 1.0);
+  vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal));
   vec4 color = texture(uDiffuseTexture, vTexCoord);
 
   fragColor = vec4(PostProcess(color.rgb * lighting), color.a);

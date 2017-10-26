@@ -51,10 +51,7 @@ public:
   Fire(GameObject* parent);
 
 private:
-  unsigned lightid_;
-
   virtual void Update() override;
-  virtual void RemovedFromScene() override;
 };
 
 class Explosion : public ParticleSystem {
@@ -62,11 +59,10 @@ public:
   Explosion(GameObject* parent);
 
 private:
-  unsigned lightid_;
+  Silice3D::PointLightSource* light_source = nullptr;
   float born_at_;
 
   virtual void Update() override;
-  virtual void RemovedFromScene() override;
 };
 
 #endif

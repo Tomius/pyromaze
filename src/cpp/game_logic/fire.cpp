@@ -127,25 +127,20 @@ Particle ExplosionParticle(glm::vec3 startpos, float current_time) {
 
 Fire::Fire(GameObject* parent)
     : ParticleSystem(parent, FireParticle, 1000, 200) {
-  lightid_ = scene_->AddLightSource({LightSource::Type::kPoint,
-                                     transform().pos(),
-                                     glm::vec3{2.0}});
+  glm::vec3 color = glm::vec3{2.0f};
+  glm::vec3 attenuation = glm::vec3{1, 0.1, 0.1};
+  AddComponent<Silice3D::PointLightSource>(color, attenuation);
 }
 
 void Fire::Update() {
-  scene_->GetLightSource(lightid_).position = transform().pos();
   ParticleSystem::Update();
-}
-
-void Fire::RemovedFromScene() {
-  scene_->RemoveLightSource(lightid_);
 }
 
 Explosion::Explosion(GameObject* parent)
     : ParticleSystem(parent, ExplosionParticle, 2800, 0, 3000) {
-  lightid_ = scene_->AddLightSource({LightSource::Type::kPoint,
-                                     transform().pos(),
-                                     glm::vec3{0.0}});
+  glm::vec3 color = glm::vec3{100.0f};
+  glm::vec3 attenuation = glm::vec3{1, 0.1, 0.1};
+  light_source = AddComponent<Silice3D::PointLightSource>(color, attenuation);
   born_at_ = scene_->game_time().current_time();
 }
 
@@ -168,11 +163,6 @@ void Explosion::Update() {
     });
   }
   float lightness = std::min(std::pow(100000, 1.0f-sqrt(life_time)), 100.0);
-  scene_->GetLightSource(lightid_).color = glm::vec3{lightness};
-  scene_->GetLightSource(lightid_).position = transform().pos();
+  light_source->set_color(glm::vec3{lightness});
   ParticleSystem::Update();
-}
-
-void Explosion::RemovedFromScene() {
-  scene_->RemoveLightSource(lightid_);
 }
