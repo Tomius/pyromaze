@@ -43,8 +43,8 @@ float GetSpecularPower(vec3 position, vec3 normal, vec3 light_dir, float shinine
 vec4 GetShadowCoord(vec3 position, int lightNum, int selected_cascade) {
   vec4 shadow_coord = uDirectionalLights[lightNum].shadowCP[selected_cascade] * vec4(position, 1.0);
   shadow_coord.xyz /= shadow_coord.w;
-  shadow_coord.z -= 0.0001 * pow(3, selected_cascade);
-  shadow_coord.xyz = (shadow_coord.xyz + 1) * 0.5;
+  shadow_coord.z -= 0.00008 * pow(2, selected_cascade);
+  shadow_coord.xy = (shadow_coord.xy + 1) * 0.5;
   return vec4(shadow_coord.xy, selected_cascade, shadow_coord.z);
 }
 
@@ -68,8 +68,8 @@ vec3 CalculateLighting(vec3 position, vec3 normal) {
       for (int j = 0; j < cascades_count; ++j) {
         vec4 shadow_coord = uDirectionalLights[i].shadowCP[j] * vec4(position, 1.0);
         shadow_coord.xyz /= shadow_coord.w;
-        float max_coord = max(max(abs(shadow_coord.x), abs(shadow_coord.y)), abs(shadow_coord.z));
-        if (i == cascades_count - 1 || max_coord < 1.0) {
+        float max_coord = max(max(abs(shadow_coord.x), abs(shadow_coord.y)), shadow_coord.z);
+        if (i == cascades_count - 1 || (max_coord < 1.0 && 0.0 < shadow_coord.z)) {
           selected_cascade = j;
           alpha = smoothstep(0.8, 1.0, max_coord);
           break;
