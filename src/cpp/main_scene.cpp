@@ -23,12 +23,12 @@
 
 constexpr float kWallLength = 20;
 
-MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
-    : Scene(engine, window) {
+MainScene::MainScene(Silice3D::GameEngine* engine)
+    : Scene(engine) {
   if (!Settings::kDetermininistic) {
     srand(time(nullptr));
   }
-  // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   { // Bullet initilization
     bt_collision_config_ = Silice3D::make_unique<btDefaultCollisionConfiguration>();
@@ -124,8 +124,7 @@ void MainScene::CreateLabyrinth(Player* player) {
 
 void MainScene::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS && key == GLFW_KEY_F2) {
-    auto eng = engine();
-    eng->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{eng, eng->window()}});
+    engine()->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{engine()}});
   } else if (action == GLFW_PRESS && key == GLFW_KEY_TAB) {
     static bool frozen = false;
     frozen = !frozen;

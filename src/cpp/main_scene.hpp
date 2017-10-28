@@ -9,7 +9,7 @@ class Player;
 
 class MainScene : public Silice3D::Scene {
  public:
-  MainScene(Silice3D::GameEngine* engine, GLFWwindow* window);
+  MainScene(Silice3D::GameEngine* engine);
 
  private:
   Silice3D::GameObject* cameras_;

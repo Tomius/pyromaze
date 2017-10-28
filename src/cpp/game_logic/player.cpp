@@ -57,7 +57,7 @@ void Player::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius)
   if (length(pos - exp_position) < 1.2*exp_radius) {
     ShowYouDiedScreen(scene_->shader_manager());
     glfwSwapBuffers(scene_->window());
-    auto eng = scene_->engine();
-    eng->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{eng, eng->window()}});
+    Silice3D::GameEngine* engine = scene_->engine();
+    engine->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{engine}});
   }
 }

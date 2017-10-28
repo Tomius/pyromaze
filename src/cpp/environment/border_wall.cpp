@@ -38,8 +38,8 @@ void BorderWall::ReactToExplosion(const glm::dvec3& exp_position, double exp_rad
   if (glm::length(exp_position - transform().GetPos()) < 1.2*exp_radius) {
     ShowYouWonScreen();
     glfwSwapBuffers(scene_->window());
-    auto eng = scene_->engine();
-    eng->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{eng, eng->window()}});
+    Silice3D::GameEngine* engine = scene_->engine();
+    engine->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{engine}});
   }
 }
 
