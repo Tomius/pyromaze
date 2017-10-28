@@ -7,7 +7,7 @@
 
 #export vec3 CalculateLighting(vec3 position, vec3 normal);
 
-#define kMaxCascadesCount 5
+#define kMaxCascadesCount 4
 #define DEBUG_VISUALIZATION_OF_CASCADES 0
 
 struct DirectionalLightSource {
@@ -64,18 +64,22 @@ vec3 CalculateLighting(vec3 position, vec3 normal) {
     int cascades_count = uDirectionalLights[i].cascades_count;
     if (cascades_count > 0) {
       // Visibility
+      float alpha = 0.0;
       for (int j = 0; j < cascades_count; ++j) {
         vec4 shadow_coord = uDirectionalLights[i].shadowCP[j] * vec4(position, 1.0);
         shadow_coord.xyz /= shadow_coord.w;
         float max_coord = max(max(abs(shadow_coord.x), abs(shadow_coord.y)), abs(shadow_coord.z));
         if (i == cascades_count - 1 || max_coord < 1.0) {
           selected_cascade = j;
+          alpha = smoothstep(0.8, 1.0, max_coord);
           break;
         }
       }
 
       sampler2DArrayShadow shadowMap = sampler2DArrayShadow(uDirectionalLights[i].shadowMapId);
-      float visibility = textureBicubic(shadowMap, GetShadowCoord (position, i, selected_cascade));
+      float current_visibility = texture(shadowMap, GetShadowCoord (position, i, selected_cascade));
+      float next_visibility = texture(shadowMap, GetShadowCoord (position, i, min(selected_cascade+1, cascades_count-1)));
+      float visibility = mix(current_visibility, next_visibility, alpha);
       shadow_mult = (visibility*0.95 + 0.05);
     }
 
