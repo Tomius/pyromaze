@@ -61,14 +61,14 @@ Skybox::Skybox(GameObject* parent, const std::string& path)
 
 void Skybox::Render() {
   gl::Use(prog_);
-  prog_.update();
+  prog_.Update();
 
   auto cam = scene_->camera();
-  uCameraMatrix_ = glm::mat3(cam->cameraMatrix());
-  uProjectionMatrix_ = cam->projectionMatrix();
+  uCameraMatrix_ = glm::mat3(cam->GetCameraMatrix());
+  uProjectionMatrix_ = cam->GetProjectionMatrix();
 
   gl::TemporaryDisable depth_test{gl::kDepthTest};
-  gl::TemporaryEnable cubemapSeamless{gl::kTextureCubeMapSeamless};
+  gl::TemporaryEnable cubemap_seamless{gl::kTextureCubeMapSeamless};
 
   gl::BindToTexUnit(texture_, Silice3D::kDiffuseTextureSlot);
   gl::DepthMask(false);

@@ -35,7 +35,7 @@ void BorderWall::ShowYouWonScreen() {
 }
 
 void BorderWall::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
-  if (glm::length(exp_position - transform().pos()) < 1.2*exp_radius) {
+  if (glm::length(exp_position - transform().GetPos()) < 1.2*exp_radius) {
     ShowYouWonScreen();
     glfwSwapBuffers(scene_->window());
     auto eng = scene_->engine();

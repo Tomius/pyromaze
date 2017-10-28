@@ -39,8 +39,8 @@ ParticleSystem::ParticleSystem(GameObject* parent, ParticleGen generator,
 }
 
 void ParticleSystem::Update() {
-  float current_time = scene_->game_time().current_time();
-  float dt = scene_->game_time().dt();
+  float current_time = scene_->game_time().GetCurrentTime();
+  float dt = scene_->game_time().GetDeltaTime();
   newParticlesToSpawn_ += dt * max_particle_per_sec_;
 
   if (max_particle_count_ >= particles_generated_) {
@@ -62,7 +62,7 @@ void ParticleSystem::Update() {
     } else if (newParticlesToSpawn_ >= 1 &&
                (max_particle_count_ < 0 ||
                 particles_generated_ < max_particle_count_)) {
-      particle = generator_(transform().pos(), current_time);
+      particle = generator_(transform().GetPos(), current_time);
       --newParticlesToSpawn_;
       particles_generated_++;
     }
@@ -71,13 +71,13 @@ void ParticleSystem::Update() {
 
 void ParticleSystem::Render() {
   gl::Use(prog_);
-  prog_.update();
+  prog_.Update();
 
   auto cam = scene_->camera();
-  uCameraMatrix_ = cam->cameraMatrix();
-  uProjectionMatrix_ = cam->projectionMatrix();
+  uCameraMatrix_ = cam->GetCameraMatrix();
+  uProjectionMatrix_ = cam->GetProjectionMatrix();
 
-  float current_time = scene_->game_time().current_time();
+  float current_time = scene_->game_time().GetCurrentTime();
 
   gl::TemporaryEnable blend{gl::kBlend};
   gl::BlendFunc(gl::kSrcAlpha, gl::kOneMinusSrcAlpha);
@@ -141,15 +141,15 @@ Explosion::Explosion(GameObject* parent)
   glm::vec3 color = glm::vec3{1.0f};
   glm::vec3 attenuation = glm::vec3{1, 0.1, 0.1};
   light_source = AddComponent<Silice3D::PointLightSource>(color, attenuation);
-  born_at_ = scene_->game_time().current_time();
+  born_at_ = scene_->game_time().GetCurrentTime();
 }
 
 void Explosion::Update() {
-  float current_time = scene_->game_time().current_time();
+  float current_time = scene_->game_time().GetCurrentTime();
   for (Particle& particle : particles_) {
     if (!particle.IsAlive(current_time) && rand()%8 == 0 &&
         particles_generated_ < max_particle_count_) {
-      particle = generator_(transform().pos(), current_time);
+      particle = generator_(transform().GetPos(), current_time);
       particles_generated_++;
     }
   }
@@ -158,7 +158,7 @@ void Explosion::Update() {
     scene_->EnumerateChildren(true, [&](Silice3D::GameObject* obj) {
       Explodable* explodable = dynamic_cast<Explodable*>(obj);
       if (explodable != nullptr) {
-        explodable->ReactToExplosion(transform().pos(), 10);
+        explodable->ReactToExplosion(transform().GetPos(), 10);
       }
     });
   }

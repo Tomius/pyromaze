@@ -63,19 +63,19 @@ MainScene::MainScene(Silice3D::GameEngine* engine, GLFWwindow* window)
   if (multiLight) {
     Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
       glm::vec3{0, 1.0f, 0}, shadow_map_size, shadow_cascades_count);
-    light_source->transform().set_pos(lightPos);
+    light_source->transform().SetPos(lightPos);
 
     Silice3D::DirectionalLightSource* light_source2 = AddComponent<Silice3D::DirectionalLightSource>(
         glm::vec3{0, 0, 1.0f}, shadow_map_size, shadow_cascades_count);
-    light_source2->transform().set_pos(glm::vec3{-lightPos.x, lightPos.y, lightPos.z});
+    light_source2->transform().SetPos(glm::vec3{-lightPos.x, lightPos.y, lightPos.z});
 
     Silice3D::DirectionalLightSource* light_source3 = AddComponent<Silice3D::DirectionalLightSource>(
         glm::vec3{1.0f, 0.0f, 0}, shadow_map_size, shadow_cascades_count);
-    light_source3->transform().set_pos(glm::vec3{-lightPos.x, lightPos.y, -lightPos.z});
+    light_source3->transform().SetPos(glm::vec3{-lightPos.x, lightPos.y, -lightPos.z});
   } else {
     Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
       lightColor, shadow_map_size, shadow_cascades_count);
-    light_source->transform().set_pos(lightPos);
+    light_source->transform().SetPos(lightPos);
   }
 
   CreateLabyrinth(player);
@@ -91,13 +91,13 @@ void MainScene::CreateLabyrinth(Player* player) {
   for (int x = -Settings::kLabyrinthRadius; x <= Settings::kLabyrinthRadius; ++x) {
     for (int z = -Settings::kLabyrinthRadius; z <= Settings::kLabyrinthRadius; ++z) {
       Silice3D::Transform wall_transform;
-      wall_transform.set_local_pos({x * kWallLength, -0.5, z * kWallLength});
+      wall_transform.SetLocalPos({x * kWallLength, -0.5, z * kWallLength});
       envir->AddComponent<Wall>(wall_transform);
 
       if ((abs(x) > 1 || abs(z) > 1) && x != Settings::kLabyrinthRadius
           && z != Settings::kLabyrinthRadius && rand()%2 == 0) {
         Silice3D::Transform robot_transform;
-        robot_transform.set_local_pos({x * kWallLength + kWallLength/2.0, 3,
+        robot_transform.SetLocalPos({x * kWallLength + kWallLength/2.0, 3,
                                        z * kWallLength + kWallLength/2.0});
         envir->AddComponent<Robot>(robot_transform, player);
       }
@@ -108,7 +108,7 @@ void MainScene::CreateLabyrinth(Player* player) {
   for (int z = -kBorderRadius; z <= kBorderRadius; z += 2*kBorderRadius) {
     for (int x = -kBorderRadius; x <= kBorderRadius; ++x) {
       Silice3D::Transform wall_transform;
-      wall_transform.set_local_pos({x * kWallLength, -0.5, z * kWallLength});
+      wall_transform.SetLocalPos({x * kWallLength, -0.5, z * kWallLength});
       envir->AddComponent<BorderWall>("wall/bigwall1.obj", wall_transform);
     }
   }
@@ -116,7 +116,7 @@ void MainScene::CreateLabyrinth(Player* player) {
   for (int x = -kBorderRadius; x <= kBorderRadius; x += 2*kBorderRadius) {
     for (int z = -kBorderRadius; z <= kBorderRadius; ++z) {
       Silice3D::Transform wall_transform;
-      wall_transform.set_local_pos({x * kWallLength, -0.5, z * kWallLength});
+      wall_transform.SetLocalPos({x * kWallLength, -0.5, z * kWallLength});
       envir->AddComponent<BorderWall>("wall/bigwall2.obj", wall_transform);
     }
   }
@@ -135,8 +135,8 @@ void MainScene::KeyAction(int key, int scancode, int action, int mods) {
       game_time().Stop();
       Silice3D::ICamera* free_fly_cam = cameras_->AddComponent<Silice3D::FreeFlyCamera>(
         M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength,
-        player_camera_->transform().pos(),
-        player_camera_->transform().pos() + player_camera_->transform().forward(),
+        player_camera_->transform().GetPos(),
+        player_camera_->transform().GetPos() + player_camera_->transform().GetForward(),
         16, 10);
       set_camera(free_fly_cam);
     } else {

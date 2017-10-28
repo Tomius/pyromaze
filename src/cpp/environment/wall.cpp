@@ -27,13 +27,13 @@ Silice3D::BoundingBox Wall::GetBoundingBox() const {
 }
 
 double Wall::GetLength() const {
-  return pillars_bb_.extent().x;
+  return pillars_bb_.GetExtent().x;
 }
 
 void Wall::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
   for (int i = 0; i < 4; ++i) {
     if (wall_parts_[i]) {
-      if (glm::length(exp_position - walls_bb_[i].center()) < exp_radius) {
+      if (glm::length(exp_position - walls_bb_[i].GetCenter()) < exp_radius) {
         RemoveComponent(wall_parts_[i]);
         wall_parts_[i] = nullptr;
       }
