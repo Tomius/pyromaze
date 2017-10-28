@@ -3,8 +3,7 @@
 #ifndef DYNAMITE_HPP_
 #define DYNAMITE_HPP_
 
-#include <glad/glad.h>
-#include <oglwrap/oglwrap.h>
+#include <Silice3D/common/oglwrap.hpp>
 #include <Silice3D/mesh/mesh_object.hpp>
 
 #include "game_logic/fire.hpp"

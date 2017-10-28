@@ -3,8 +3,7 @@
 #ifndef FIRE_HPP_
 #define FIRE_HPP_
 
-#include <glad/glad.h>
-#include <oglwrap/oglwrap.h>
+#include <Silice3D/common/oglwrap.hpp>
 #include <oglwrap/shapes/cube_shape.h>
 
 #include <Silice3D/core/game_object.hpp>

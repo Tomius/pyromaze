@@ -1,7 +1,6 @@
 // Copyright (c) Tamas Csala
 
-#include <glad/glad.h>
-#include <oglwrap/oglwrap.h>
+#include <Silice3D/common/oglwrap.hpp>
 
 #include "./wall.hpp"
 
