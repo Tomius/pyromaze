@@ -21,11 +21,12 @@ struct PointLightSource {
   vec3 position, color;
 };
 
-#define MAX_LIGHTS 32 // TODO: Uniform buffer
-uniform DirectionalLightSource uDirectionalLights[MAX_LIGHTS];
+#define MAX_DIR_LIGHTS 16 // TODO: Uniform buffer
+uniform DirectionalLightSource uDirectionalLights[MAX_DIR_LIGHTS];
 uniform int uDirectionalLightCount;
 
-uniform PointLightSource uPointLights[MAX_LIGHTS];
+#define MAX_POINT_LIGHTS 128 // TODO: Uniform buffer
+uniform PointLightSource uPointLights[MAX_POINT_LIGHTS];
 uniform int uPointLightCount;
 
 uniform vec3 w_uCamPos;
@@ -43,7 +44,7 @@ float GetSpecularPower(vec3 position, vec3 normal, vec3 light_dir, float shinine
 vec4 GetShadowCoord(vec3 position, int lightNum, int selected_cascade) {
   vec4 shadow_coord = uDirectionalLights[lightNum].shadowCP[selected_cascade] * vec4(position, 1.0);
   shadow_coord.xyz /= shadow_coord.w;
-  shadow_coord.z -= 0.00008 * pow(2, selected_cascade);
+  shadow_coord.z -= 0.00007 * pow(2.1, selected_cascade);
   shadow_coord.xy = (shadow_coord.xy + 1) * 0.5;
   return vec4(shadow_coord.xy, selected_cascade, shadow_coord.z);
 }
@@ -53,7 +54,7 @@ vec3 CalculateLighting(vec3 position, vec3 normal) {
   const float kShininess = 16;
   float kAmbientPower = 0.05;
 
-  for (int i = 0; i < min(uDirectionalLightCount, MAX_LIGHTS); ++i) {
+  for (int i = 0; i < min(uDirectionalLightCount, MAX_DIR_LIGHTS); ++i) {
     vec3 light_dir = uDirectionalLights[i].direction;
 
     float diffuse_power = GetDiffusePower(normal, light_dir);
@@ -97,7 +98,7 @@ vec3 CalculateLighting(vec3 position, vec3 normal) {
     sum_lighting += (kAmbientPower + shadow_mult*(diffuse_power + specular_power)) * lightColor;
   }
 
-  for (int i = 0; i < min(uPointLightCount, MAX_LIGHTS); ++i) {
+  for (int i = 0; i < min(uPointLightCount, MAX_POINT_LIGHTS); ++i) {
     vec3 light_dir = uPointLights[i].position-position;
 
     float diffuse_power = GetDiffusePower(normal, light_dir);

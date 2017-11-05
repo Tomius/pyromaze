@@ -28,6 +28,7 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
   if (!Settings::kDetermininistic) {
     srand(time(nullptr));
   }
+
   // glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   { // Bullet initilization
@@ -59,8 +60,8 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
   const glm::vec3 lightColor {0.50f};
   const size_t shadow_map_size = 1 << 11;
   const size_t shadow_cascades_count = 4;
-  constexpr bool multiLight = false;
-  if (multiLight) {
+  constexpr bool multi_directional_light = false;
+  if (multi_directional_light) {
     Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
       glm::vec3{0, 1.0f, 0}, shadow_map_size, shadow_cascades_count);
     light_source->transform().SetPos(lightPos);
@@ -76,6 +77,18 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
     Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
       lightColor, shadow_map_size, shadow_cascades_count);
     light_source->transform().SetPos(lightPos);
+  }
+
+  constexpr bool multi_point_light = false;
+  if (multi_point_light) {
+    for (int i = 0; i < 100; ++i) {
+      glm::vec3 color = glm::vec3{Silice3D::Math::Rand01()*0.5 + 0.5, Silice3D::Math::Rand01()*0.5 + 0.5, Silice3D::Math::Rand01()*0.5 + 0.5} * 5.0f;
+      glm::vec3 pos = glm::vec3{Silice3D::Math::Rand01() - 0.5f, 0, Silice3D::Math::Rand01() - 0.5f} * (Settings::kLabyrinthDiameter*kWallLength);
+      pos.y = kWallLength / 2.0;
+      glm::vec3 attenuation = glm::vec3{0.2, 0.1, 0.1};
+      Silice3D::PointLightSource* light_source = AddComponent<Silice3D::PointLightSource>(color, attenuation);
+      light_source->transform().SetPos(pos);
+    }
   }
 
   CreateLabyrinth(player);
