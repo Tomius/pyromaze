@@ -31,14 +31,14 @@ void BorderWall::ShowYouWonScreen() {
   texture.magFilter(gl::kLinear);
   gl::Unbind(texture);
 
-  Silice3D::DebugTexture{scene_->shader_manager()}.Render(texture);
+  Silice3D::DebugTexture{GetScene()->GetShaderManager()}.Render(texture);
 }
 
 void BorderWall::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
-  if (glm::length(exp_position - transform().GetPos()) < 1.2*exp_radius) {
+  if (glm::length(exp_position - GetTransform().GetPos()) < 1.2*exp_radius) {
     ShowYouWonScreen();
-    glfwSwapBuffers(scene_->window());
-    Silice3D::GameEngine* engine = scene_->engine();
+    glfwSwapBuffers(GetScene()->GetWindow());
+    Silice3D::GameEngine* engine = GetScene()->GetEngine();
     engine->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{engine}});
   }
 }

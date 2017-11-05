@@ -19,7 +19,7 @@ Robot::Robot(Silice3D::GameObject* parent, const Silice3D::Transform& initial_tr
   restrains.z_rot_lock = 1;
   rbody_->set_restrains(restrains);
   rbody_->bt_rigid_body()->setGravity(btVector3{0, 0, 0});
-  btScalar dtime = scene_->game_time().GetCurrentTime() + 1e10f;
+  btScalar dtime = scene_->GetGameTime().GetCurrentTime() + 1e10f;
   rbody_->bt_rigid_body()->setDeactivationTime(dtime);
 }
 
@@ -32,25 +32,25 @@ void Robot::Update() {
   constexpr double kDetectionRadius = 15.0f;
 
   if (kRobotExplodes && activation_time_ > 0 &&
-      scene_->game_time().GetCurrentTime() - activation_time_ > kTimeToExplode) {
-    parent()->RemoveComponent(this);
-    GameObject* explosion = parent()->AddComponent<Explosion>();
-    explosion->transform().SetLocalPos(transform().GetLocalPos());
+      scene_->GetGameTime().GetCurrentTime() - activation_time_ > kTimeToExplode) {
+    GetParent()->RemoveComponent(this);
+    GameObject* explosion = GetParent()->AddComponent<Explosion>();
+    explosion->GetTransform().SetLocalPos(GetTransform().GetLocalPos());
     return;
   }
 
   if (player_ != nullptr) {
-    glm::dvec3 to_player = player_->transform().GetPos() - transform().GetPos();
+    glm::dvec3 to_player = player_->GetTransform().GetPos() - GetTransform().GetPos();
     if (length(to_player) > kDetectionRadius) {
       rbody_->bt_rigid_body()->setLinearVelocity({0, 0, 0});
-      btScalar dtime = scene_->game_time().GetCurrentTime() + 1e10f;
+      btScalar dtime = scene_->GetGameTime().GetCurrentTime() + 1e10f;
       rbody_->bt_rigid_body()->setDeactivationTime(dtime);
       return;
     }
 
     rbody_->bt_rigid_body()->activate();
     if (activation_time_ < 0) {
-      activation_time_ = scene_->game_time().GetCurrentTime();
+      activation_time_ = scene_->GetGameTime().GetCurrentTime();
     }
     glm::dvec3 dir = to_player;
     dir.y = 0;
@@ -63,7 +63,7 @@ void Robot::Update() {
 }
 
 void Robot::ReactToExplosion(const glm::dvec3& exp_position, double exp_radius) {
-  glm::dvec3 pos = transform().GetPos();
+  glm::dvec3 pos = GetTransform().GetPos();
   pos.y = 0;
   if (length(pos - exp_position) < 1.2f*exp_radius) {
     parent_->RemoveComponent(this);

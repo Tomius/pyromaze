@@ -8,10 +8,10 @@ Dynamite::Dynamite(GameObject *parent,
                    const Silice3D::Transform& initial_transform,
                    double time_to_explode)
     : MeshObject(parent, "dynamite.obj", initial_transform, "dynamite.vert")
-    , spawn_time_(scene_->game_time().GetCurrentTime())
+    , spawn_time_(scene_->GetGameTime().GetCurrentTime())
     , time_to_explode_(time_to_explode) {
   fire_ = AddComponent<Fire>();
-  fire_->transform().SetLocalPos({0, 1.25, 0});
+  fire_->GetTransform().SetLocalPos({0, 1.25, 0});
   AddComponent<Silice3D::BulletRigidBody>(0.0f, GetCollisionShape(), Silice3D::kColStatic);
 }
 
@@ -43,11 +43,11 @@ void Dynamite::Update() {
     b.first = cumulativeDist / sumDist;
   }
 
-  double current_phase = (scene_->game_time().GetCurrentTime() - spawn_time_) / time_to_explode_;
+  double current_phase = (scene_->GetGameTime().GetCurrentTime() - spawn_time_) / time_to_explode_;
   if (current_phase > 1) {
-    parent()->RemoveComponent(this);
-    GameObject* explosion = parent()->AddComponent<Explosion>();
-    explosion->transform().SetLocalPos(transform().GetLocalPos());
+    GetParent()->RemoveComponent(this);
+    GameObject* explosion = GetParent()->AddComponent<Explosion>();
+    explosion->GetTransform().SetLocalPos(GetTransform().GetLocalPos());
     return;
   }
 
@@ -57,7 +57,7 @@ void Dynamite::Update() {
       auto& b = positions[i+1];
       glm::vec3 fire_pos = glm::mix(a.second, b.second,
                                     (current_phase-a.first)/(b.first-a.first));
-      fire_->transform().SetLocalPos(fire_pos);
+      fire_->GetTransform().SetLocalPos(fire_pos);
       gl::Use(renderer_->shadow_recieve_prog());
       gl::Uniform<glm::vec3>(renderer_->shadow_recieve_prog(), "uFirePos") = fire_pos;
       gl::Unuse(renderer_->shadow_recieve_prog());

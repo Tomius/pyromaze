@@ -31,17 +31,6 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
 
   // glfwSetInputMode(window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-  { // Bullet initilization
-    bt_collision_config_ = Silice3D::make_unique<btDefaultCollisionConfiguration>();
-    bt_dispatcher_ = Silice3D::make_unique<btCollisionDispatcher>(bt_collision_config_.get());
-    bt_broadphase_ = Silice3D::make_unique<btDbvtBroadphase>();
-    bt_solver_ = Silice3D::make_unique<btSequentialImpulseConstraintSolver>();
-    bt_world_ = Silice3D::make_unique<btDiscreteDynamicsWorld>(
-        bt_dispatcher_.get(), bt_broadphase_.get(),
-        bt_solver_.get(), bt_collision_config_.get());
-    bt_world_->setGravity(btVector3(0, -9.81, 0));
-  }
-
   AddComponent<Skybox>("src/resource/skybox.png");
 
   // must be the first object after skybox
@@ -51,7 +40,7 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
 
   player_camera_ = cameras_->AddComponent<Silice3D::BulletFreeFlyCamera>(
       M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength, glm::vec3(16, 3, 8), glm::vec3(10, 3, 8), 16, 10);
-  set_camera(player_camera_);
+  SetCamera(player_camera_);
 
   Player* player = player_camera_->AddComponent<Player>();
 
@@ -64,19 +53,19 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
   if (multi_directional_light) {
     Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
       glm::vec3{0, 1.0f, 0}, shadow_map_size, shadow_cascades_count);
-    light_source->transform().SetPos(lightPos);
+    light_source->GetTransform().SetPos(lightPos);
 
     Silice3D::DirectionalLightSource* light_source2 = AddComponent<Silice3D::DirectionalLightSource>(
         glm::vec3{0, 0, 1.0f}, shadow_map_size, shadow_cascades_count);
-    light_source2->transform().SetPos(glm::vec3{-lightPos.x, lightPos.y, lightPos.z});
+    light_source2->GetTransform().SetPos(glm::vec3{-lightPos.x, lightPos.y, lightPos.z});
 
     Silice3D::DirectionalLightSource* light_source3 = AddComponent<Silice3D::DirectionalLightSource>(
         glm::vec3{1.0f, 0.0f, 0}, shadow_map_size, shadow_cascades_count);
-    light_source3->transform().SetPos(glm::vec3{-lightPos.x, lightPos.y, -lightPos.z});
+    light_source3->GetTransform().SetPos(glm::vec3{-lightPos.x, lightPos.y, -lightPos.z});
   } else {
     Silice3D::DirectionalLightSource* light_source = AddComponent<Silice3D::DirectionalLightSource>(
       lightColor, shadow_map_size, shadow_cascades_count);
-    light_source->transform().SetPos(lightPos);
+    light_source->GetTransform().SetPos(lightPos);
   }
 
   constexpr bool multi_point_light = false;
@@ -87,7 +76,7 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
       pos.y = kWallLength / 2.0;
       glm::vec3 attenuation = glm::vec3{0.2, 0.1, 0.1};
       Silice3D::PointLightSource* light_source = AddComponent<Silice3D::PointLightSource>(color, attenuation);
-      light_source->transform().SetPos(pos);
+      light_source->GetTransform().SetPos(pos);
     }
   }
 
@@ -95,6 +84,15 @@ MainScene::MainScene(Silice3D::GameEngine* engine)
 
   AddComponent<Silice3D::FpsDisplay>();
 }
+
+class NoUpdateGameObject : public Silice3D::GameObject {
+public:
+  using GameObject::GameObject;
+
+  virtual void UpdateAll() override {
+    return;
+  }
+};
 
 void MainScene::CreateLabyrinth(Player* player) {
   auto envir = AddComponent<GameObject>();
@@ -137,25 +135,25 @@ void MainScene::CreateLabyrinth(Player* player) {
 
 void MainScene::KeyAction(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS && key == GLFW_KEY_F2) {
-    engine()->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{engine()}});
+    GetEngine()->LoadScene(std::unique_ptr<Silice3D::Scene>{new MainScene{GetEngine()}});
   } else if (action == GLFW_PRESS && key == GLFW_KEY_TAB) {
     static bool frozen = false;
     frozen = !frozen;
 
     if (frozen) {
       // freeze the scene now
-      game_time().Stop();
+      GetGameTime().Stop();
       Silice3D::ICamera* free_fly_cam = cameras_->AddComponent<Silice3D::FreeFlyCamera>(
         M_PI/3, 1, Settings::kLabyrinthDiameter*kWallLength,
-        player_camera_->transform().GetPos(),
-        player_camera_->transform().GetPos() + player_camera_->transform().GetForward(),
+        player_camera_->GetTransform().GetPos(),
+        player_camera_->GetTransform().GetPos() + player_camera_->GetTransform().GetForward(),
         16, 10);
-      set_camera(free_fly_cam);
+      SetCamera(free_fly_cam);
     } else {
       // unfreeze the scene now
-      game_time().Start();
-      cameras_->RemoveComponent(camera());
-      set_camera(player_camera_);
+      GetGameTime().Start();
+      cameras_->RemoveComponent(GetCamera());
+      SetCamera(player_camera_);
     }
   }
 }

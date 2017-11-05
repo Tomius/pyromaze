@@ -8,8 +8,8 @@
 Skybox::Skybox(GameObject* parent, const std::string& path)
     : GameObject(parent)
     , cube_({gl::CubeShape::kPosition})
-    , prog_{scene_->shader_manager()->get("skybox.vert"),
-            scene_->shader_manager()->get("skybox.frag")}
+    , prog_{GetScene()->GetShaderManager()->get("skybox.vert"),
+            GetScene()->GetShaderManager()->get("skybox.frag")}
     , uProjectionMatrix_(prog_, "uProjectionMatrix")
     , uCameraMatrix_(prog_, "uCameraMatrix") {
 
@@ -63,7 +63,7 @@ void Skybox::Render() {
   gl::Use(prog_);
   prog_.Update();
 
-  auto cam = scene_->camera();
+  auto cam = GetScene()->GetCamera();
   uCameraMatrix_ = glm::mat3(cam->GetCameraMatrix());
   uProjectionMatrix_ = cam->GetProjectionMatrix();
 
