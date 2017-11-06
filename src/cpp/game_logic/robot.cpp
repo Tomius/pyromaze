@@ -19,8 +19,7 @@ Robot::Robot(Silice3D::GameObject* parent, const Silice3D::Transform& initial_tr
   restrains.z_rot_lock = 1;
   rbody_->set_restrains(restrains);
   rbody_->bt_rigid_body()->setGravity(btVector3{0, 0, 0});
-  btScalar dtime = scene_->GetGameTime().GetCurrentTime() + 1e10f;
-  rbody_->bt_rigid_body()->setDeactivationTime(dtime);
+  rbody_->bt_rigid_body()->setActivationState(WANTS_DEACTIVATION);
 }
 
 void Robot::Update() {
@@ -43,8 +42,7 @@ void Robot::Update() {
     glm::dvec3 to_player = player_->GetTransform().GetPos() - GetTransform().GetPos();
     if (length(to_player) > kDetectionRadius) {
       rbody_->bt_rigid_body()->setLinearVelocity({0, 0, 0});
-      btScalar dtime = scene_->GetGameTime().GetCurrentTime() + 1e10f;
-      rbody_->bt_rigid_body()->setDeactivationTime(dtime);
+      rbody_->bt_rigid_body()->setActivationState(WANTS_DEACTIVATION);
       return;
     }
 
