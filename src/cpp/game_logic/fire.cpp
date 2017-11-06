@@ -163,6 +163,6 @@ void Explosion::Update() {
     });
   }
   float lightness = std::min(std::pow(100000, 1.0-sqrt(life_time)), 100.0);
-  light_source->set_color(glm::vec3{lightness});
+  light_source->SetColor(glm::vec3{lightness});
   ParticleSystem::Update();
 }
