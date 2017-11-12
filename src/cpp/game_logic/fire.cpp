@@ -19,7 +19,7 @@ ParticleSystem::ParticleSystem(GameObject* parent, ParticleGen generator,
                                int max_particles_at_once, int max_particle_per_sec,
                                int max_particle_count)
     : GameObject(parent)
-    , cube_({gl::CubeShape::kPosition})
+    , cube_({gl::CubeShape::kPosition, gl::CubeShape::kNormal})
     , prog_{GetScene()->GetShaderManager()->GetShader("fire.vert"),
             GetScene()->GetShaderManager()->GetShader("fire.frag")}
     , uProjectionMatrix_(prog_, "uProjectionMatrix")
@@ -33,6 +33,7 @@ ParticleSystem::ParticleSystem(GameObject* parent, ParticleGen generator,
   gl::Use(prog_);
   prog_.validate();
   (prog_ | "aPosition").bindLocation(cube_.kPosition);
+  (prog_ | "aNormal").bindLocation(cube_.kNormal);
 
   particles_.resize(max_particles_at_once_);
   gl::Unuse(prog_);

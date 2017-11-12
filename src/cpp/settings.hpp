@@ -11,10 +11,10 @@ enum class SceneComplexity {
   kVeryLow, kLow, kMedium, kHigh, kVeryHigh, kMega, kUltra, kWtf
 };
 
-constexpr SceneComplexity kSceneComplexity = SceneComplexity::kMedium;
+constexpr SceneComplexity kSceneComplexity = SceneComplexity::kVeryLow;
 
 constexpr int kLabyrinthRadius =
-  kSceneComplexity == SceneComplexity::kVeryLow  ? 2 :
+  kSceneComplexity == SceneComplexity::kVeryLow  ? 3 :
   kSceneComplexity == SceneComplexity::kLow      ? 5 :
   kSceneComplexity == SceneComplexity::kMedium   ? 8 :
   kSceneComplexity == SceneComplexity::kHigh     ? 12 :
