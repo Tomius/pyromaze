@@ -16,6 +16,6 @@ out vec4 fragColor;
 
 void main() {
   vec4 color = texture(uDiffuseTexture, vTexCoord);
-  vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal));
+  vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal), true);
   fragColor = vec4(PostProcess(color.rgb * lighting), color.a);
 }
