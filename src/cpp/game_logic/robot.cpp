@@ -17,9 +17,9 @@ Robot::Robot(Silice3D::GameObject* parent, const Silice3D::Transform& initial_tr
   restrains.x_rot_lock = 1;
   restrains.y_rot_lock = 1;
   restrains.z_rot_lock = 1;
-  rbody_->set_restrains(restrains);
-  rbody_->bt_rigid_body()->setGravity(btVector3{0, 0, 0});
-  rbody_->bt_rigid_body()->setActivationState(WANTS_DEACTIVATION);
+  rbody_->SetRestrains(restrains);
+  rbody_->GetBtRigidBody()->setGravity(btVector3{0, 0, 0});
+  rbody_->GetBtRigidBody()->setActivationState(WANTS_DEACTIVATION);
 }
 
 void Robot::Update() {
@@ -41,12 +41,12 @@ void Robot::Update() {
   if (player_ != nullptr) {
     glm::dvec3 to_player = player_->GetTransform().GetPos() - GetTransform().GetPos();
     if (length(to_player) > kDetectionRadius) {
-      rbody_->bt_rigid_body()->setLinearVelocity({0, 0, 0});
-      rbody_->bt_rigid_body()->setActivationState(WANTS_DEACTIVATION);
+      rbody_->GetBtRigidBody()->setLinearVelocity({0, 0, 0});
+      rbody_->GetBtRigidBody()->setActivationState(WANTS_DEACTIVATION);
       return;
     }
 
-    rbody_->bt_rigid_body()->activate();
+    rbody_->GetBtRigidBody()->activate();
     if (activation_time_ < 0) {
       activation_time_ = scene_->GetGameTime().GetCurrentTime();
     }
@@ -56,7 +56,7 @@ void Robot::Update() {
       dir = normalize(dir);
     }
     glm::dvec3 speed = kSpeed * dir;
-    rbody_->bt_rigid_body()->setLinearVelocity(btVector3{speed.x, speed.y, speed.z});
+    rbody_->GetBtRigidBody()->setLinearVelocity(btVector3{speed.x, speed.y, speed.z});
   }
 }
 
