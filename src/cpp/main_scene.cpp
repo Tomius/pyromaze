@@ -89,7 +89,7 @@ class NoUpdateGameObject : public Silice3D::GameObject {
 public:
   using GameObject::GameObject;
 
-  virtual void UpdateAll() override {
+  virtual void UpdateRecursive() override {
     return;
   }
 };

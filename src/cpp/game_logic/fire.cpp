@@ -20,8 +20,8 @@ ParticleSystem::ParticleSystem(GameObject* parent, ParticleGen generator,
                                int max_particle_count)
     : GameObject(parent)
     , cube_({gl::CubeShape::kPosition})
-    , prog_{GetScene()->GetShaderManager()->get("fire.vert"),
-            GetScene()->GetShaderManager()->get("fire.frag")}
+    , prog_{GetScene()->GetShaderManager()->GetShader("fire.vert"),
+            GetScene()->GetShaderManager()->GetShader("fire.frag")}
     , uProjectionMatrix_(prog_, "uProjectionMatrix")
     , uCameraMatrix_(prog_, "uCameraMatrix")
     , uModelMatrix_{prog_, "uModelMatrix"}
