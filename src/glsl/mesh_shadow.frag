@@ -15,7 +15,8 @@ uniform sampler2D uDiffuseTexture;
 out vec4 fragColor;
 
 void main() {
-  vec4 color = texture(uDiffuseTexture, vTexCoord);
-  vec3 lighting = CalculateLighting(w_vPos, normalize(w_vNormal), true);
-  fragColor = vec4(PostProcess(color.rgb * lighting), color.a);
+  vec3 diffuse_color = texture(uDiffuseTexture, vTexCoord).rgb;
+  vec3 output_color = Silice3D_CalculateLighting(w_vPos, normalize(w_vNormal), true,
+                                                 diffuse_color, diffuse_color, 16);
+  fragColor = vec4(PostProcess(output_color), 1.0);
 }
