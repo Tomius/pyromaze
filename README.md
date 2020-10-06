@@ -32,7 +32,3 @@ Controls:
 * mouse: camera direction
 * space: put down dynamite
 
-
-----------------------
-If you have any problem, please post in the issues tab or mail me at icyplusplus@gmail.com. Any feedback would be appreciated.
-
